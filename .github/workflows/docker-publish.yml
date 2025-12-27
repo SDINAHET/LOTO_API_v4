@@ -305,7 +305,7 @@ jobs:
 
       - name: Build and push backend image
         run: |
-          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/loto_api_v2_backend
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/loto_api_v4_backend
           IMAGE_NAME=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
 
           docker build --platform linux/amd64 -t $IMAGE_NAME:latest -t $IMAGE_NAME:${{ github.sha }} -f Dockerfile.backend .
@@ -328,7 +328,7 @@ jobs:
 
       - name: Build and push frontend image
         run: |
-          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/loto_api_v2_frontend
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/loto_api_v4_frontend
           IMAGE_NAME=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
 
           docker build --platform linux/amd64 -t $IMAGE_NAME:latest -t $IMAGE_NAME:${{ github.sha }} -f Dockerfile.frontend .
@@ -348,7 +348,7 @@ jobs:
 
       - name: Tag MongoDB for GitHub Container Registry
         run: |
-          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/loto_api_v2_mongodb
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/loto_api_v4_mongodb
           IMAGE_NAME=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
 
           docker tag mongo:latest $IMAGE_NAME:latest
@@ -358,7 +358,7 @@ jobs:
 
       - name: Push MongoDB image
         run: |
-          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/loto_api_v2_mongodb
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/loto_api_v4_mongodb
           IMAGE_NAME=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
 
           docker push $IMAGE_NAME:latest

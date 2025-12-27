@@ -19,6 +19,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: 🧪 Run Maven tests (skip contextLoads)
+        run: mvn test -Dspring.test.context.cache.maxSize=0
+
+
       - name: 🛠 Checkout code
         uses: actions/checkout@v4
 
