@@ -472,12 +472,12 @@ jobs:
           curl -v http://localhost:8082/api/hello || true
 
 
-      - name: 👤 Register user (if not exists)
-        run: |
-          curl -s -o response.json -w "\nHTTP=%{http_code}\n" -X POST "http://localhost:8082/api/auth/register" \
-            -H "Content-Type: application/json" \
-            -d '{"email":"test4@hbnb.com","password":"user1234"}' || true
-          cat response.json || true
+      # - name: 👤 Register user (if not exists)
+      #   run: |
+      #     curl -s -o response.json -w "\nHTTP=%{http_code}\n" -X POST "http://localhost:8082/api/auth/register" \
+      #       -H "Content-Type: application/json" \
+      #       -d '{"email":"test4@hbnb.com","password":"user1234"}' || true
+      #     cat response.json || true
 
       - name: 🔑 Login & get JWT
         id: login
