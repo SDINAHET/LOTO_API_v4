@@ -1,3 +1,47 @@
+# version: "3.8"
+
+# services:
+#   backend:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile.backend
+#     ports:
+#       - "8082:8082"
+#     depends_on:
+#       - mongodb
+#     environment:
+#       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/loto_database  # Suppression de l'authentification
+#     volumes:
+#      - ./loto.db:/app/loto.db  # <-- montage du fichier local
+
+#   frontend:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile.frontend
+#     ports:
+#       - "5500:5500"
+#     depends_on:
+#       - backend
+
+#   mongodb:
+#     image: mongo:latest
+#   # mongodb:
+#   #   image: ghcr.io/sdinahlet/loto_mongodb:latest
+
+#     container_name: mongodb
+#     restart: always
+#     ports:
+#       - "27017:27017"
+#     environment:
+#       MONGO_INITDB_DATABASE: loto_database  # Définit la base de données par défaut
+#     volumes:
+#       - mongodb_data:/data/db
+#       # - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro  # Vérifie que ce fichier existe bien
+
+# volumes:
+#   mongodb_data:
+
+
 version: "3.8"
 
 services:
@@ -8,11 +52,25 @@ services:
     ports:
       - "8082:8082"
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_started
+      postgres:
+        condition: service_healthy
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/loto_database  # Suppression de l'authentification
-    volumes:
-     - ./loto.db:/app/loto.db  # <-- montage du fichier local
+      # Active un profil dédié docker/ci
+      SPRING_PROFILES_ACTIVE: ci
+
+      # Mongo
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/loto_database
+
+      # Postgres (IMPORTANT: host = "postgres" (nom du service), pas localhost)
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/loto_database
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+
+    # ⚠️ Quand tu passes sur Postgres, tu n'as plus besoin de monter le fichier sqlite
+    # volumes:
+    #  - ./loto.db:/app/loto.db
 
   frontend:
     build:
@@ -25,18 +83,33 @@ services:
 
   mongodb:
     image: mongo:latest
-  # mongodb:
-  #   image: ghcr.io/sdinahlet/loto_mongodb:latest
-
     container_name: mongodb
     restart: always
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_DATABASE: loto_database  # Définit la base de données par défaut
+      MONGO_INITDB_DATABASE: lotodb
     volumes:
       - mongodb_data:/data/db
-      # - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro  # Vérifie que ce fichier existe bien
+
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: lotodb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U loto -d lotodb"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
 volumes:
   mongodb_data:
+  postgres_data:

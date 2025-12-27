@@ -1,55 +1,127 @@
-version: '3.8'
+# version: '3.8'
+
+# services:
+#   postgres:
+#     image: postgres:14
+#     container_name: loto-postgres
+#     environment:
+#       POSTGRES_DB: ${POSTGRES_DB:-lotodb}
+#       POSTGRES_USER: ${POSTGRES_USER:-postgres}
+#       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+#     ports:
+#       - "${POSTGRES_PORT:-5432}:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#     networks:
+#       - loto-network
+
+#   mongodb:
+#     image: mongo:latest
+#     container_name: loto-mongodb
+#     environment:
+#       MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USER:-lotouser}
+#       MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD:-lotopass}
+#       MONGO_INITDB_DATABASE: ${MONGODB_DATABASE:-lotodb}
+#     ports:
+#       - "${MONGODB_PORT:-27017}:27017"
+#     volumes:
+#       - mongodb_data:/data/db
+#     networks:
+#       - loto-network
+
+#   loto-api:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+#     container_name: loto-api_v4
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+#       - POSTGRES_HOST=postgres
+#       - MONGODB_HOST=mongodb
+#     ports:
+#       - "${SERVER_PORT:-8082}:8082"
+#     depends_on:
+#       - postgres
+#       - mongodb
+#     networks:
+#       - loto-network
+
+# networks:
+#   loto-network:
+#     driver: bridge
+
+# volumes:
+#   postgres_data:
+#   mongodb_data:
+
+
+version: "3.8"
 
 services:
-  postgres:
-    image: postgres:14
-    container_name: loto-postgres
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-lotodb}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - loto-network
+      - "8082:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: ci
+
+      # Mongo
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/lotodb
+
+      # Postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lotodb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "5500:5500"
+    depends_on:
+      - backend
 
   mongodb:
     image: mongo:latest
-    container_name: loto-mongodb
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USER:-lotouser}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD:-lotopass}
-      MONGO_INITDB_DATABASE: ${MONGODB_DATABASE:-lotodb}
+    restart: always
     ports:
-      - "${MONGODB_PORT:-27017}:27017"
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: lotodb
     volumes:
       - mongodb_data:/data/db
-    networks:
-      - loto-network
 
-  loto-api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: loto-api_v4
-    environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
-      - POSTGRES_HOST=postgres
-      - MONGODB_HOST=mongodb
+  postgres:
+    image: postgres:14
+    restart: always
     ports:
-      - "${SERVER_PORT:-8082}:8082"
-    depends_on:
-      - postgres
-      - mongodb
-    networks:
-      - loto-network
-
-networks:
-  loto-network:
-    driver: bridge
+      - "5432:5432"
+    environment:
+      SPRING_PROFILES_ACTIVE: ci
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/lotodb
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lotodb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    # environment:
+    #   POSTGRES_DB: lotodb
+    #   POSTGRES_USER: postgres
+    #   POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d lotodb"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
 volumes:
-  postgres_data:
   mongodb_data:
+  postgres_data:

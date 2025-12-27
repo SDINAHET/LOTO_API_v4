@@ -202,52 +202,191 @@
 #       #   run: npm install -g vercel
 
 
-#********************************************************
-name: 🚀 CI/CD - Loto Tracker API (Install and run Spring Boot / Integration Tests with Docker, MongoDB, and SQLite)
+# #********************************************************
+# name: 🚀 CI/CD - Loto Tracker API (Install and run Spring Boot / Integration Tests with Docker, MongoDB, and SQLite)
+
+# on:
+#   push:
+#     branches:
+#       - main
+#       - develop
+#       - "**"  # 🔥 Exécute le workflow sur toutes les branches lors d'un push
+#   pull_request:
+#     branches:
+#       - main
+#       - develop
+#       - "**"  # 🔥 Exécute le workflow sur toutes les branches lors d'un push
+
+# jobs:
+#   build:
+#     name: 🏗 Build API with Maven (before Docker)
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       # - name: 🧪 Run Maven tests (skip contextLoads)
+#       #   run: mvn test -Dspring.test.context.cache.maxSize=0
+
+
+#       - name: 🛠 Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: 🔧 Setup JDK 21
+#         uses: actions/setup-java@v3
+#         with:
+#           distribution: 'temurin'
+#           java-version: '21'
+#           cache: 'maven'            # Option rapide pour ne pas casser le CI (tant que la DB n'est pas dispo)
+#       - name: 📦 Build with Maven (skip tests)
+#         run: mvn -B clean install -DskipTests
+
+#       # - name: 📦 Build with Maven (install dependencies)
+#       #   run: mvn clean install
+
+#       - name: 🧪 Run Unit Tests with Maven
+#         run: mvn test
+
+#       - name: 🧪 Run Unit Tests (exclude context load)
+#         run: mvn -B test -Dtest='!com.fdjloto.api.LotoApiApplicationTests'
+
+
+#   test-integration:
+#     name: 🐳 Docker & Integration Tests
+#     runs-on: ubuntu-latest
+#     needs: build
+
+#     steps:
+#       - name: 🛠 Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: 🧰 Install tools (curl + jq)
+#         run: |
+#           sudo apt-get update
+#           sudo apt-get install -y curl jq
+
+#       - name: 🐳 Start Docker Containers
+#         run: docker compose up -d --build
+
+#       - name: ⏳ Wait for API to be ready
+#         run: |
+#           echo "Waiting for API..."
+#           for i in {1..60}; do
+#             if curl --silent --fail http://localhost:8082/api/hello > /dev/null; then
+#               echo "✅ API is ready!"
+#               exit 0
+#             fi
+#             printf '.'
+#             sleep 5
+#           done
+#           echo "❌ API did not become ready in time"
+#           docker compose logs --no-color
+#           exit 1
+
+#       - name: 🔑 Login User & Retrieve JWT Token
+#         id: login
+#         run: |
+#           curl -s -o response.json -X POST "http://localhost:8082/api/auth/login3" \
+#             -H "Content-Type: application/json" \
+#             -d '{"email":"test4@hbnb.com","password":"user1234"}' \
+#             -c cookies.txt
+
+#           echo "🔍 Login Response JSON:"
+#           cat response.json | jq .
+
+#           JWT_TOKEN=$(jq -r '.token // empty' response.json)
+
+#           if [ -z "$JWT_TOKEN" ]; then
+#             echo "❌ Login failed! No token found."
+#             exit 1
+#           fi
+
+#           echo "✅ JWT Token retrieved!"
+#           echo "jwt_token=$JWT_TOKEN" >> "$GITHUB_OUTPUT"
+#           echo "JWT_TOKEN=$JWT_TOKEN" >> "$GITHUB_ENV"
+
+#       - name: 🎫 Create Ticket (with JWT)
+#         run: |
+#           curl -s -o response.json -w "\nHTTP=%{http_code}\n" -X POST "http://localhost:8082/api/tickets" \
+#             -H "Content-Type: application/json" \
+#             -H "Accept: application/json" \
+#             -H "Authorization: Bearer ${{ steps.login.outputs.jwt_token }}" \
+#             -d '{"numbers":[1,2,3,4,5],"luckyNumber":6,"drawDate":"2025-03-12"}' \
+#             -b cookies.txt
+
+#           echo "🔍 Ticket Creation Response JSON:"
+#           cat response.json | jq .
+
+#       - name: 🔄 Run Loto Scraper
+#         run: |
+#           curl -s -o response.json -w "\nHTTP=%{http_code}\n" -X GET "http://localhost:8082/api/loto/scrape"
+#           echo "🔍 Scraper Response JSON:"
+#           cat response.json | jq .
+
+#       - name: 🏆 Calculate Ticket Winnings
+#         run: |
+#           curl -s -o response.json -w "\nHTTP=%{http_code}\n" -X GET "http://localhost:8082/api/gains/calculate"
+#           echo "🔍 Winnings Calculation Response JSON:"
+#           cat response.json | jq .
+
+#       - name: 📜 Get Last 20 Lottery Results
+#         run: |
+#           curl -s -o response.json -w "\nHTTP=%{http_code}\n" -X GET "http://localhost:8082/api/historique/last20"
+#           echo "🔍 Last 20 Lottery Results JSON:"
+#           cat response.json | jq .
+
+#       - name: 📑 Get Ticket Info
+#         run: |
+#           curl -s -o response.json -w "\nHTTP=%{http_code}\n" -X GET "http://localhost:8082/api/tickets" \
+#             -H "Authorization: Bearer ${{ env.JWT_TOKEN }}"
+#           echo "🔍 Submitted Tickets Info JSON:"
+#           cat response.json | jq .
+
+#       - name: 🛑 Stop & Clean Docker Containers
+#         if: always()
+#         run: docker compose down -v
+
+
+#   # deploy:
+#   #   name: 🚀 Deploy to Vercel
+#   #   runs-on: ubuntu-latest
+#   #   needs: test-integration
+
+#   #   steps:
+#   #     - name: 🛠 Checkout code
+#   #       uses: actions/checkout@v4
+
+#       # - name: ⚡ Install Vercel CLI
+#       #   run: npm install -g vercel
+
+
+name: 🚀 CI/CD - Loto Tracker API (Docker + Integration)
 
 on:
   push:
-    branches:
-      - main
-      - develop
-      - "**"  # 🔥 Exécute le workflow sur toutes les branches lors d'un push
+    branches: [ "main", "develop", "**" ]
   pull_request:
-    branches:
-      - main
-      - develop
-      - "**"  # 🔥 Exécute le workflow sur toutes les branches lors d'un push
+    branches: [ "main", "develop", "**" ]
 
 jobs:
   build:
-    name: 🏗 Build API with Maven (before Docker)
+    name: 🏗 Build API with Maven
     runs-on: ubuntu-latest
 
     steps:
-      # - name: 🧪 Run Maven tests (skip contextLoads)
-      #   run: mvn test -Dspring.test.context.cache.maxSize=0
-
-
-      - name: 🛠 Checkout code
+      - name: 🛠 Checkout
         uses: actions/checkout@v4
 
       - name: 🔧 Setup JDK 21
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'maven'            # Option rapide pour ne pas casser le CI (tant que la DB n'est pas dispo)
-      - name: 📦 Build with Maven (skip tests)
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
+      - name: 📦 Build (skip tests)
         run: mvn -B clean install -DskipTests
 
-      # - name: 📦 Build with Maven (install dependencies)
-      #   run: mvn clean install
-
-      - name: 🧪 Run Unit Tests with Maven
-        run: mvn test
-
-      - name: 🧪 Run Unit Tests (exclude context load)
+      - name: 🧪 Unit Tests
         run: mvn -B test -Dtest='!com.fdjloto.api.LotoApiApplicationTests'
-
 
   test-integration:
     name: 🐳 Docker & Integration Tests
@@ -255,7 +394,7 @@ jobs:
     needs: build
 
     steps:
-      - name: 🛠 Checkout code
+      - name: 🛠 Checkout
         uses: actions/checkout@v4
 
       - name: 🧰 Install tools (curl + jq)
@@ -263,10 +402,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y curl jq
 
-      - name: 🐳 Start Docker Containers
+      - name: 🐳 Start Docker Compose
         run: docker compose up -d --build
 
-      - name: ⏳ Wait for API to be ready
+      - name: ⏳ Wait for API
         run: |
           echo "Waiting for API..."
           for i in {1..60}; do
@@ -281,7 +420,7 @@ jobs:
           docker compose logs --no-color
           exit 1
 
-      - name: 🔑 Login User & Retrieve JWT Token
+      - name: 🔑 Login & get JWT
         id: login
         run: |
           curl -s -o response.json -X POST "http://localhost:8082/api/auth/login3" \
@@ -289,21 +428,18 @@ jobs:
             -d '{"email":"test4@hbnb.com","password":"user1234"}' \
             -c cookies.txt
 
-          echo "🔍 Login Response JSON:"
           cat response.json | jq .
 
           JWT_TOKEN=$(jq -r '.token // empty' response.json)
-
           if [ -z "$JWT_TOKEN" ]; then
-            echo "❌ Login failed! No token found."
+            echo "❌ Login failed! No token."
             exit 1
           fi
 
-          echo "✅ JWT Token retrieved!"
           echo "jwt_token=$JWT_TOKEN" >> "$GITHUB_OUTPUT"
           echo "JWT_TOKEN=$JWT_TOKEN" >> "$GITHUB_ENV"
 
-      - name: 🎫 Create Ticket (with JWT)
+      - name: 🎫 Create Ticket
         run: |
           curl -s -o response.json -w "\nHTTP=%{http_code}\n" -X POST "http://localhost:8082/api/tickets" \
             -H "Content-Type: application/json" \
@@ -311,48 +447,14 @@ jobs:
             -H "Authorization: Bearer ${{ steps.login.outputs.jwt_token }}" \
             -d '{"numbers":[1,2,3,4,5],"luckyNumber":6,"drawDate":"2025-03-12"}' \
             -b cookies.txt
-
-          echo "🔍 Ticket Creation Response JSON:"
           cat response.json | jq .
 
-      - name: 🔄 Run Loto Scraper
+      - name: 📜 Get Last 20 Results
         run: |
-          curl -s -o response.json -w "\nHTTP=%{http_code}\n" -X GET "http://localhost:8082/api/loto/scrape"
-          echo "🔍 Scraper Response JSON:"
+          curl -s -o response.json -w "\nHTTP=%{http_code}\n" \
+            http://localhost:8082/api/historique/last20
           cat response.json | jq .
 
-      - name: 🏆 Calculate Ticket Winnings
-        run: |
-          curl -s -o response.json -w "\nHTTP=%{http_code}\n" -X GET "http://localhost:8082/api/gains/calculate"
-          echo "🔍 Winnings Calculation Response JSON:"
-          cat response.json | jq .
-
-      - name: 📜 Get Last 20 Lottery Results
-        run: |
-          curl -s -o response.json -w "\nHTTP=%{http_code}\n" -X GET "http://localhost:8082/api/historique/last20"
-          echo "🔍 Last 20 Lottery Results JSON:"
-          cat response.json | jq .
-
-      - name: 📑 Get Ticket Info
-        run: |
-          curl -s -o response.json -w "\nHTTP=%{http_code}\n" -X GET "http://localhost:8082/api/tickets" \
-            -H "Authorization: Bearer ${{ env.JWT_TOKEN }}"
-          echo "🔍 Submitted Tickets Info JSON:"
-          cat response.json | jq .
-
-      - name: 🛑 Stop & Clean Docker Containers
+      - name: 🛑 Stop containers
         if: always()
         run: docker compose down -v
-
-
-  # deploy:
-  #   name: 🚀 Deploy to Vercel
-  #   runs-on: ubuntu-latest
-  #   needs: test-integration
-
-  #   steps:
-  #     - name: 🛠 Checkout code
-  #       uses: actions/checkout@v4
-
-      # - name: ⚡ Install Vercel CLI
-      #   run: npm install -g vercel
