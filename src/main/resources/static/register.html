@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Loto Tracker - Inscription</title>
+  <link rel="icon" type="image/png" href="loto_tracker.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body{background:linear-gradient(to right,#000428,#004e92);display:flex;justify-content:center;align-items:center;height:100vh;margin:0;font-family:Arial,sans-serif;color:#fff}
+    .header{position:absolute;top:20px;left:20px}
+    .header button{background:#004e92;color:#fff;border:none;padding:10px 15px;border-radius:5px;cursor:pointer;font-size:14px}
+    .header button:hover{background:#0074cc}
+    .container{background:rgba(0,0,0,.9);padding:40px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,.5);text-align:center;width:350px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .container h2{color:#fff;margin-bottom:20px}
+    .input-group{margin-bottom:15px;text-align:left;width:100%}
+    .input-group input{width:100%;padding:12px;border:none;border-radius:6px;background:#1a1a1a;color:#fff;font-size:16px}
+    .input-group input::placeholder{color:#888}
+    .btn{width:100%;padding:12px;border:none;border-radius:6px;background:#004e92;color:#fff;font-size:16px;cursor:pointer;transition:background .3s ease;margin-top:10px}
+    .btn:hover{background:#0074cc}
+    .msg{margin-top:10px;font-size:.95rem}
+    .msg.error{color:#ffb3b3}
+    .msg.ok{color:#b2ffb2}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <button onclick="window.location.href='index.html'">Retour à l'accueil</button>
+  </div>
+
+  <div class="container">
+    <h2>Loto Tracker - Inscription</h2>
+    <form id="registerForm" novalidate>
+      <div class="input-group">
+        <input type="text" id="firstName" placeholder="Prénom" required autocomplete="given-name" />
+      </div>
+      <div class="input-group">
+        <input type="text" id="lastName" placeholder="Nom de famille" required autocomplete="family-name" />
+      </div>
+      <div class="input-group">
+        <input type="email" id="email" placeholder="Email" required autocomplete="email" />
+      </div>
+      <div class="input-group">
+        <input type="password" id="password" placeholder="Mot de passe" required autocomplete="new-password" />
+      </div>
+      <div class="input-group">
+        <input type="password" id="confirmPassword" placeholder="Confirmez votre mot de passe" required autocomplete="new-password" />
+      </div>
+      <button type="submit" class="btn" id="submitBtn">S'inscrire</button>
+      <div id="feedback" class="msg" aria-live="polite"></div>
+    </form>
+  </div>
+
+<script>
+// 🔧 BASE URL dynamique : local vs prod
+const API_BASE =
+    window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+        ? "http://localhost:8082"           // 👉 backend Spring Boot local
+        : "https://stephanedinahet.fr";     // 👉 prod (quand elle sera de retour)
+
+const form = document.getElementById("registerForm");
+const btn  = document.getElementById("submitBtn");
+const fb   = document.getElementById("feedback");
+
+// Utilise la même origine que la page (évite CORS)
+const REGISTER_URL = `${API_BASE}/api/auth/register`;
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  fb.textContent = "";
+  fb.className = "msg";
+
+  const firstName = document.getElementById("firstName").value.trim();
+  const lastName  = document.getElementById("lastName").value.trim();
+  const email     = document.getElementById("email").value.trim();
+  const password  = document.getElementById("password").value;
+  const confirm   = document.getElementById("confirmPassword").value;
+
+  // validations simples
+  if (!firstName || !lastName) {
+    return showError("Prénom et nom sont requis.");
+  }
+  if (!/^\S+@\S+\.\S+$/.test(email)) {
+    return showError("Email invalide.");
+  }
+  if (password !== confirm) {
+    return showError("Les mots de passe ne correspondent pas.");
+  }
+  if (password.length < 6) {
+    return showError("Mot de passe trop court (min 6 caractères).");
+  }
+
+  const userData = { firstName, lastName, email, password, admin: false };
+
+  btn.disabled = true;
+
+  try {
+    const resp = await fetch(REGISTER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      // credentials: "include", // inutile pour register si pas de cookie nécessaire
+      body: JSON.stringify(userData),
+    });
+
+    // On récupère d’abord le texte pour ne pas crasher si corps vide
+    const contentType = resp.headers.get("content-type") || "";
+    const text = await resp.text();
+    let data = {};
+    if (contentType.includes("application/json")) {
+      try { data = text ? JSON.parse(text) : {}; } catch {}
+    }
+
+    if (resp.ok) {
+      showOk("Inscription réussie !");
+      setTimeout(() => { window.location.href = "index.html"; }, 300);
+      return;
+    }
+
+    // Messages utiles selon statut
+    let msg = data.message || text || `Échec de l'inscription (HTTP ${resp.status})`;
+    if (resp.status === 403) {
+      msg = "Accès refusé (403). Si vous étiez en sous-domaine/domaine différent, refaites la requête depuis le même domaine (appel relatif) ou vérifiez la config CORS du serveur.";
+    } else if (resp.status === 409) {
+      msg = "Un compte existe déjà avec cet email.";
+    } else if (resp.status === 400) {
+      msg = "Données invalides. Vérifiez les champs saisis.";
+    }
+    showError(msg);
+
+  } catch (err) {
+    console.error("Network/Fetch error:", err);
+    showError("Impossible de contacter le serveur. Vérifiez votre connexion et réessayez.");
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+function showError(msg){ fb.textContent = msg; fb.className = "msg error"; }
+function showOk(msg){ fb.textContent = msg; fb.className = "msg ok"; }
+</script>
+</body>
+</html>
