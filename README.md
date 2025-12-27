@@ -157,3 +157,4 @@ Pour toute question ou problème :
 3. Commit les changements (`git commit -m 'Add some AmazingFeature'`)
 4. Push la branche (`git push origin feature/AmazingFeature`)
 5. Ouvrir une Pull Request
+
