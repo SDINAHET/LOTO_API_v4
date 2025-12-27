@@ -100,6 +100,10 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
+
+                        // ✅ CORS preflight
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        
                         // --- AUTH PUBLIC ---
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login3").permitAll()
@@ -150,7 +154,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/gains/calculate", "/api/gains","/api/gains/**").hasAnyRole("ADMIN", "USER") // 🔥 PUT accessible aux admins et utilisateurs
                         // .requestMatchers("/api/users/**", "/api/users").authenticated()  // Protégé par JWT
                         // .requestMatchers("/api/users/**").hasRole("ADMIN")
-                        
+
                         /* ========== 💾 ADMIN CRUD MINI-HEIDISQL ========== */
                         .requestMatchers(HttpMethod.GET,    "/api/admin/users/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST,   "/api/admin/users/**").hasRole("ADMIN")
@@ -194,7 +198,7 @@ public class SecurityConfig {
         //     "http://127.0.0.1:*",
             // "http://192.168.*.*:*",
         configuration.setAllowedOrigins(List.of(
-            "http://127.0.0.1:5500",
+            "http://127.0.0.1:5500", //live server
             "https://stephanedinahet.fr",
             // "http://localhost:8082", // add sd
 	        "http://localhost:5500", // add sd
