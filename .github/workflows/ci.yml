@@ -411,14 +411,29 @@ jobs:
       - name: ✅ Wait for Postgres
         run: |
           for i in {1..30}; do
-            if docker exec $(docker ps -qf "ancestor=postgres:14") pg_isready -U postgres -d lotodb; then
-              echo "Postgres ready"
+            if docker compose exec -T postgres pg_isready -U postgres -d lotodb; then
+              echo "✅ Postgres ready"
               exit 0
             fi
+            echo "Waiting postgres..."
             sleep 2
           done
-          echo "Postgres not ready"
+          echo "❌ Postgres not ready"
           docker compose logs --no-color postgres
+          exit 1
+
+      - name: ✅ Wait for MongoDB
+        run: |
+          for i in {1..30}; do
+            if docker compose exec -T mongodb mongo --eval "db.adminCommand('ping')" --quiet | grep ok; then
+              echo "✅ MongoDB ready"
+              exit 0
+            fi
+            echo "Waiting MongoDB..."
+            sleep 2
+          done
+          echo "❌ MongoDB not ready"
+          docker compose logs --no-color mongodb
           exit 1
 
 
@@ -436,6 +451,33 @@ jobs:
           echo "❌ API did not become ready in time"
           docker compose logs --no-color
           exit 1
+
+      - name: 🧾 Logs backend
+        if: always()
+        run: docker compose logs --no-color backend
+
+      - name: 🧾 Logs postgres
+        if: always()
+        run: docker compose logs --no-color postgres
+
+      - name: 🧾 Logs mongodb
+        if: always()
+        run: docker compose logs --no-color mongodb
+
+      - name: 🔎 Check ports
+        if: always()
+        run: |
+          docker ps
+          curl -v http://localhost:8082/actuator/health || true
+          curl -v http://localhost:8082/api/hello || true
+
+
+      - name: 👤 Register user (if not exists)
+        run: |
+          curl -s -o response.json -w "\nHTTP=%{http_code}\n" -X POST "http://localhost:8082/api/auth/register" \
+            -H "Content-Type: application/json" \
+            -d '{"email":"test4@hbnb.com","password":"user1234"}' || true
+          cat response.json || true
 
       - name: 🔑 Login & get JWT
         id: login
