@@ -422,10 +422,10 @@ jobs:
           docker compose logs --no-color postgres
           exit 1
 
-        - name: 🔎 Verify seeded users
-          run: |
-            docker compose exec -T postgres psql -U postgres -d lotodb -c "\dt public.*"
-            docker compose exec -T postgres psql -U postgres -d lotodb -c "SELECT id,email,is_admin FROM public.users;"
+      - name: 🔎 Verify seeded users
+        run: |
+          docker compose exec -T postgres psql -U postgres -d lotodb -c "\dt public.*"
+          docker compose exec -T postgres psql -U postgres -d lotodb -c "SELECT id,email,is_admin FROM public.users;"
 
       # - name: ✅ Wait for MongoDB
       #   run: |
