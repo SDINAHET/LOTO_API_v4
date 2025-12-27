@@ -385,8 +385,11 @@ jobs:
       - name: 📦 Build (skip tests)
         run: mvn -B clean install -DskipTests
 
-      - name: 🧪 Unit Tests
-        run: mvn -B test -Dtest='!com.fdjloto.api.LotoApiApplicationTests'
+      # - name: 🧪 Unit Tests
+      #   run: mvn -B test -Dtest='!com.fdjloto.api.LotoApiApplicationTests'
+
+      - name: 🧪 Unit Tests (exclude Spring context load test)
+        run: mvn -B test -Dtest='*,!com.fdjloto.api.LotoApiApplicationTests'
 
   test-integration:
     name: 🐳 Docker & Integration Tests
