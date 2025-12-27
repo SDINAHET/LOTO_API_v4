@@ -1,119 +1,272 @@
+# # #!/bin/bash
+# # set -e
+
+# # # Ports
+# # PORT_STATIC=5500
+# # PORT_SPRING=8082
+# # PORT_AI=8090
+
+# # # Dossiers
+# # STATIC_DIR="src/main/resources/static"
+# # AI_FILE="ai.py"              # ai.py à la racine
+
+# # ENABLE_OLLAMA=false          # true plus tard
+
+# # open_browser() {
+# #   local URL="$1"
+# #   # évite xdg-open en root (Chrome no-sandbox)
+# #   if [ "$(id -u)" -eq 0 ]; then
+# #     if command -v powershell.exe >/dev/null 2>&1; then
+# #       powershell.exe start "$URL" >/dev/null 2>&1 || true
+# #       echo "   🪟 Ouverture demandée côté Windows: $URL"
+# #     else
+# #       echo "   ⚠️ root: ouvre manuellement $URL"
+# #     fi
+# #     return
+# #   fi
+# #   if command -v xdg-open >/dev/null 2>&1; then xdg-open "$URL" >/dev/null 2>&1 || true
+# #   elif command -v powershell.exe >/dev/null 2>&1; then powershell.exe start "$URL" >/dev/null 2>&1 || true
+# #   else echo "➡️ Ouvre: $URL"; fi
+# # }
+
+# # start_ollama() {
+# #   [ "$ENABLE_OLLAMA" = "true" ] || return 0
+# #   echo "==> Ollama"
+# #   command -v ollama >/dev/null 2>&1 || { echo "   ⚠️ ollama absent (skip)"; return 0; }
+# #   curl -s http://localhost:11434 >/dev/null 2>&1 && { echo "   ✅ déjà actif"; return 0; }
+# #   nohup ollama serve >/tmp/ollama.log 2>&1 & disown
+# #   sleep 1
+# #   curl -s http://localhost:11434 >/dev/null 2>&1 && echo "   ✅ lancé" || echo "   ⚠️ voir /tmp/ollama.log"
+# # }
+
+# # start_ai_service() {
+# #   echo "==> 3bis) AI service (8090) en arrière-plan"
+
+# #   [ -f "$AI_FILE" ] || { echo "❌ $AI_FILE introuvable à la racine"; exit 1; }
+
+# #   if command -v lsof >/dev/null 2>&1 && lsof -i :"$PORT_AI" >/dev/null 2>&1; then
+# #     echo "   ⚠️ Port $PORT_AI déjà utilisé (skip)"
+# #     return 0
+# #   fi
+
+# #   # Lance via python (ton ai.py contient app = FastAPI(...) et les routes /health, /ai/chat)
+# #   # nohup python3 "$AI_FILE" >/tmp/ai_8090.log 2>&1 & disown
+# #   nohup python3 -m uvicorn ai:app --host 0.0.0.0 --port $PORT_AI >/tmp/ai_8090.log 2>&1 & disown
+
+# #   # Attends /health
+# #   for _ in {1..20}; do
+# #     if curl -s "http://localhost:$PORT_AI/health" >/dev/null 2>&1; then
+# #       echo "   ✅ AI OK: http://localhost:$PORT_AI/health"
+# #       return 0
+# #     fi
+# #     sleep 1
+# #   done
+
+# #   echo "   ⚠️ AI lancé mais /health ne répond pas (logs: /tmp/ai_8090.log)"
+# # }
+
+# # echo "==> 1) MongoDB"
+# # sudo service mongod start >/dev/null 2>&1 || sudo service mongodb start >/dev/null 2>&1 || true
+
+# # echo "==> 2) PostgreSQL"
+# # sudo service postgresql start >/dev/null 2>&1 || true
+
+# # # (optionnel)
+# # start_ollama
+
+# # echo "==> 3) Front static (5500) en arrière-plan"
+# # [ -d "$STATIC_DIR" ] || { echo "❌ $STATIC_DIR introuvable"; exit 1; }
+
+# # if command -v lsof >/dev/null 2>&1 && lsof -i :"$PORT_STATIC" >/dev/null 2>&1; then
+# #   echo "   ⚠️ Port $PORT_STATIC déjà utilisé (skip)"
+# # else
+# #   (cd "$STATIC_DIR" && nohup python3 -m http.server "$PORT_STATIC" --bind 0.0.0.0 >/tmp/static_http.log 2>&1 & disown)
+# #   echo "   ✅ Front: http://localhost:$PORT_STATIC/  (ai: /ai.html)"
+# # fi
+
+# # # démarre l’AI avant d’ouvrir le front
+# # start_ai_service
+
+# # echo "==> 4) Ouvre le front"
+# # open_browser "http://localhost:$PORT_STATIC/"
+# # open_browser "http://localhost:$PORT_STATIC/ai.html"
+
+# # echo "==> 5) Build Spring Boot"
+# # mvn clean install
+
+# # echo "==> 6) Spring Boot (au premier plan) + Swagger auto"
+# # (
+# #   while ! curl -s "http://localhost:$PORT_SPRING/swagger-ui/index.html" >/dev/null 2>&1; do
+# #     sleep 2
+# #   done
+# #   open_browser "http://localhost:$PORT_SPRING/swagger-ui/index.html"
+# # ) &
+
+# # # mvn spring-boot:run
+# # mvn spring-boot:run -Dspring-boot.run.arguments="--server.port=$PORT_SPRING"
+
+
+# #!/bin/bash
+# set -e
+
+# # Ports
+# PORT_STATIC=5500
+# PORT_SPRING=8082
+# PORT_AI=8090
+
+# STATIC_DIR="src/main/resources/static"
+# AI_FILE="ai.py"
+
+# open_browser() {
+#   local URL="$1"
+#   if command -v powershell.exe >/dev/null 2>&1; then
+#     powershell.exe start "$URL" >/dev/null 2>&1 || true
+#     echo "   🪟 Ouverture demandée côté Windows: $URL"
+#   else
+#     echo "➡️ Ouvre: $URL"
+#   fi
+# }
+
+# start_ai_service() {
+#   echo "==> AI service (8090)"
+
+#   if lsof -i :"$PORT_AI" >/dev/null 2>&1; then
+#     echo "   ⚠️ Port $PORT_AI déjà utilisé (skip)"
+#     return
+#   fi
+
+#   nohup python3 -m uvicorn ai:app --host 0.0.0.0 --port "$PORT_AI" \
+#     >/tmp/ai_8090.log 2>&1 & disown
+
+#   for _ in {1..20}; do
+#     if curl -s "http://localhost:$PORT_AI/health" >/dev/null 2>&1; then
+#       echo "   ✅ AI OK"
+#       return
+#     fi
+#     sleep 1
+#   done
+
+#   echo "   ⚠️ AI lancé mais /health ne répond pas"
+# }
+
+# echo "==> MongoDB"
+# sudo service mongod start >/dev/null 2>&1 || true
+
+# echo "==> PostgreSQL"
+# sudo service postgresql start >/dev/null 2>&1 || true
+
+# echo "==> Front static (5500)"
+# if ! lsof -i :"$PORT_STATIC" >/dev/null 2>&1; then
+#   (cd "$STATIC_DIR" && nohup python3 -m http.server "$PORT_STATIC" \
+#     >/tmp/static_http.log 2>&1 & disown)
+# fi
+
+# open_browser "http://localhost:$PORT_STATIC/"
+
+# echo "==> Build Spring Boot"
+# mvn clean install
+
+# echo "==> Démarrage Spring Boot (premier plan)"
+# mvn spring-boot:run -Dspring-boot.run.arguments="--server.port=$PORT_SPRING" &
+
+# echo "==> Attente Spring Boot..."
+# for _ in {1..60}; do
+#   if curl -s "http://localhost:$PORT_SPRING/swagger-ui/index.html" >/dev/null 2>&1; then
+#     echo "   ✅ Spring UP"
+#     break
+#   fi
+#   sleep 2
+# done
+
+# open_browser "http://localhost:$PORT_SPRING/swagger-ui/index.html"
+
+# start_ai_service
+
+# # Spring reste vivant tant que le script tourne
+# wait
+
 #!/bin/bash
-
-
-# scripte start_all.sh
-# modifie
-# http://localhost:5500/ pour servir des fichiers statiques
-# http://localhost:8082/swagger-ui/index.html
-# demarrer mongodb et postgresql si besoin
-# demarrer spring boot au premier plan
-
 set -e
 
+# Ports
 PORT_STATIC=5500
 PORT_SPRING=8082
-STATIC_DIR="src/main/resources/static"
-ENABLE_OLLAMA=false   # ← passe à true plus tard
+PORT_AI=8090
 
+STATIC_DIR="src/main/resources/static"
+AI_FILE="ai.py"
+
+# ✅ Mets true seulement quand tu veux lancer l'AI
+AI_ENABLED=false
 
 open_browser() {
   local URL="$1"
-
-  # Si tu es root, évite xdg-open (Chrome refuse no-sandbox)
-  if [ "$(id -u)" -eq 0 ]; then
-    if command -v powershell.exe >/dev/null 2>&1; then
-      powershell.exe start "$URL" >/dev/null 2>&1 || true
-      echo "   🪟 Ouverture demandée côté Windows: $URL"
-    else
-      echo "   ⚠️ Tu es root : ouverture navigateur désactivée pour $URL"
-      echo "   ➜ Ouvre manuellement: $URL"
-    fi
-    return
-  fi
-
-  if command -v xdg-open >/dev/null 2>&1; then
-    xdg-open "$URL" >/dev/null 2>&1 || true
-  elif command -v open >/dev/null 2>&1; then
-    open "$URL" >/dev/null 2>&1 || true
-  elif command -v powershell.exe >/dev/null 2>&1; then
+  if command -v powershell.exe >/dev/null 2>&1; then
     powershell.exe start "$URL" >/dev/null 2>&1 || true
+    echo "   🪟 Ouverture demandée côté Windows: $URL"
   else
-    echo "⚠️ Impossible d’ouvrir automatiquement le navigateur pour $URL"
-    echo "   ➜ Ouvre manuellement: $URL"
+    echo "➡️ Ouvre: $URL"
   fi
 }
 
-echo "==> 1) MongoDB"
-sudo service mongod start >/dev/null 2>&1 || sudo service mongodb start >/dev/null 2>&1 || true
+start_ai_service() {
+  echo "==> AI service (8090)"
 
-echo "==> 2) PostgreSQL"
+  if [ "$AI_ENABLED" != "true" ]; then
+    echo "   ⏭️ AI désactivée (AI_ENABLED=false)"
+    return 0
+  fi
+
+  if lsof -i :"$PORT_AI" >/dev/null 2>&1; then
+    echo "   ⚠️ Port $PORT_AI déjà utilisé (skip)"
+    return 0
+  fi
+
+  nohup python3 -m uvicorn ai:app --host 0.0.0.0 --port "$PORT_AI" \
+    >/tmp/ai_8090.log 2>&1 & disown
+
+  for _ in {1..20}; do
+    if curl -s "http://localhost:$PORT_AI/health" >/dev/null 2>&1; then
+      echo "   ✅ AI OK"
+      return 0
+    fi
+    sleep 1
+  done
+
+  echo "   ⚠️ AI lancé mais /health ne répond pas"
+  return 0
+}
+
+echo "==> MongoDB"
+sudo service mongod start >/dev/null 2>&1 || true
+
+echo "==> PostgreSQL"
 sudo service postgresql start >/dev/null 2>&1 || true
 
-start_ollama() {
-  if [ "$ENABLE_OLLAMA" != "true" ]; then
-    echo "==> Ollama désactivé (ENABLE_OLLAMA=false)"
-    return
-  fi
-
-  echo "==> Ollama"
-
-  if ! command -v ollama >/dev/null 2>&1; then
-    echo "   ⚠️ ollama non installé (skip)"
-    return
-  fi
-
-  if curl -s http://localhost:11434 >/dev/null 2>&1; then
-    echo "   ✅ Ollama déjà actif sur :11434"
-    return
-  fi
-
-  echo "   🚀 Lancement de ollama serve (arrière-plan)"
-  nohup ollama serve >/tmp/ollama.log 2>&1 &
-  sleep 1
-
-  if curl -s http://localhost:11434 >/dev/null 2>&1; then
-    echo "   ✅ Ollama lancé (logs: /tmp/ollama.log)"
-  else
-    echo "   ❌ Ollama ne répond pas (voir /tmp/ollama.log)"
-  fi
-}
-
-
-echo "==> 3) Serveur HTTP (static) sur :$PORT_STATIC (en arrière-plan)"
-if [ ! -d "$STATIC_DIR" ]; then
-  echo "❌ Dossier $STATIC_DIR introuvable"
-  exit 1
+echo "==> Front static (5500)"
+if ! lsof -i :"$PORT_STATIC" >/dev/null 2>&1; then
+  (cd "$STATIC_DIR" && nohup python3 -m http.server "$PORT_STATIC" \
+    >/tmp/static_http.log 2>&1 & disown)
 fi
-
-if command -v lsof >/dev/null 2>&1; then
-  if ! lsof -i :"$PORT_STATIC" >/dev/null 2>&1; then
-    (cd "$STATIC_DIR" && nohup python3 -m http.server "$PORT_STATIC" >/tmp/static_http.log 2>&1 &)
-    echo "   ✅ Static HTTP lancé : http://localhost:$PORT_STATIC/"
-  else
-    echo "   ⚠️ Port $PORT_STATIC déjà utilisé (skip)"
-  fi
-else
-  echo "   ⚠️ lsof non installé. Pour l’installer: sudo apt update && sudo apt install -y lsof"
-  echo "   ➜ Je lance quand même le serveur, tu verras si ça échoue..."
-  (cd "$STATIC_DIR" && nohup python3 -m http.server "$PORT_STATIC" >/tmp/static_http.log 2>&1 &) || true
-fi
-
-echo "==> 4) Ouverture du frontend"
 open_browser "http://localhost:$PORT_STATIC/"
 
-echo "==> 5) Build Spring Boot"
+echo "==> Build Spring Boot"
 mvn clean install
 
-echo "==> 6) Démarrage Spring Boot (au premier plan)"
-echo "   ⏳ Swagger s’ouvrira quand le port $PORT_SPRING répondra..."
-(
-  # Thread qui attend le démarrage puis ouvre Swagger
-  while ! curl -s "http://localhost:$PORT_SPRING/swagger-ui/index.html" >/dev/null 2>&1; do
-    sleep 2
-  done
-  echo "   ✅ Spring Boot prêt"
-  open_browser "http://localhost:$PORT_SPRING/swagger-ui/index.html"
-) &
+echo "==> Démarrage Spring Boot"
+mvn spring-boot:run -Dspring-boot.run.arguments="--server.port=$PORT_SPRING" &
 
-# Spring Boot au premier plan (le script reste attaché)
-mvn spring-boot:run
+echo "==> Attente Spring Boot..."
+for _ in {1..60}; do
+  if curl -s "http://localhost:$PORT_SPRING/swagger-ui/index.html" >/dev/null 2>&1; then
+    echo "   ✅ Spring UP"
+    break
+  fi
+  sleep 2
+done
+open_browser "http://localhost:$PORT_SPRING/swagger-ui/index.html"
+
+# ✅ AI: ne démarre que si AI_ENABLED=true
+start_ai_service
+
+wait
