@@ -424,7 +424,7 @@ jobs:
 
       - name: 🔎 Verify seeded users
         run: |
-          docker compose exec -T postgres psql -U postgres -d lotodb -c "\dt public.*"
+          docker compose exec -T postgres psql -U postgres -d lotodb -c "\dt"
           docker compose exec -T postgres psql -U postgres -d lotodb -c "SELECT id,email,is_admin FROM public.users;"
 
       # - name: ✅ Wait for MongoDB

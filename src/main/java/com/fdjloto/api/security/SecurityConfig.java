@@ -100,10 +100,11 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
 
                         // ✅ CORS preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        
+
                         // --- AUTH PUBLIC ---
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login3").permitAll()

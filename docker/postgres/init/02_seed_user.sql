@@ -15,8 +15,10 @@ VALUES (
   'test4@hbnb.com',
   '$2a$10$xeJc3OOp/XrF/s5oMZkM7u8cIzvaMLCezcWlI/NnTBNVDRQXrAaa2',
   true,
-  to_char(now(), 'YYYY-MM-DD"T"HH24:MI:SS'),
-  to_char(now(), 'YYYY-MM-DD"T"HH24:MI:SS')
+--   to_char(now(), 'YYYY-MM-DD"T"HH24:MI:SS'),
+--   to_char(now(), 'YYYY-MM-DD"T"HH24:MI:SS')
+  now(),
+  now()
 )
 ON CONFLICT (email) DO NOTHING;
 
