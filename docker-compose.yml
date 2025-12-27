@@ -105,15 +105,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      SPRING_PROFILES_ACTIVE: ci
-      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/lotodb
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lotodb
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-    # environment:
-    #   POSTGRES_DB: lotodb
-    #   POSTGRES_USER: postgres
-    #   POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: lotodb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
