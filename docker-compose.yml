@@ -100,7 +100,8 @@ services:
       - mongodb_data:/data/db
 
   postgres:
-    image: postgres:14
+    # image: postgres:14
+    image: ghcr.io/SDINAHET/loto_api_v4_postgres:14
     restart: always
     ports:
       - "5432:5432"
