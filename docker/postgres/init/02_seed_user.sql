@@ -7,7 +7,7 @@
 -- )
 -- ON CONFLICT (email) DO NOTHING;
 
-INSERT INTO users (id, first_name, last_name, email, password, is_admin, created_at, updated_at)
+INSERT INTO public.users (id, first_name, last_name, email, password, is_admin, created_at, updated_at)
 VALUES (
   'ci-user-001',
   'CI',
