@@ -388,8 +388,8 @@ jobs:
       # - name: 🧪 Unit Tests
       #   run: mvn -B test -Dtest='!com.fdjloto.api.LotoApiApplicationTests'
 
-      - name: 🧪 Unit Tests (exclude Spring context load test)
-        run: mvn -B test -Dtest='*,!com.fdjloto.api.LotoApiApplicationTests'
+      - name: 🧪 Unit Tests
+        run: mvn -B test -Dtest='*Test' -Dsurefire.failIfNoSpecifiedTests=false
 
   test-integration:
     name: 🐳 Docker & Integration Tests
@@ -407,6 +407,20 @@ jobs:
 
       - name: 🐳 Start Docker Compose
         run: docker compose up -d --build
+
+      - name: ✅ Wait for Postgres
+        run: |
+          for i in {1..30}; do
+            if docker exec $(docker ps -qf "ancestor=postgres:14") pg_isready -U postgres -d lotodb; then
+              echo "Postgres ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Postgres not ready"
+          docker compose logs --no-color postgres
+          exit 1
+
 
       - name: ⏳ Wait for API
         run: |
