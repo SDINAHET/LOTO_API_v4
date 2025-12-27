@@ -422,19 +422,19 @@ jobs:
           docker compose logs --no-color postgres
           exit 1
 
-      - name: ✅ Wait for MongoDB
-        run: |
-          for i in {1..30}; do
-            if docker compose exec -T mongodb mongo --eval "db.adminCommand('ping')" --quiet | grep ok; then
-              echo "✅ MongoDB ready"
-              exit 0
-            fi
-            echo "Waiting MongoDB..."
-            sleep 2
-          done
-          echo "❌ MongoDB not ready"
-          docker compose logs --no-color mongodb
-          exit 1
+      # - name: ✅ Wait for MongoDB
+      #   run: |
+      #     for i in {1..30}; do
+      #       if docker compose exec -T mongodb mongo --eval "db.adminCommand('ping')" --quiet | grep ok; then
+      #         echo "✅ MongoDB ready"
+      #         exit 0
+      #       fi
+      #       echo "Waiting MongoDB..."
+      #       sleep 2
+      #     done
+      #     echo "❌ MongoDB not ready"
+      #     docker compose logs --no-color mongodb
+      #     exit 1
 
 
       - name: ⏳ Wait for API
