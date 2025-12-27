@@ -245,6 +245,10 @@ jobs:
       - name: 🧪 Run Unit Tests with Maven
         run: mvn test
 
+      - name: 🧪 Run Unit Tests (exclude context load)
+        run: mvn -B test -Dtest='!com.fdjloto.api.LotoApiApplicationTests'
+
+
   test-integration:
     name: 🐳 Docker & Integration Tests
     runs-on: ubuntu-latest
