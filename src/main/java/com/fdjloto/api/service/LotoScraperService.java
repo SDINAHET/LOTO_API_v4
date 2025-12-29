@@ -1787,6 +1787,17 @@ public class LotoScraperService {
 					lotoResult.setCombinaisonGagnanteSecondTirage(row[38]);
 					lotoResult.setNombreDeGagnantAuRang1SecondTirage(parseInteger(row[39], 0));
 					lotoResult.setRapportDuRang1SecondTirage(parseDouble(row[40], 0.0));
+
+					// ✅ Second tirage : Rang 2 à Rang 4 (colonnes 41 à 46)
+					lotoResult.setNombreDeGagnantAuRang2SecondTirage(parseInteger(row[41], 0));
+					lotoResult.setRapportDuRang2SecondTirage(parseDouble(row[42], 0.0));
+
+					lotoResult.setNombreDeGagnantAuRang3SecondTirage(parseInteger(row[43], 0));
+					lotoResult.setRapportDuRang3SecondTirage(parseDouble(row[44], 0.0));
+
+					lotoResult.setNombreDeGagnantAuRang4SecondTirage(parseInteger(row[45], 0));
+					lotoResult.setRapportDuRang4SecondTirage(parseDouble(row[46], 0.0));
+
 					lotoResult.setNumeroJokerplus(parseInteger(row[47], 0));
 
 					// ✅ Vérification avant d'accéder à la colonne "Devise"

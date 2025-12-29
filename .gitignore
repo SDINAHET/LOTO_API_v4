@@ -42,3 +42,5 @@ build/
 .env.exemple
 /scripts
 .venv/
+
+pycache
