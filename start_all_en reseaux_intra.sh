@@ -185,91 +185,91 @@
 # # Spring reste vivant tant que le script tourne
 # wait
 
-#!/bin/bash
-set -e
+# #!/bin/bash
+# set -e
 
-# Ports
-PORT_STATIC=5500
-PORT_SPRING=8082
-PORT_AI=8091
+# # Ports
+# PORT_STATIC=5500
+# PORT_SPRING=8082
+# PORT_AI=8091
 
-STATIC_DIR="src/main/resources/static"
-AI_FILE="ai.py"
+# STATIC_DIR="src/main/resources/static"
+# AI_FILE="ai.py"
 
-# ✅ Mets true seulement quand tu veux lancer l'AI
-AI_ENABLED=false
+# # ✅ Mets true seulement quand tu veux lancer l'AI
+# AI_ENABLED=false
 
-open_browser() {
-  local URL="$1"
-  if command -v powershell.exe >/dev/null 2>&1; then
-    powershell.exe start "$URL" >/dev/null 2>&1 || true
-    echo "   🪟 Ouverture demandée côté Windows: $URL"
-  else
-    echo "➡️ Ouvre: $URL"
-  fi
-}
+# open_browser() {
+#   local URL="$1"
+#   if command -v powershell.exe >/dev/null 2>&1; then
+#     powershell.exe start "$URL" >/dev/null 2>&1 || true
+#     echo "   🪟 Ouverture demandée côté Windows: $URL"
+#   else
+#     echo "➡️ Ouvre: $URL"
+#   fi
+# }
 
-start_ai_service() {
-  echo "==> AI service (8091)"
+# start_ai_service() {
+#   echo "==> AI service (8091)"
 
-  if [ "$AI_ENABLED" != "true" ]; then
-    echo "   ⏭️ AI désactivée (AI_ENABLED=false)"
-    return 0
-  fi
+#   if [ "$AI_ENABLED" != "true" ]; then
+#     echo "   ⏭️ AI désactivée (AI_ENABLED=false)"
+#     return 0
+#   fi
 
-  if lsof -i :"$PORT_AI" >/dev/null 2>&1; then
-    echo "   ⚠️ Port $PORT_AI déjà utilisé (skip)"
-    return 0
-  fi
+#   if lsof -i :"$PORT_AI" >/dev/null 2>&1; then
+#     echo "   ⚠️ Port $PORT_AI déjà utilisé (skip)"
+#     return 0
+#   fi
 
-  nohup python3 -m uvicorn ai:app --host 0.0.0.0 --port "$PORT_AI" \
-    >/tmp/ai_8091.log 2>&1 & disown
+#   nohup python3 -m uvicorn ai:app --host 0.0.0.0 --port "$PORT_AI" \
+#     >/tmp/ai_8091.log 2>&1 & disown
 
-  for _ in {1..20}; do
-    if curl -s "http://localhost:$PORT_AI/health" >/dev/null 2>&1; then
-      echo "   ✅ AI OK"
-      return 0
-    fi
-    sleep 1
-  done
+#   for _ in {1..20}; do
+#     if curl -s "http://localhost:$PORT_AI/health" >/dev/null 2>&1; then
+#       echo "   ✅ AI OK"
+#       return 0
+#     fi
+#     sleep 1
+#   done
 
-  echo "   ⚠️ AI lancé mais /health ne répond pas"
-  return 0
-}
+#   echo "   ⚠️ AI lancé mais /health ne répond pas"
+#   return 0
+# }
 
-echo "==> MongoDB"
-sudo service mongod start >/dev/null 2>&1 || true
+# echo "==> MongoDB"
+# sudo service mongod start >/dev/null 2>&1 || true
 
-echo "==> PostgreSQL"
-sudo service postgresql start >/dev/null 2>&1 || true
+# echo "==> PostgreSQL"
+# sudo service postgresql start >/dev/null 2>&1 || true
 
-echo "==> Front static (5500)"
-if ! lsof -i :"$PORT_STATIC" >/dev/null 2>&1; then
-  (cd "$STATIC_DIR" && nohup python3 -m http.server "$PORT_STATIC" \
-    >/tmp/static_http.log 2>&1 & disown)
-fi
-open_browser "http://localhost:$PORT_STATIC/"
+# echo "==> Front static (5500)"
+# if ! lsof -i :"$PORT_STATIC" >/dev/null 2>&1; then
+#   (cd "$STATIC_DIR" && nohup python3 -m http.server "$PORT_STATIC" \
+#     >/tmp/static_http.log 2>&1 & disown)
+# fi
+# open_browser "http://localhost:$PORT_STATIC/"
 
-echo "==> Build Spring Boot"
-mvn clean install
+# echo "==> Build Spring Boot"
+# mvn clean install
 
-echo "==> Démarrage Spring Boot"
-mvn spring-boot:run -Dspring-boot.run.arguments="--server.port=$PORT_SPRING" &
+# echo "==> Démarrage Spring Boot"
+# mvn spring-boot:run -Dspring-boot.run.arguments="--server.port=$PORT_SPRING" &
 
-echo "==> Attente Spring Boot..."
-for _ in {1..60}; do
-  if curl -s "http://localhost:$PORT_SPRING/swagger-ui/index.html" >/dev/null 2>&1; then
-    echo "   ✅ Spring UP"
-    break
-  fi
-  sleep 2
-done
-open_browser "http://localhost:$PORT_SPRING/swagger-ui/index.html"
+# echo "==> Attente Spring Boot..."
+# for _ in {1..60}; do
+#   if curl -s "http://localhost:$PORT_SPRING/swagger-ui/index.html" >/dev/null 2>&1; then
+#     echo "   ✅ Spring UP"
+#     break
+#   fi
+#   sleep 2
+# done
+# open_browser "http://localhost:$PORT_SPRING/swagger-ui/index.html"
 
-# ✅ AI: ne démarre que si AI_ENABLED=true
-start_ai_service
+# # ✅ AI: ne démarre que si AI_ENABLED=true
+# start_ai_service
 
-wait
+# wait
 
 # #!/bin/bash
 # set -e
@@ -368,153 +368,153 @@ wait
 # start_ai_service
 # wait
 
-# #!/bin/bash
-# set -e
+#!/bin/bash
+set -e
 
-# # =====================
-# # Ports
-# # =====================
-# PORT_STATIC=5500
-# PORT_SPRING=8082
-# PORT_AI=8091
+# =====================
+# Ports
+# =====================
+PORT_STATIC=5500
+PORT_SPRING=8082
+PORT_AI=8091
 
-# STATIC_DIR="src/main/resources/static"
-# AI_ENABLED=false
+STATIC_DIR="src/main/resources/static"
+AI_ENABLED=false
 
-# # =====================
-# # Détection IPs
-# # =====================
+# =====================
+# Détection IPs
+# =====================
 
-# # IP WSL (172.x.x.x)
-# WSL_IP=$(hostname -I 2>/dev/null | awk '{print $1}')
+# IP WSL (172.x.x.x)
+WSL_IP=$(hostname -I 2>/dev/null | awk '{print $1}')
 
-# # IP LAN Windows (192.168.x.x) via PowerShell
-# LAN_IP=$(powershell.exe -NoProfile -Command \
-#   "(Get-NetIPAddress -AddressFamily IPv4 | Where-Object { \$_.IPAddress -like '192.168.*' } | Select-Object -First 1 -ExpandProperty IPAddress)" \
-#   2>/dev/null | tr -d '\r')
+# IP LAN Windows (192.168.x.x) via PowerShell
+LAN_IP=$(powershell.exe -NoProfile -Command \
+  "(Get-NetIPAddress -AddressFamily IPv4 | Where-Object { \$_.IPAddress -like '192.168.*' } | Select-Object -First 1 -ExpandProperty IPAddress)" \
+  2>/dev/null | tr -d '\r')
 
-# # Fallback si PowerShell échoue
-# LAN_IP=${LAN_IP:-"<ip-lan>"}
+# Fallback si PowerShell échoue
+LAN_IP=${LAN_IP:-"<ip-lan>"}
 
-# # =====================
-# # Fonctions
-# # =====================
+# =====================
+# Fonctions
+# =====================
 
-# open_browser() {
-#   local URL="$1"
-#   if command -v powershell.exe >/dev/null 2>&1; then
-#     powershell.exe start "$URL" >/dev/null 2>&1 || true
-#   else
-#     echo "➡️ Ouvre: $URL"
-#   fi
-# }
+open_browser() {
+  local URL="$1"
+  if command -v powershell.exe >/dev/null 2>&1; then
+    powershell.exe start "$URL" >/dev/null 2>&1 || true
+  else
+    echo "➡️ Ouvre: $URL"
+  fi
+}
 
-# start_ai_service() {
-#   echo "==> AI service ($PORT_AI)"
+start_ai_service() {
+  echo "==> AI service ($PORT_AI)"
 
-#   if [ "$AI_ENABLED" != "true" ]; then
-#     echo "   ⏭️ AI désactivée (AI_ENABLED=false)"
-#     return 0
-#   fi
+  if [ "$AI_ENABLED" != "true" ]; then
+    echo "   ⏭️ AI désactivée (AI_ENABLED=false)"
+    return 0
+  fi
 
-#   if lsof -i :"$PORT_AI" >/dev/null 2>&1; then
-#     echo "   ⚠️ Port $PORT_AI déjà utilisé"
-#     return 0
-#   fi
+  if lsof -i :"$PORT_AI" >/dev/null 2>&1; then
+    echo "   ⚠️ Port $PORT_AI déjà utilisé"
+    return 0
+  fi
 
-#   nohup python3 -m uvicorn ai:app --host 0.0.0.0 --port "$PORT_AI" \
-#     >/tmp/ai_${PORT_AI}.log 2>&1 & disown
+  nohup python3 -m uvicorn ai:app --host 0.0.0.0 --port "$PORT_AI" \
+    >/tmp/ai_${PORT_AI}.log 2>&1 & disown
 
-#   for _ in {1..20}; do
-#     if curl -s "http://localhost:$PORT_AI/health" >/dev/null 2>&1; then
-#       echo "   ✅ AI OK"
-#       return 0
-#     fi
-#     sleep 1
-#   done
+  for _ in {1..20}; do
+    if curl -s "http://localhost:$PORT_AI/health" >/dev/null 2>&1; then
+      echo "   ✅ AI OK"
+      return 0
+    fi
+    sleep 1
+  done
 
-#   echo "   ⚠️ AI lancé mais /health ne répond pas"
-# }
+  echo "   ⚠️ AI lancé mais /health ne répond pas"
+}
 
-# # =====================
-# # Services
-# # =====================
+# =====================
+# Services
+# =====================
 
-# echo "==> MongoDB"
-# sudo service mongod start >/dev/null 2>&1 || true
+echo "==> MongoDB"
+sudo service mongod start >/dev/null 2>&1 || true
 
-# echo "==> PostgreSQL"
-# sudo service postgresql start >/dev/null 2>&1 || true
+echo "==> PostgreSQL"
+sudo service postgresql start >/dev/null 2>&1 || true
 
-# # =====================
-# # Front static
-# # =====================
+# =====================
+# Front static
+# =====================
 
-# echo "==> Front static ($PORT_STATIC)"
-# if ! lsof -i :"$PORT_STATIC" >/dev/null 2>&1; then
-#   (cd "$STATIC_DIR" && nohup python3 -m http.server "$PORT_STATIC" --bind 0.0.0.0 \
-#     >/tmp/static_http.log 2>&1 & disown)
-# fi
+echo "==> Front static ($PORT_STATIC)"
+if ! lsof -i :"$PORT_STATIC" >/dev/null 2>&1; then
+  (cd "$STATIC_DIR" && nohup python3 -m http.server "$PORT_STATIC" --bind 0.0.0.0 \
+    >/tmp/static_http.log 2>&1 & disown)
+fi
 
-# # =====================
-# # Spring Boot
-# # =====================
+# =====================
+# Spring Boot
+# =====================
 
-# echo "==> Build Spring Boot"
-# mvn clean install
+echo "==> Build Spring Boot"
+mvn clean install
 
-# echo "==> Démarrage Spring Boot ($PORT_SPRING)"
-# mvn spring-boot:run \
-#   -Dspring-boot.run.arguments="--server.port=$PORT_SPRING --server.address=0.0.0.0" &
+echo "==> Démarrage Spring Boot ($PORT_SPRING)"
+mvn spring-boot:run \
+  -Dspring-boot.run.arguments="--server.port=$PORT_SPRING --server.address=0.0.0.0" &
 
-# echo "==> Attente Spring Boot..."
-# for _ in {1..60}; do
-#   if curl -s "http://localhost:$PORT_SPRING/swagger-ui/index.html" >/dev/null 2>&1; then
-#     echo "   ✅ Spring UP"
-#     break
-#   fi
-#   sleep 2
-# done
+echo "==> Attente Spring Boot..."
+for _ in {1..60}; do
+  if curl -s "http://localhost:$PORT_SPRING/swagger-ui/index.html" >/dev/null 2>&1; then
+    echo "   ✅ Spring UP"
+    break
+  fi
+  sleep 2
+done
 
-# # =====================
-# # AFFICHAGE DES URLS
-# # =====================
+# =====================
+# AFFICHAGE DES URLS
+# =====================
 
-# echo ""
-# echo "================= ACCÈS DISPONIBLES ================="
-# echo ""
-# echo "🖥️  LOCAL (PC uniquement)"
-# echo "   Front : http://localhost:$PORT_STATIC/"
-# echo "   API   : http://localhost:$PORT_SPRING/swagger-ui/index.html"
-# if [ "$AI_ENABLED" = "true" ]; then
-#   echo "   AI    : http://localhost:$PORT_AI/health"
-# fi
+echo ""
+echo "================= ACCÈS DISPONIBLES ================="
+echo ""
+echo "🖥️  LOCAL (PC uniquement)"
+echo "   Front : http://localhost:$PORT_STATIC/"
+echo "   API   : http://localhost:$PORT_SPRING/swagger-ui/index.html"
+if [ "$AI_ENABLED" = "true" ]; then
+  echo "   AI    : http://localhost:$PORT_AI/health"
+fi
 
-# echo ""
-# echo "🐧 WSL (réseau interne)"
-# echo "   Front : http://$WSL_IP:$PORT_STATIC/"
-# echo "   API   : http://$WSL_IP:$PORT_SPRING/swagger-ui/index.html"
-# if [ "$AI_ENABLED" = "true" ]; then
-#   echo "   AI    : http://$WSL_IP:$PORT_AI/health"
-# fi
+echo ""
+echo "🐧 WSL (réseau interne)"
+echo "   Front : http://$WSL_IP:$PORT_STATIC/"
+echo "   API   : http://$WSL_IP:$PORT_SPRING/swagger-ui/index.html"
+if [ "$AI_ENABLED" = "true" ]; then
+  echo "   AI    : http://$WSL_IP:$PORT_AI/health"
+fi
 
-# echo ""
-# echo "📱 INTRANET (Téléphone / autres PC)"
-# echo "   Front : http://$LAN_IP:$PORT_STATIC/"
-# echo "   API   : http://$LAN_IP:$PORT_SPRING/swagger-ui/index.html"
-# if [ "$AI_ENABLED" = "true" ]; then
-#   echo "   AI    : http://$LAN_IP:$PORT_AI/health"
-# fi
+echo ""
+echo "📱 INTRANET (Téléphone / autres PC)"
+echo "   Front : http://$LAN_IP:$PORT_STATIC/"
+echo "   API   : http://$LAN_IP:$PORT_SPRING/swagger-ui/index.html"
+if [ "$AI_ENABLED" = "true" ]; then
+  echo "   AI    : http://$LAN_IP:$PORT_AI/health"
+fi
 
-# echo "====================================================="
-# echo ""
+echo "====================================================="
+echo ""
 
-# # =====================
-# # Ouvrir localement
-# # =====================
+# =====================
+# Ouvrir localement
+# =====================
 
-# open_browser "http://localhost:$PORT_STATIC/"
-# open_browser "http://localhost:$PORT_SPRING/swagger-ui/index.html"
+open_browser "http://localhost:$PORT_STATIC/"
+open_browser "http://localhost:$PORT_SPRING/swagger-ui/index.html"
 
-# start_ai_service
-# wait
+start_ai_service
+wait
