@@ -191,7 +191,7 @@ set -e
 # Ports
 PORT_STATIC=5500
 PORT_SPRING=8082
-PORT_AI=8090
+PORT_AI=8091
 
 STATIC_DIR="src/main/resources/static"
 AI_FILE="ai.py"
@@ -223,7 +223,7 @@ start_ai_service() {
   fi
 
   nohup python3 -m uvicorn ai:app --host 0.0.0.0 --port "$PORT_AI" \
-    >/tmp/ai_8090.log 2>&1 & disown
+    >/tmp/ai_8091.log 2>&1 & disown
 
   for _ in {1..20}; do
     if curl -s "http://localhost:$PORT_AI/health" >/dev/null 2>&1; then
