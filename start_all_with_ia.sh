@@ -112,7 +112,7 @@ set -e
 # Ports
 PORT_STATIC=5500
 PORT_SPRING=8082
-PORT_AI=8090
+PORT_AI=8091
 
 STATIC_DIR="src/main/resources/static"
 AI_FILE="ai.py"

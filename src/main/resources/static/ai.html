@@ -695,7 +695,7 @@
 
       <div class="lt-status" id="lt-status">
         🔎 Statut ai-service : <b>non vérifié</b><br/>
-        Lance <code>uvicorn app:app --host 0.0.0.0 --port 8090</code>
+        Lance <code>uvicorn app:app --host 0.0.0.0 --port 8091</code>
       </div>
     </div>
 
@@ -721,10 +721,10 @@
     // ✅ API_BASE : si la page est en file:// => localhost. Sinon, même host que la page (pratique en réseau).
     const guessBase = () => {
       try {
-        if (location.protocol === "file:") return "http://127.0.0.1:8090";
-        return location.origin.replace(/:\d+$/, "") + ":8090";
+        if (location.protocol === "file:") return "http://127.0.0.1:8091";
+        return location.origin.replace(/:\d+$/, "") + ":8091";
       } catch {
-        return "http://127.0.0.1:8090";
+        return "http://127.0.0.1:8091";
       }
     };
     const API_BASE = localStorage.getItem("LT_API_BASE") || guessBase();
@@ -1236,7 +1236,7 @@
         loader.textContent =
           "❌ Impossible de contacter ai-service.\n" +
           "Vérifie :\n" +
-          "1) uvicorn tourne sur 8090\n" +
+          "1) uvicorn tourne sur 8091\n" +
           "2) API_BASE = " + API_BASE + "\n" +
           "3) CORS backend autorise l’origine du front\n" +
           "Détail: " + (e?.message || e);
@@ -1357,7 +1357,7 @@
         if(!r.ok) throw new Error();
         statusEl.innerHTML = "✅ Statut ai-service : <b>OK</b> — " + API_BASE;
       }catch{
-        statusEl.innerHTML = "❌ Statut ai-service : <b>OFF</b><br/>Lance <code>uvicorn app:app --host 0.0.0.0 --port 8090</code>";
+        statusEl.innerHTML = "❌ Statut ai-service : <b>OFF</b><br/>Lance <code>uvicorn ai:app --host 0.0.0.0 --port 8091</code>";
       }
     })();
 
