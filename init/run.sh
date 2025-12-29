@@ -4,10 +4,10 @@ set -e
 SCRIPTS=(
   "00-env.sh"
   "01-apt-base.sh"
-  "00-free-port-5432.sh"
+  # "00-free-port-5432.sh"
   "02-java-maven.sh"
   "06-docker.sh"
-  "03-postgres14.sh"
+  "03-postgres.sh"
   "04-mongodb7.sh"
   "05-db-init-sql.sh"
   "07-ollama.sh"

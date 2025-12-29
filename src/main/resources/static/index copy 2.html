@@ -749,7 +749,7 @@
           </div>
           <div id="mapMobile" style="height: 60vh; border-radius: 14px; border: 1px solid rgba(255,255,255,.12);"></div>
           <div class="small mt-2">
-            Source : OpenStreetMap + Overpass (gratuit).
+            Source : OpenStreetMap
           </div>
         </div>
       </div>
@@ -1297,9 +1297,47 @@
           node(around:${radiusMeters},${lat},${lon})["shop"="kiosk"];
           node(around:${radiusMeters},${lat},${lon})["shop"="convenience"];
           node(around:${radiusMeters},${lat},${lon})["amenity"="newsagent"];
+          node(around:${radiusMeters},${lat},${lon})["name"~"FDJ|Française des Jeux|Parions Sport|Loto", i];
+          node(around:${radiusMeters},${lat},${lon})["brand"~"FDJ|Française des Jeux|Parions Sport", i];
+          node(around:${radiusMeters},${lat},${lon})["operator"~"FDJ|Française des Jeux|Parions Sport", i];
         );
         out center tags;
       `.trim();
+
+      //const query = `
+      //  [out:json][timeout:25];
+      //  (
+      //    /* 1) CONFIRMÉS (indice dans nom/brand/operator/description) */
+      //    node(around:${radiusMeters},${lat},${lon})["name"~"fdj|française des jeux|francaise des jeux|loto|euromillions|euro millions|pmu",i];
+      //    node(around:${radiusMeters},${lat},${lon})["brand"~"fdj|française des jeux|francaise des jeux|loto|euromillions|pmu",i];
+      //    node(around:${radiusMeters},${lat},${lon})["operator"~"fdj|française des jeux|francaise des jeux|loto|euromillions|pmu",i];
+      //    node(around:${radiusMeters},${lat},${lon})["description"~"fdj|française des jeux|francaise des jeux|loto|euromillions|pmu",i];
+
+      //    /* 2) PROBABLES (types de commerces courants) */
+      //    node(around:${radiusMeters},${lat},${lon})["shop"="tobacco"];
+      //    node(around:${radiusMeters},${lat},${lon})["amenity"="newsagent"];
+      //    node(around:${radiusMeters},${lat},${lon})["shop"="kiosk"];
+      //    node(around:${radiusMeters},${lat},${lon})["shop"="convenience"];
+
+      //    /* bonus utiles en France selon zones */
+      //    node(around:${radiusMeters},${lat},${lon})["shop"="supermarket"];
+      //    node(around:${radiusMeters},${lat},${lon})["shop"="stationery"];
+      //  );
+      //  out center tags;
+      //  `.trim();
+
+      //const queryFDJ = `
+      //[out:json][timeout:25];
+      //(
+      //  node(around:${radiusMeters},${lat},${lon})["name"~"FDJ|Française des Jeux|Parions Sport|Loto", i];
+      //  node(around:${radiusMeters},${lat},${lon})["brand"~"FDJ|Française des Jeux|Parions Sport", i];
+      //  node(around:${radiusMeters},${lat},${lon})["operator"~"FDJ|Française des Jeux|Parions Sport", i];
+      //);
+      //out center tags;
+      //`.trim();
+
+
+
 
       try{
         const res = await fetch("https://overpass-api.de/api/interpreter", {
@@ -1421,8 +1459,11 @@
       }
     });
   </script>
-<!-- Chargement du module IA -->
-<script src="ai-loader.js"></script>
+
+  <!-- ✅ Chatbot sur toutes les pages -->
+  <script src="ai-loader.js"></script>
+</body>
+</html>
 
 </body>
 </html>
