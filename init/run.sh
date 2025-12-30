@@ -8,7 +8,7 @@ SCRIPTS=(
   "02-java-maven.sh"
   "06-docker.sh"
   "03-postgres.sh"
-  "04-mongodb7.sh"
+  "04-mongodb.sh"
   "05-db-init-sql.sh"
   "07-ollama.sh"
   "99-check.sh"
