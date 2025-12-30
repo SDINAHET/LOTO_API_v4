@@ -42,3 +42,10 @@ fi
 
 echo "✅ MongoDB 7.0 installé."
 echo "Test: mongosh --eval 'db.runCommand({ ping: 1 })'"
+
+
+# Note : le méta-paquet mongodb-org installe automatiquement :
+# mongodb-org-server → mongod
+# mongodb-org-mongos
+# mongodb-org-tools
+# mongodb-mongosh
