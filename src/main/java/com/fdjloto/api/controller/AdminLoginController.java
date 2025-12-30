@@ -714,16 +714,62 @@ public class AdminLoginController {
 
     <form id="adminLoginForm">
         <div style="margin-bottom:10px;">
-            <label for="email" style="display:block;font-size:0.85rem;margin-bottom:4px;">Email admin</label>
+        <label for="email" style="display:block;font-size:0.85rem;margin-bottom:4px;">Email admin</label>
+
+        <div style="position:relative;width:100%;">
             <input id="email" type="email" required
-                   style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid #4b5563;background:#020617;color:#e5e7eb;">
+            style="width:100%;
+                    box-sizing:border-box;
+                    padding:8px 46px 8px 10px;
+                    border-radius:8px;
+                    border:1px solid #4b5563;
+                    background:#020617;
+                    color:#e5e7eb;">
+
+            <!-- ✅ / ❌ indicateur -->
+            <div id="emailStatus"
+            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);
+                    width:26px;height:26px;
+                    display:flex;align-items:center;justify-content:center;
+                    pointer-events:none;opacity:0;transition:opacity .15s ease;">
+            <!-- SVG (sera injecté en JS) -->
+            </div>
+        </div>
         </div>
 
+
         <div style="margin-bottom:14px;">
-            <label for="password" style="display:block;font-size:0.85rem;margin-bottom:4px;">Mot de passe</label>
+        <label for="password" style="display:block;font-size:0.85rem;margin-bottom:4px;">Mot de passe</label>
+
+        <div style="position:relative;width:100%;">
             <input id="password" type="password" required
-                   style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid #4b5563;background:#020617;color:#e5e7eb;">
+            style="width:100%;
+                    box-sizing:border-box;
+                    padding:8px 46px 8px 10px;
+                    border-radius:8px;
+                    border:1px solid #4b5563;
+                    background:#020617;
+                    color:#e5e7eb;">
+
+            <button type="button" id="togglePassword"
+            aria-label="Afficher / masquer le mot de passe"
+            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);
+                    width:26px;height:26px;padding:0;
+                    background:none;border:none;cursor:pointer;
+                    display:flex;align-items:center;justify-content:center;">
+            <!-- 👁️ SVG néon -->
+            <svg id="eyeIcon" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                stroke="#22c55e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                style="filter:drop-shadow(0 0 6px rgba(34,197,94,0.8));transition:all 0.25s ease;">
+                <path id="eyeOpen" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+                <circle id="eyePupil" cx="12" cy="12" r="3"/>
+                <line id="eyeSlash" x1="3" y1="21" x2="21" y2="3" style="opacity:0;transition:opacity 0.2s ease;"/>
+            </svg>
+            </button>
         </div>
+        </div>
+
+
 
         <!-- 🔐 CAPTCHA très avancé -->
         <div style="margin-bottom:14px;">
@@ -792,6 +838,92 @@ public class AdminLoginController {
         const colors = ["#f97316", "#22c55e", "#38bdf8", "#a855f7", "#eab308", "#f97373", "#34d399"];
         return colors[Math.floor(Math.random() * colors.length)];
     }
+
+    // ✅ Validation email (regex) + icône + bordure néon
+    const emailInput = document.getElementById("email");
+    const emailStatus = document.getElementById("emailStatus");
+
+    // IMPORTANT: dans un text block Java, il faut doubler les backslashes
+    const EMAIL_REGEX = /^(?=.{6,254}$)(?=.{1,64}@)[A-Za-z0-9]+([._%+-][A-Za-z0-9]+)*@([A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z]{2,}$/;
+
+    const ICON_OK = `
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+    stroke="#22c55e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"
+    style="filter:drop-shadow(0 0 8px rgba(34,197,94,1));">
+    <path d="M20 6 9 17l-5-5"></path>
+    </svg>`;
+
+    const ICON_KO = `
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+    stroke="#ef4444" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"
+    style="filter:drop-shadow(0 0 8px rgba(239,68,68,1));">
+    <path d="M18 6 6 18"></path>
+    <path d="M6 6 18 18"></path>
+    </svg>`;
+
+    function setEmailNeutral() {
+    emailInput.style.border = "1px solid #4b5563";
+    emailInput.style.boxShadow = "none";
+    emailStatus.style.opacity = "0";
+    emailStatus.innerHTML = "";
+    }
+
+    function setEmailValid() {
+    emailInput.style.border = "1px solid #22c55e";
+    emailInput.style.boxShadow = "0 0 0 2px rgba(34,197,94,0.18), 0 0 18px rgba(34,197,94,0.18)";
+    emailStatus.style.opacity = "1";
+    emailStatus.innerHTML = ICON_OK;
+    }
+
+    function setEmailInvalid() {
+    emailInput.style.border = "1px solid #ef4444";
+    emailInput.style.boxShadow = "0 0 0 2px rgba(239,68,68,0.18), 0 0 18px rgba(239,68,68,0.18)";
+    emailStatus.style.opacity = "1";
+    emailStatus.innerHTML = ICON_KO;
+    }
+
+    function validateEmailLive() {
+    const v = emailInput.value.trim();
+
+    // vide -> neutre
+    if (!v) {
+        setEmailNeutral();
+        return;
+    }
+
+    // valid / invalid
+    if (EMAIL_REGEX.test(v)) setEmailValid();
+    else setEmailInvalid();
+    }
+
+    emailInput.addEventListener("input", validateEmailLive);
+    emailInput.addEventListener("blur", validateEmailLive);
+    validateEmailLive();
+
+
+    // 👁️ Toggle password – œil néon
+    const togglePasswordBtn = document.getElementById("togglePassword");
+    const passwordInput = document.getElementById("password");
+    const eyeSlash = document.getElementById("eyeSlash");
+    const eyeIcon = document.getElementById("eyeIcon");
+
+    function syncEyeState() {
+    const hidden = passwordInput.type === "password"; // caché = password
+    eyeSlash.style.opacity = hidden ? "1" : "0";      // barré quand c’est caché
+    eyeIcon.style.filter = hidden
+        ? "drop-shadow(0 0 6px rgba(34,197,94,0.7))"
+        : "drop-shadow(0 0 10px rgba(34,197,94,1))";
+    }
+
+    togglePasswordBtn.addEventListener("click", () => {
+    passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+    syncEyeState();
+    });
+
+    // état initial (important)
+    syncEyeState();
+
+
 
     function generateCaptcha() {
         captchaCode = "";
