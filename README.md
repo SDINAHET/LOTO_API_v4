@@ -691,8 +691,11 @@ sudo apt install -y \
 
 ## 8. Installation du projet
 ### 8.1 Récupération du code source
-git clone <url-du-depot>
-cd loto-tracker-api
+
+```bash
+git clone [<url-du-depot>](https://github.com/SDINAHET/LOTO_API_v4.git)
+cd LOTO_API_v4
+```
 
 ### 8.2 Initialisation de PostgreSQL
 
