@@ -470,19 +470,19 @@ Ce projet a été conçu comme un projet de fin de parcours à visée RNCP6, dé
 
 Le projet répond explicitement aux attendus du Titre RNCP Niveau 6 – Développeur Concepteur d’Applications, notamment :
 
-analyser un besoin métier et le traduire en fonctionnalités techniques ;
+- analyser un besoin métier et le traduire en fonctionnalités techniques ;
 
-concevoir une architecture logicielle robuste ;
+- concevoir une architecture logicielle robuste ;
 
-développer une API REST conforme aux standards actuels ;
+- développer une API REST conforme aux standards actuels ;
 
-sécuriser les accès et les données ;
+- sécuriser les accès et les données ;
 
-gérer plusieurs systèmes de stockage adaptés aux usages ;
+- gérer plusieurs systèmes de stockage adaptés aux usages ;
 
-produire une documentation technique exploitable par un tiers ;
+- produire une documentation technique exploitable par un tiers ;
 
-préparer un déploiement en environnement réel.
+- préparer un déploiement en environnement réel.
 
 ## 3. Description fonctionnelle détaillée
 
