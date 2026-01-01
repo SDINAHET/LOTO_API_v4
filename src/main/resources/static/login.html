@@ -458,7 +458,8 @@
     function checkAuth() {
       const tokenCookie = getCookie("jwtToken");
       const tokenLS = localStorage.getItem("jwtToken");
-      if (tokenCookie || tokenLS) window.location.href = "index_connexion.html";
+      /* if (tokenCookie || tokenLS) window.location.href = "index_connexion.html"; */
+      if (tokenCookie || tokenLS) window.location.href = "index.html";
     }
     document.addEventListener("DOMContentLoaded", checkAuth);
 
@@ -613,7 +614,8 @@
         startLotoBallsTransition();
 
         setTimeout(() => {
-          window.location.href = "index_connexion.html";
+          /* window.location.href = "index_connexion.html"; */
+          window.location.href = "index.html";
         }, 1600);
 
       } catch (e) {

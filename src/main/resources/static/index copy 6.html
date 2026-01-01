@@ -42,9 +42,15 @@
       --sidebar-w: 280px;
       --rightbar-w: 360px;
 
-      --ball: 22px;
-      --ball-font: 0.68rem;
+      /* ✅ boules plus petites + jamais de retour à la ligne */
+      /*--ball: 24px;*/
+      /*--ball-font: 0.72rem;*/
+      /*--ball-gap: 5px;*/
+
+      --ball: 22px;          /* taille de la boule */
+      --ball-font: 0.68rem;  /* texte plus petit */
       --ball-gap: 6px;
+
     }
 
     body{
@@ -69,7 +75,7 @@
       max-width: 1500px;
       margin: 0 auto;
       padding: 16px;
-      align-items: start;
+      align-items: start; /* ✅ le dashboard reste collé au côté */
     }
 
     /* Sidebar (desktop) : sticky + scroll interne */
@@ -77,13 +83,15 @@
       position: sticky;
       top: calc(var(--topbar-h) + 16px);
       max-height: calc(100vh - var(--topbar-h) - 32px);
+
       border-radius: var(--radius);
       border: 1px solid var(--stroke);
       background: rgba(10,16,28,.65);
       backdrop-filter: blur(12px);
       box-shadow: var(--shadow);
       padding: 12px;
-      overflow: auto;
+
+      overflow: auto;          /* ✅ scroll interne */
       align-self: start;
     }
 
@@ -126,6 +134,8 @@
       display:flex;
       flex-direction:column;
       gap: 16px;
+      /*overflow-y: auto;
+      max-height: calc(100vh - var(--topbar-h));*/
       overflow: visible;
       max-height: none;
     }
@@ -154,6 +164,17 @@
     .panel-head h1{ font-size: 1.45rem; }
     .panel-head h2{ font-size: 1.1rem; }
     .muted{ color: var(--muted); }
+
+    .badge-soft{
+      background: rgba(255,255,255,.08);
+      border: 1px solid var(--stroke);
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-weight:800;
+      font-size:.82rem;
+      white-space: nowrap;
+    }
 
     /* Countdown */
     .countdown-wrap{
@@ -209,6 +230,7 @@
     .cards-grid{
       display:grid;
       grid-template-columns: repeat(3, minmax(0,1fr));
+      /*gap: 12px;*/
       gap: 14px;
       grid-auto-rows: auto;
     }
@@ -218,7 +240,7 @@
       border-radius: 16px;
       padding: 14px;
       min-width:0;
-      overflow: visible;
+      overflow: visible; /* ✅ pas de masquage */
     }
     .result-card h3{
       margin:0 0 10px;
@@ -230,7 +252,7 @@
       text-overflow: ellipsis;
     }
 
-    /* ✅ Boules: tout sur 1 ligne, scroll si besoin */
+    /* ✅ Boules: tout sur 1 ligne, scroll si besoin (jamais de retour à la ligne) */
     .balls{
       display:flex;
       flex-wrap: nowrap;
@@ -406,13 +428,14 @@
         transition: transform .22s ease;
         z-index:70;
         border-radius: 0 18px 18px 0;
-        overflow-y: auto;
+        overflow-y: auto;   /* ✅ scroll interne du menu */
         -webkit-overflow-scrolling: touch;
       }
       .sidebar.open{ transform: translateX(0); }
       .cards-grid{ grid-template-columns: 1fr; }
       .search-grid{ grid-template-columns: 1fr; }
 
+      /* un peu plus petit en mobile pour éviter tout masquage */
       :root{ --ball: 22px; --ball-font: .70rem; --ball-gap: 5px; }
     }
 
@@ -480,44 +503,29 @@
       padding: 10px 12px;
       min-width: 140px;
       text-align:center;
-    }
+      }
+  /* =========================================================
+    GRILLES – Derniers tirages & Recherche
+  ========================================================= */
 
-    /* ✅ meta bloc détail */
-    .detail-meta{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      justify-content:center;
-      margin-top: 10px;
-    }
-    .meta-chip{
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-weight: 900;
-      color: rgba(255,255,255,.9);
-      white-space: nowrap;
-    }
-    .meta-chip b{ color: rgba(96,165,250,.95); }
+  /* Desktop : 2 colonnes max */
+  #last20,
+  #searchResults{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    align-items: start;
+  }
 
-    /* =========================================================
-      GRILLES – Derniers tirages & Recherche
-    ========================================================= */
+  /* Mobile : 1 colonne */
+  @media (max-width: 768px){
     #last20,
     #searchResults{
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      align-items: start;
+      grid-template-columns: 1fr;
     }
+  }
 
-    @media (max-width: 768px){
-      #last20,
-      #searchResults{
-        grid-template-columns: 1fr;
-      }
-    }
+
   </style>
 </head>
 
@@ -544,6 +552,7 @@
             <h1>Résultats du Loto</h1>
             <div class="muted" id="nextDrawInfo">Prochain tirage : —</div>
           </div>
+          <!-- <span class="badge-soft" id="apiStatus">API : —</span> -->
         </div>
 
         <div class="countdown-wrap">
@@ -551,6 +560,7 @@
           <div class="next-draws" id="nextDraws"></div>
 
           <button class="btn-primary-app" onclick="showPrediction()">
+            <!-- <i class="fa-solid fa-wand-magic-sparkles"></i> -->
             Stats du prochain tirage
           </button>
         </div>
@@ -560,6 +570,7 @@
       <section class="panel">
         <div class="panel-head">
           <h2>Derniers tirages</h2>
+          <!-- <span class="badge-soft">Last 20</span> -->
         </div>
         <div class="cards-grid" id="last20"></div>
       </section>
@@ -568,6 +579,7 @@
       <section class="panel">
         <div class="panel-head">
           <h2>Rechercher un tirage</h2>
+          <!-- <span class="badge-soft">Plage max : 1 mois</span> -->
         </div>
 
         <div class="search-grid">
@@ -584,7 +596,9 @@
           </button>
         </div>
 
-        <div class="muted" id="searchHint" style="margin-top:10px;"></div>
+        <div class="muted" id="searchHint" style="margin-top:10px;">
+          <!-- Astuce : si tu ne mets pas “Au”, on cherche uniquement sur “Du”. -->
+        </div>
 
         <div style="margin-top:14px;">
           <div class="cards-grid" id="searchResults"></div>
@@ -615,6 +629,7 @@
       <div id="map"></div>
       <div class="small">
         Source : OpenStreetMap (Leaflet) + Overpass (gratuit).
+        <!-- Résultats “Tabac / Kiosk / Convenience”. -->
       </div>
     </aside>
   </div>
@@ -689,7 +704,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- ✅ Sidebar + Auth-only + Burger -->
+  <!-- ✅ Sidebar + Auth-only + Burger + FIX HttpOnly cookie -->
   <script>
     (function () {
       const API_BASE =
@@ -709,6 +724,7 @@
               <i class="fa-solid fa-chart-line"></i><span>Résultats</span>
             </a>
 
+            <!-- ✅ visibles uniquement connecté -->
             <a class="nav-item auth-only${active("tickets.html")}" href="tickets.html" data-auth="required" data-map="hide" style="display:none;">
               <i class="fa-solid fa-ticket"></i><span>Tickets</span>
             </a>
@@ -728,6 +744,9 @@
             <a class="nav-item${active("euromillions.html")}" href="euromillions.html" data-map="hide">
               <i class="fa-solid fa-star"></i><span>Euromillions</span>
             </a>
+
+            <div class="nav-sep"></div>
+
 
             <div id="sidebarMapBlock">
               <div class="nav-sep"></div>
@@ -752,9 +771,11 @@
       }
 
       function bindBurger() {
+        // évite double bind (si la page ré-initialise le layout)
         if (document.documentElement.dataset.burgerDelegation === "1") return;
         document.documentElement.dataset.burgerDelegation = "1";
 
+        // Click burger (même si le bouton est injecté après)
         document.addEventListener("click", (e) => {
           const isBurger = e.target.closest("#burgerBtn");
           if (!isBurger) return;
@@ -768,6 +789,7 @@
           document.body.classList.toggle("no-scroll", open);
         });
 
+        // Click overlay -> ferme
         document.addEventListener("click", (e) => {
           const isOverlay = e.target.id === "overlay";
           if (!isOverlay) return;
@@ -781,6 +803,7 @@
           document.body.classList.remove("no-scroll");
         });
 
+        // ESC -> ferme
         document.addEventListener("keydown", (e) => {
           if (e.key !== "Escape") return;
 
@@ -794,11 +817,18 @@
         });
       }
 
+
+
       async function fetchUserInfo() {
+        const lsToken = localStorage.getItem("jwtToken");
+        const headers = {};
+        if (lsToken) headers["Authorization"] = `Bearer ${lsToken}`;
+
+        // ✅ IMPORTANT : on ne dépend PAS de document.cookie (HttpOnly invisible)
         const res = await fetch(`${API_BASE}/api/protected/userinfo`, {
           method: "GET",
           credentials: "include",
-          cache: "no-store"
+          headers
         });
         if (!res.ok) throw new Error("Not authenticated");
         return await res.json();
@@ -806,12 +836,19 @@
 
       async function applyAuthOnly() {
         let logged = false;
-        try { await fetchUserInfo(); logged = true; } catch { logged = false; }
+
+        try {
+          await fetchUserInfo();
+          logged = true;
+        } catch {
+          logged = false;
+        }
 
         document.querySelectorAll(".auth-only").forEach((el) => {
           el.style.display = logged ? "" : "none";
         });
 
+        // si non logué: redirige vers login sur clic
         if (!logged) {
           document.querySelectorAll(".auth-only").forEach((a) => {
             a.addEventListener("click", (e) => {
@@ -823,19 +860,42 @@
         }
       }
 
+      // ✅ Fix topbar (évite “Se connecter” alors que cookie HttpOnly est OK)
+      async function syncTopbarAuth() {
+        const authBtn = document.getElementById("authActionBtn");
+        const userChip = document.getElementById("userChip");
+        const userEmail = document.getElementById("userEmail");
+        if (!authBtn || !userChip || !userEmail) return;
+
+        try {
+          const data = await fetchUserInfo();
+          const shown = data.username || data.email || "Utilisateur";
+          authBtn.style.display = "none";
+          userChip.style.display = "inline-flex";
+          userEmail.textContent = shown;
+        } catch {
+          userChip.style.display = "none";
+          authBtn.style.display = "inline-flex";
+        }
+      }
+
       document.addEventListener("layout:ready", () => {
         const mount = document.getElementById("appSidebar");
         if (mount) mount.innerHTML = renderSidebar();
+
         bindBurger();
 
         setTimeout(() => {
+          syncTopbarAuth();
           applyAuthOnly();
         }, 80);
 
         setTimeout(() => {
+          syncTopbarAuth();
           applyAuthOnly();
         }, 800);
       });
+
     })();
   </script>
 
@@ -849,6 +909,22 @@
         : "https://stephanedinahet.fr";
 
     /* =========================
+      API health badge
+    ========================== */
+    async function pingApi(){
+      const badge = document.getElementById("apiStatus");
+      try{
+        await axios.get(`${API_BASE}/api/historique/last20`, { timeout: 4500 });
+        badge.textContent = "API : OK";
+        badge.style.color = "rgba(255,255,255,.92)";
+      }catch(e){
+        badge.textContent = "API : OFF";
+        badge.style.color = "rgba(239,68,68,.95)";
+      }
+    }
+    pingApi();
+
+    /* =========================
       Countdown next draw
     ========================== */
     function startCountdown(){
@@ -856,6 +932,7 @@
       const joursFr = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
       const countdownEl = document.getElementById("countdown");
       const infoEl = document.getElementById("nextDrawInfo");
+      const nextDrawsEl = document.getElementById("nextDraws");
 
       function getNextDrawDate(base = moment().tz("Europe/Paris")){
         let next = base.clone().set({ hour:20, minute:0, second:0, millisecond:0 });
@@ -864,6 +941,20 @@
         }
         return next;
       }
+
+      /*function renderNextDraws(){
+        nextDrawsEl.innerHTML = "";
+        let d = moment().tz("Europe/Paris");
+        for(let i=0; i<3; i++){
+          d = getNextDrawDate(d);
+          const pill = document.createElement("div");
+          pill.className = "pill";
+          pill.innerHTML = `<i class="fa-solid fa-calendar-days"></i> ${joursFr[d.day()]} ${d.format("DD/MM/YYYY")} à 20h`;
+          nextDrawsEl.appendChild(pill);
+          d.add(1,"minute");
+        }
+      }
+      renderNextDraws(); */
 
       setInterval(() => {
         const now = moment().tz("Europe/Paris");
@@ -886,6 +977,10 @@
           countdownEl.style.background = "linear-gradient(135deg, rgba(59,130,246,.25), rgba(96,165,250,.18))";
           countdownEl.style.borderColor = "rgba(59,130,246,.25)";
         }
+
+        if(diff.asMilliseconds() <= 0){
+          renderNextDraws();
+        }
       }, 1000);
     }
     startCountdown();
@@ -899,35 +994,57 @@
       const jours = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
       return jours[d.getDay()];
     }
-
     function formatDateForAPI(dateString){
       if(!dateString.includes("/")) return dateString;
       const [dd, mm, yyyy] = dateString.split("/");
       return `${yyyy}-${mm}-${dd}`;
     }
-
-    function safeStr(v){ return (v === null || v === undefined) ? "" : String(v); }
-
-    function formatDateForDisplay(v){
-      if(!v) return "-";
-      // si ISO (Mongo) -> convert en DD/MM/YYYY
-      const m = moment(v);
-      if(m.isValid()) return m.tz("Europe/Paris").format("DD/MM/YYYY");
-      return safeStr(v);
-    }
-
     function formatMoney(value){
       const n = Number(value);
       if (!isFinite(n) || n <= 0) return "-";
       return n.toLocaleString("fr-FR", { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " €";
     }
 
-    function pickField(obj, names){
-      for (const n of names){
-        if (obj && obj[n] !== undefined && obj[n] !== null && obj[n] !== "") return obj[n];
+    /* =========================
+      Last20
+    ========================== */
+    async function loadLast20(){
+      try{
+        const res = await axios.get(`${API_BASE}/api/historique/last20`);
+        const data = res.data || [];
+        const container = document.getElementById("last20");
+        container.innerHTML = "";
+
+        data.forEach(draw => {
+          const dayName = getDayName(draw.dateDeTirage);
+          const card = document.createElement("article");
+          card.className = "result-card";
+          card.innerHTML = `
+            <h3>${dayName} ${draw.dateDeTirage}</h3>
+            <div class="balls" aria-label="Résultat">
+              <span class="ball">${draw.boule1}</span>
+              <span class="ball">${draw.boule2}</span>
+              <span class="ball">${draw.boule3}</span>
+              <span class="ball">${draw.boule4}</span>
+              <span class="ball">${draw.boule5}</span>
+              <span class="ball chance">${draw.numeroChance}</span>
+            </div>
+            <button class="btn-mini" onclick="viewDetails('${draw.dateDeTirage}')">
+              <i class="fa-solid fa-circle-info"></i> Détail du tirage
+            </button>
+          `;
+          container.appendChild(card);
+        });
+      }catch(err){
+        console.error(err);
       }
-      return null;
     }
+    loadLast20();
+
+    /* =========================
+      Détail tirage (tes fonctions existantes)
+      -> je garde ta logique, juste appel viewDetails() inchangé
+    ========================== */
 
     function renderComboDots(rang){
       const rules = {
@@ -948,11 +1065,17 @@
       return dots.join("");
     }
 
-    function buildReportsTablePrincipal(data){
+    function pickField(obj, names){
+      for (const n of names){
+        if (obj && obj[n] !== undefined && obj[n] !== null && obj[n] !== "") return obj[n];
+      }
+      return null;
+    }
+
+    function buildReportsTable(data){
       const rows = [];
       for(let rang=1; rang<=9; rang++){
         const gagnants = pickField(data, [
-          `nombreDeGagnantAuRang${rang}`,
           `nombreDeGagnantDuRang${rang}`,
           `nbGagnantDuRang${rang}`,
           `nombreGagnantRang${rang}`,
@@ -996,131 +1119,33 @@
       `;
     }
 
-    function buildReportsTableSecond(data){
-      // D'après ton modèle Mongo : rang 1..4 pour second tirage
-      const rows = [];
-      for(let rang=1; rang<=4; rang++){
-        const gagnants = pickField(data, [
-          `nombreDeGagnantAuRang${rang}SecondTirage`,
-          `nombreDeGagnantDuRang${rang}SecondTirage`,
-          `nbGagnantDuRang${rang}SecondTirage`
-        ]);
-
-        const gain = pickField(data, [
-          `rapportDuRang${rang}SecondTirage`,
-          `gainDuRang${rang}SecondTirage`
-        ]);
-
-        // combinaisons second tirage : c'est généralement 5 boules, sans chance.
-        // on met juste des pastilles bleues (5,4,3,2) selon rang
-        const blueByRang = {1:5, 2:4, 3:3, 4:2};
-        const dots = Array.from({length: blueByRang[rang] || 0}).map(() => `<span class="combo-dot"></span>`).join("");
-
-        rows.push(`
-          <tr>
-            <td>${rang}</td>
-            <td>${dots}</td>
-            <td>${(gagnants === null) ? "-" : Number(gagnants).toLocaleString("fr-FR")}</td>
-            <td>${formatMoney(gain)}</td>
-          </tr>
-        `);
+    function buildCodesGagnants(data){
+      const codes = pickField(data, ["codesGagnants", "codes", "winningCodes"]);
+      if (Array.isArray(codes) && codes.length){
+        return `
+          <hr style="border-color: rgba(255,255,255,.12); margin: 18px 0;">
+          <h5 class="text-center" style="font-weight:950;">10 codes Loto :</h5>
+          <div class="codes-wrap">
+            ${codes.slice(0, 10).map(c => `<div class="code-pill">${String(c)}</div>`).join("")}
+          </div>
+        `;
       }
 
-      return `
-        <h5 class="text-center mt-4" style="font-weight:950;">Rapports du second tirage</h5>
-        <div class="mt-3">
-          <table class="report-table">
-            <thead>
-              <tr>
-                <th style="width:70px;">Rang</th>
-                <th>Combinaisons</th>
-                <th style="width:130px;">Gagnants</th>
-                <th style="width:140px;">Gain (€)</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rows.join("")}
-            </tbody>
-          </table>
-        </div>
-      `;
-    }
-
-    function parseCodesGagnants(data){
-      const raw = pickField(data, ["codesGagnants", "codes", "winningCodes"]);
-      if(!raw) return [];
-
-      if (Array.isArray(raw)) {
-        return raw.map(x => safeStr(x).trim()).filter(Boolean);
-      }
-
-      // string type: "W 8843 9882, G 7132 6516, ..."
-      return safeStr(raw)
-        .split(",")
-        .map(s => s.trim())
-        .filter(Boolean);
-    }
-
-    function buildCodesGagnantsBlock(data){
-      const codes = parseCodesGagnants(data);
-      if(!codes.length) return "";
-
-      const nbCodes = pickField(data, ["nombreDeCodesGagnants", "nbCodesGagnants"]) ?? codes.length;
-      const rapportCodes = pickField(data, ["rapportCodesGagnants", "gainCodesGagnants"]);
-      const sorted = [...codes].sort((a,b) => a.localeCompare(b, "fr"));
+      const c1 = pickField(data, ["codeGagnant1", "code1"]);
+      const c2 = pickField(data, ["codeGagnant2", "code2"]);
+      const c3 = pickField(data, ["codeGagnant3", "code3"]);
+      const list = [c1, c2, c3].filter(Boolean);
+      if (!list.length) return "";
 
       return `
         <hr style="border-color: rgba(255,255,255,.12); margin: 18px 0;">
-        <div class="text-center" style="font-weight:950;">
-          Codes gagnants :
-          <span style="color: rgba(96,165,250,.95);">${Number(nbCodes).toLocaleString("fr-FR")}</span>
-          ${rapportCodes !== null ? `<span class="muted" style="margin-left:8px;">• Gain code : ${formatMoney(rapportCodes)}</span>` : ""}
-        </div>
+        <h5 class="text-center" style="font-weight:950;">Codes gagnants :</h5>
         <div class="codes-wrap">
-          ${sorted.slice(0, 50).map(c => `<div class="code-pill">${c}</div>`).join("")}
+          ${list.map(c => `<div class="code-pill">${String(c)}</div>`).join("")}
         </div>
       `;
     }
 
-    /* =========================
-      Last20
-    ========================== */
-    async function loadLast20(){
-      try{
-        const res = await axios.get(`${API_BASE}/api/historique/last20`);
-        const data = res.data || [];
-        const container = document.getElementById("last20");
-        container.innerHTML = "";
-
-        data.forEach(draw => {
-          const dayName = getDayName(draw.dateDeTirage);
-          const card = document.createElement("article");
-          card.className = "result-card";
-          card.innerHTML = `
-            <h3>${dayName} ${draw.dateDeTirage}</h3>
-            <div class="balls" aria-label="Résultat">
-              <span class="ball">${draw.boule1}</span>
-              <span class="ball">${draw.boule2}</span>
-              <span class="ball">${draw.boule3}</span>
-              <span class="ball">${draw.boule4}</span>
-              <span class="ball">${draw.boule5}</span>
-              <span class="ball chance">${draw.numeroChance}</span>
-            </div>
-            <button class="btn-mini" onclick="viewDetails('${draw.dateDeTirage}')">
-              <i class="fa-solid fa-circle-info"></i> Détail du tirage
-            </button>
-          `;
-          container.appendChild(card);
-        });
-      }catch(err){
-        console.error(err);
-      }
-    }
-    loadLast20();
-
-    /* =========================
-      DÉTAIL TIRAGE (MODAL COMPLET)
-    ========================== */
     async function viewDetails(date){
       try{
         const formattedDate = formatDateForAPI(date);
@@ -1135,18 +1160,11 @@
           return;
         }
 
-        const jour = pickField(data, ["jourDeTirage", "jour"]);
-        const dateIsoOrStr = pickField(data, ["dateDeTirage"]) || date;
-        const dateAff = formatDateForDisplay(dateIsoOrStr);
-
-        const anneeNumero = pickField(data, ["anneeNumeroDeTirage", "numeroDeTirage", "numTirage"]);
-        const forclusion = pickField(data, ["dateDeForclusion", "forclusion"]);
-        const combinaison = pickField(data, ["combinaisonGagnante", "combinaison", "combinaisonGagnantePrincipale"]);
-        const combSecond = pickField(data, ["combinaisonGagnanteSecondTirage", "combinaisonSecondTirage"]);
+        const titre = data.dateDeTirage || date;
+        document.getElementById("detailModalLabel").textContent = `Détail du tirage — ${titre}`;
 
         const jackpot = pickField(data, ["rapportDuRang1", "jackpotAnnonce", "jackpot", "montantDuJackpot"]);
         const joker = pickField(data, ["numeroJokerplus", "jokerPlus", "numeroJokerPlus"]);
-        const devise = pickField(data, ["devise"]) || "€";
 
         const tirage = [data.boule1, data.boule2, data.boule3, data.boule4, data.boule5].filter(v => v != null);
         const chance = pickField(data, ["numeroChance", "chance", "bouleChance"]);
@@ -1156,18 +1174,16 @@
           data.boule4SecondTirage, data.boule5SecondTirage
         ].filter(v => v != null);
 
-        document.getElementById("detailModalLabel").textContent =
-          `Détail du tirage — ${(jour ? (jour + " ") : "")}${dateAff}`;
+        const jour = pickField(data, ["jourDeTirage", "jour"]);
 
         document.getElementById("modalBody").innerHTML = `
           <div class="text-center">
             <h4 style="font-weight:1000; margin:0;">
-              Résultat Loto du ${(jour ? (jour + " ") : "")}${dateAff}
+              Résultat Loto du ${(jour ? (jour + " ") : "")}${titre}
             </h4>
-
           </div>
 
-          <div class="row g-4 mt-3">
+          <div class="row g-4 mt-2">
             <div class="col-md-6">
               <h5 class="text-center" style="font-weight:950;">Le tirage</h5>
               <div class="balls justify-content-center" style="margin-top:10px;">
@@ -1191,9 +1207,7 @@
 
           <hr style="border-color: rgba(255,255,255,.12); margin: 18px 0;">
 
-          ${buildReportsTablePrincipal(data)}
-
-          ${buildReportsTableSecond(data)}
+          ${buildReportsTable(data)}
 
           <hr style="border-color: rgba(255,255,255,.12); margin: 18px 0;">
 
@@ -1202,7 +1216,7 @@
             <span style="color: rgba(96,165,250,.95);">${joker || "-"}</span>
           </div>
 
-          ${buildCodesGagnantsBlock(data)}
+          ${buildCodesGagnants(data)}
         `;
 
         new bootstrap.Modal(document.getElementById("detailModal")).show();
@@ -1324,10 +1338,9 @@
       prev.onclick = () => { currentPage--; renderSearchPage(); };
       pagination.appendChild(prev);
 
-      const totalPagesSafe = Math.max(1, totalPages);
       const maxButtons = 7;
       let startPage = Math.max(1, currentPage - Math.floor(maxButtons/2));
-      let endPage = Math.min(totalPagesSafe, startPage + maxButtons - 1);
+      let endPage = Math.min(totalPages, startPage + maxButtons - 1);
       startPage = Math.max(1, endPage - maxButtons + 1);
 
       for(let p = startPage; p <= endPage; p++){
@@ -1341,7 +1354,7 @@
       const next = document.createElement("button");
       next.className = "page-btn";
       next.textContent = "›";
-      next.disabled = currentPage === totalPagesSafe;
+      next.disabled = currentPage === totalPages;
       next.onclick = () => { currentPage++; renderSearchPage(); };
       pagination.appendChild(next);
     }

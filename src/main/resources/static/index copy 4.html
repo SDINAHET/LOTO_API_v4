@@ -5,13 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Loto Tracker — Résultats</title>
 
+  <!-- Favicon -->
   <link rel="icon" type="image/png" href="loto_tracker.png">
 
   <!-- Font Awesome + Bootstrap -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 
-  <!-- Leaflet -->
+  <!-- Leaflet (OpenStreetMap) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
   <!-- Axios + Moment -->
@@ -22,13 +23,12 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- ✅ Layout (header/footer) -->
-  <script defer src="layout.js"></script>
-
   <style>
     :root{
       --bg0:#0b1220;
       --bg1:#0f1b2d;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.09);
       --stroke: rgba(255,255,255,.12);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.65);
@@ -36,17 +36,15 @@
       --primary2:#60a5fa;
       --danger:#ef4444;
       --warning:#f59e0b;
+      --ok:#22c55e;
       --shadow: 0 16px 45px rgba(0,0,0,.35);
       --radius: 18px;
       --topbar-h: 72px;
       --sidebar-w: 280px;
       --rightbar-w: 360px;
-
-      --ball: 22px;
-      --ball-font: 0.68rem;
-      --ball-gap: 6px;
     }
 
+    /* Background spec24-style */
     body{
       margin:0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
@@ -57,11 +55,76 @@
         linear-gradient(180deg, var(--bg0), var(--bg1));
       min-height:100vh;
     }
-
     a{ color:inherit; }
+
     .no-scroll{ overflow:hidden; }
 
-    /* Shell */
+    /* Topbar */
+    .topbar{
+      position:sticky; top:0; z-index:50;
+      height: var(--topbar-h);
+      display:flex; align-items:center; gap:14px;
+      padding: 12px 16px;
+      background: rgba(10,16,28,.82);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--stroke);
+    }
+    .icon-btn{
+      width:44px; height:44px; display:grid; place-items:center;
+      border-radius: 12px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      cursor:pointer;
+      transition: transform .15s ease, background .15s ease;
+    }
+    .icon-btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.08); }
+
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      text-decoration:none;
+    }
+    .brand-logo{ width:44px; height:44px; object-fit:contain; }
+    .brand-title{ font-weight:900; letter-spacing:.2px; line-height:1.1; }
+    .brand-sub{ font-size:.9rem; color:var(--muted); margin-top:2px; }
+
+    .topbar-actions{
+      margin-left:auto;
+      display:flex; align-items:center; gap:10px;
+    }
+
+    .btn-ghost{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px;
+      border-radius: 12px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      text-decoration:none;
+      font-weight:700;
+    }
+    .btn-ghost:hover{ background: rgba(255,255,255,.08); }
+
+    .chip{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius: 12px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+    }
+    .btn-danger-soft{
+      border:0;
+      background: rgba(239,68,68,.18);
+      color: #fff;
+      padding:10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      border: 1px solid rgba(239,68,68,.35);
+      font-weight:800;
+    }
+    .btn-danger-soft:hover{ background: rgba(239,68,68,.25); }
+
+    /* Layout shell */
     .shell{
       display:grid;
       grid-template-columns: var(--sidebar-w) 1fr var(--rightbar-w);
@@ -69,24 +132,21 @@
       max-width: 1500px;
       margin: 0 auto;
       padding: 16px;
-      align-items: start;
     }
 
-    /* Sidebar (desktop) : sticky + scroll interne */
+    /* Left sidebar */
     .sidebar{
-      position: sticky;
+      position:sticky;
       top: calc(var(--topbar-h) + 16px);
-      max-height: calc(100vh - var(--topbar-h) - 32px);
+      height: calc(100vh - var(--topbar-h) - 32px);
       border-radius: var(--radius);
       border: 1px solid var(--stroke);
       background: rgba(10,16,28,.65);
       backdrop-filter: blur(12px);
       box-shadow: var(--shadow);
       padding: 12px;
-      overflow: auto;
-      align-self: start;
+      overflow:auto;
     }
-
     .nav-title{
       font-size:.85rem;
       color: var(--muted);
@@ -120,14 +180,12 @@
       margin: 10px 8px;
     }
 
-    /* Main */
+    /* Main area */
     .main{
       min-width: 0;
       display:flex;
       flex-direction:column;
       gap: 16px;
-      overflow: visible;
-      max-height: none;
     }
 
     .panel{
@@ -138,6 +196,7 @@
       padding: 16px;
       min-width: 0;
     }
+
     .panel-head{
       display:flex;
       align-items:flex-end;
@@ -155,7 +214,18 @@
     .panel-head h2{ font-size: 1.1rem; }
     .muted{ color: var(--muted); }
 
-    /* Countdown */
+    .badge-soft{
+      background: rgba(255,255,255,.08);
+      border: 1px solid var(--stroke);
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-weight:800;
+      font-size:.82rem;
+      white-space: nowrap;
+    }
+
+    /* Countdown block */
     .countdown-wrap{
       display:flex;
       flex-direction:column;
@@ -189,7 +259,6 @@
       display:inline-flex;
       align-items:center;
       gap:8px;
-      white-space: nowrap;
     }
 
     .btn-primary-app{
@@ -205,65 +274,46 @@
     }
     .btn-primary-app:hover{ filter: brightness(1.05); }
 
-    /* Cards */
+    /* Cards grid */
     .cards-grid{
       display:grid;
       grid-template-columns: repeat(3, minmax(0,1fr));
-      gap: 14px;
-      grid-auto-rows: auto;
+      gap: 12px;
     }
+
     .result-card{
       border:1px solid var(--stroke);
       background: rgba(255,255,255,.06);
       border-radius: 16px;
       padding: 14px;
       min-width:0;
-      overflow: visible;
     }
     .result-card h3{
       margin:0 0 10px;
-      font-size: .98rem;
+      font-size: 1rem;
       font-weight: 950;
       color: rgba(255,255,255,.92);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
-
-    /* ✅ Boules: tout sur 1 ligne, scroll si besoin */
     .balls{
-      display:flex;
-      flex-wrap: nowrap;
-      gap: var(--ball-gap);
+      display:flex; flex-wrap:wrap; gap:8px;
       margin-bottom: 12px;
-      white-space: nowrap;
-      overflow-x: auto;
-      overflow-y: hidden;
-      padding-bottom: 2px;
-      -webkit-overflow-scrolling: touch;
     }
-    .balls::-webkit-scrollbar{ height: 8px; }
-    .balls::-webkit-scrollbar-thumb{
-      background: rgba(255,255,255,.18);
-      border-radius: 99px;
-    }
-
     .ball{
-      flex: 0 0 auto;
-      width:var(--ball); height:var(--ball);
+      width:38px; height:38px;
       display:grid; place-items:center;
       border-radius:999px;
       font-weight:1000;
-      font-size: var(--ball-font);
       background: rgba(59,130,246,.25);
       border: 1px solid rgba(59,130,246,.25);
-      line-height: 1;
     }
     .ball.chance{
       background: rgba(239,68,68,.22);
       border: 1px solid rgba(239,68,68,.28);
     }
 
+    .card-actions{
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
     .btn-mini{
       border: 1px solid var(--stroke);
       background: rgba(255,255,255,.06);
@@ -278,7 +328,7 @@
     }
     .btn-mini:hover{ background: rgba(255,255,255,.08); }
 
-    /* Search */
+    /* Search block */
     .search-grid{
       display:grid;
       grid-template-columns: 1fr 1fr auto;
@@ -298,7 +348,13 @@
       color: var(--text);
       padding: 12px 12px;
     }
+    .hint{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size:.9rem;
+    }
 
+    /* Pagination */
     .pagination-wrap{
       display:flex;
       justify-content:center;
@@ -320,9 +376,12 @@
       background: rgba(59,130,246,.18);
       border-color: rgba(59,130,246,.35);
     }
-    .page-btn:disabled{ opacity:.45; cursor:not-allowed; }
+    .page-btn:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+    }
 
-    /* Rightbar map */
+    /* Right sidebar (map) */
     .rightbar{
       position:sticky;
       top: calc(var(--topbar-h) + 16px);
@@ -337,7 +396,6 @@
       display:flex;
       flex-direction:column;
       gap: 10px;
-      align-self: start;
     }
     #map{
       flex:1;
@@ -378,7 +436,20 @@
     }
     .btn-map:hover{ background: rgba(255,255,255,.08); }
 
-    /* Overlay + offcanvas */
+    .footer{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+      gap: 14px;
+      padding: 10px 0 18px;
+      color: var(--muted);
+      font-weight:800;
+      font-size:.9rem;
+    }
+    .footer a{ text-decoration:none; color: var(--muted); }
+    .footer a:hover{ color: var(--text); }
+
+    /* Mobile */
     .overlay{
       position:fixed; inset:0;
       background: rgba(0,0,0,.55);
@@ -389,13 +460,16 @@
     }
     .overlay.show{ opacity:1; pointer-events:auto; }
 
-    /* Responsive */
+    /* Offcanvas sidebar mobile */
     @media (max-width: 1199px){
       .shell{ grid-template-columns: var(--sidebar-w) 1fr; }
       .rightbar{ display:none; }
     }
     @media (max-width: 991px){
-      .shell{ grid-template-columns: 1fr; padding: 14px; }
+      .shell{
+        grid-template-columns: 1fr;
+        padding: 14px;
+      }
       .sidebar{
         position:fixed;
         top: var(--topbar-h);
@@ -406,17 +480,13 @@
         transition: transform .22s ease;
         z-index:70;
         border-radius: 0 18px 18px 0;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
       }
       .sidebar.open{ transform: translateX(0); }
       .cards-grid{ grid-template-columns: 1fr; }
       .search-grid{ grid-template-columns: 1fr; }
-
-      :root{ --ball: 22px; --ball-font: .70rem; --ball-gap: 5px; }
     }
 
-    /* Bootstrap modal glass */
+    /* Bootstrap modal glass effect */
     .modal-content.glass{
       background: rgba(10,16,28,.88);
       backdrop-filter: blur(14px);
@@ -424,106 +494,48 @@
       color: var(--text);
       border-radius: 18px;
     }
-    .modal-header, .modal-footer{ border-color: rgba(255,255,255,.12); }
-    .modal-title{ font-weight: 950; }
-    .btn-close{ filter: invert(1); }
+    .modal-header, .modal-footer{
+      border-color: rgba(255,255,255,.12);
+    }
+    .modal-title{
+      font-weight: 950;
+    }
+    .btn-close{
+      filter: invert(1);
+    }
     canvas{ max-width:100%; }
-
-    /* ✅ combos table (détail tirage) */
-    .combo-dot{
-      width:18px; height:18px;
-      border-radius:999px;
-      display:inline-block;
-      margin:0 4px;
-      background: rgba(59,130,246,.95);
-    }
-    .combo-dot.chance{ background: rgba(239,68,68,.95); }
-
-    .report-table{
-      width:100%;
-      border-collapse: collapse;
-      overflow:hidden;
-      border-radius: 14px;
-      border:1px solid rgba(255,255,255,.12);
-    }
-    .report-table thead th{
-      background: rgba(255,255,255,.08);
-      border-bottom:1px solid rgba(255,255,255,.12);
-      padding:12px 10px;
-      font-weight:950;
-      color: rgba(255,255,255,.92);
-      white-space:nowrap;
-    }
-    .report-table tbody td{
-      padding:12px 10px;
-      border-bottom:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.04);
-      font-weight:800;
-      color: rgba(255,255,255,.88);
-      vertical-align: middle;
-    }
-    .report-table tbody tr:nth-child(even) td{ background: rgba(255,255,255,.06); }
-
-    .codes-wrap{
-      display:flex;
-      flex-wrap:wrap;
-      gap: 10px;
-      justify-content:center;
-      margin-top: 10px;
-    }
-    .code-pill{
-      background: rgba(245,158,11,.22);
-      border: 1px solid rgba(245,158,11,.35);
-      color: rgba(255,255,255,.95);
-      font-weight: 1000;
-      border-radius: 10px;
-      padding: 10px 12px;
-      min-width: 140px;
-      text-align:center;
-    }
-
-    /* ✅ meta bloc détail */
-    .detail-meta{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      justify-content:center;
-      margin-top: 10px;
-    }
-    .meta-chip{
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-weight: 900;
-      color: rgba(255,255,255,.9);
-      white-space: nowrap;
-    }
-    .meta-chip b{ color: rgba(96,165,250,.95); }
-
-    /* =========================================================
-      GRILLES – Derniers tirages & Recherche
-    ========================================================= */
-    #last20,
-    #searchResults{
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      align-items: start;
-    }
-
-    @media (max-width: 768px){
-      #last20,
-      #searchResults{
-        grid-template-columns: 1fr;
-      }
-    }
   </style>
 </head>
 
 <body>
-  <!-- ✅ Header injecté par layout.js -->
-  <div id="appHeader"></div>
+  <!-- Topbar -->
+  <header class="topbar">
+    <button class="icon-btn" id="burgerBtn" aria-label="Ouvrir le menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <a class="brand" href="index.html">
+      <img src="loto_tracker.png" alt="Loto Tracker" class="brand-logo">
+      <div>
+        <div class="brand-title">Tracker du Loto Français</div>
+        <div class="brand-sub" id="currentTime">Heure de Paris : --:--:--</div>
+      </div>
+    </a>
+
+    <div class="topbar-actions">
+      <a href="login.html" class="btn-ghost" id="loginButton">
+        <i class="fa-solid fa-user"></i> Se connecter
+      </a>
+
+      <div class="chip" id="userChip" style="display:none;">
+        <span>Bienvenue, <b id="userEmail">—</b></span>
+        <button class="btn-danger-soft" onclick="logout()">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          Déconnexion
+        </button>
+      </div>
+    </div>
+  </header>
 
   <!-- Overlay -->
   <div class="overlay" id="overlay"></div>
@@ -531,8 +543,53 @@
   <!-- Shell -->
   <div class="shell">
 
-    <!-- ✅ Sidebar injectée -->
-    <div id="appSidebar"></div>
+    <!-- Left sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="nav-title">Dashboard</div>
+      <a class="nav-item active" href="index.html">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Résultats</span>
+      </a>
+      <a class="nav-item" href="tickets.html">
+        <i class="fa-solid fa-ticket"></i>
+        <span>Tickets</span>
+      </a>
+      <a class="nav-item" href="statistiques.html">
+        <i class="fa-solid fa-signal"></i>
+        <span>Statistiques</span>
+      </a>
+      <a class="nav-item" href="profil.html">
+        <i class="fa-solid fa-user-gear"></i>
+        <span>Compte</span>
+      </a>
+
+      <div class="nav-sep"></div>
+
+      <div class="nav-title">Liens</div>
+      <a class="nav-item" href="mentions_legales.html">
+        <i class="fa-regular fa-file-lines"></i>
+        <span>Mentions légales</span>
+      </a>
+      <a class="nav-item" href="conditions_utilisation.html">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Conditions</span>
+      </a>
+      <a class="nav-item" href="politique_confidentialite.html">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>Confidentialité</span>
+      </a>
+
+      <div class="nav-sep"></div>
+
+      <div class="nav-title">Carte</div>
+      <div class="small" style="padding:0 10px 10px;">
+        Sur desktop : carte à droite (30 km).<br>
+        Sur mobile : bouton “Carte” ci-dessous.
+      </div>
+      <button class="btn-map" id="openMapModalBtn" type="button" data-bs-toggle="modal" data-bs-target="#mapModal">
+        <i class="fa-solid fa-map-location-dot"></i> Ouvrir la carte
+      </button>
+    </aside>
 
     <!-- Main -->
     <main class="main">
@@ -544,6 +601,7 @@
             <h1>Résultats du Loto</h1>
             <div class="muted" id="nextDrawInfo">Prochain tirage : —</div>
           </div>
+          <span class="badge-soft" id="apiStatus">API : —</span>
         </div>
 
         <div class="countdown-wrap">
@@ -551,6 +609,7 @@
           <div class="next-draws" id="nextDraws"></div>
 
           <button class="btn-primary-app" onclick="showPrediction()">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
             Stats du prochain tirage
           </button>
         </div>
@@ -560,6 +619,7 @@
       <section class="panel">
         <div class="panel-head">
           <h2>Derniers tirages</h2>
+          <span class="badge-soft">Last 20</span>
         </div>
         <div class="cards-grid" id="last20"></div>
       </section>
@@ -568,6 +628,7 @@
       <section class="panel">
         <div class="panel-head">
           <h2>Rechercher un tirage</h2>
+          <span class="badge-soft">Plage max : 1 mois</span>
         </div>
 
         <div class="search-grid">
@@ -584,7 +645,9 @@
           </button>
         </div>
 
-        <div class="muted" id="searchHint" style="margin-top:10px;"></div>
+        <div class="hint" id="searchHint">
+          Astuce : si tu ne mets pas “Au”, on cherche uniquement sur “Du”.
+        </div>
 
         <div style="margin-top:14px;">
           <div class="cards-grid" id="searchResults"></div>
@@ -592,15 +655,19 @@
         </div>
       </section>
 
-      <!-- ✅ Footer injecté par layout.js -->
-      <div id="appFooter"></div>
+      <footer class="footer">
+        <a href="mentions_legales.html">Mentions légales</a>
+        <a href="conditions_utilisation.html">Conditions</a>
+        <a href="politique_confidentialite.html">Confidentialité</a>
+        <span>© 2025 SDINAHET</span>
+      </footer>
     </main>
 
     <!-- Right sidebar (map desktop) -->
     <aside class="rightbar">
       <div class="map-head">
         <div>
-          <h2><i class="fa-solid fa-map-location-dot"></i> Points de ventes proches (30 km)</h2>
+          <h2><i class="fa-solid fa-map-location-dot"></i> Points proches (30 km)</h2>
           <div class="small" id="mapStatus">Localisation : —</div>
         </div>
         <div class="map-actions">
@@ -614,7 +681,7 @@
       </div>
       <div id="map"></div>
       <div class="small">
-        Source : OpenStreetMap (Leaflet) + Overpass (gratuit).
+        Source : OpenStreetMap (Leaflet) + Overpass (gratuit). Résultats “Tabac / Kiosk / Convenience”.
       </div>
     </aside>
   </div>
@@ -638,13 +705,13 @@
           <canvas id="sortieRatesChart"></canvas>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-outline-light" data-bs-dismiss="modal">Fermer</button>
+          <button class="btn-ghost" data-bs-dismiss="modal">Fermer</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Detail Modal -->
+  <!-- Detail Modal (simple, tu peux enrichir ensuite) -->
   <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl">
       <div class="modal-content glass">
@@ -652,9 +719,11 @@
           <h5 class="modal-title" id="detailModalLabel">Détail du tirage</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body" id="modalBody">Chargement.</div>
+        <div class="modal-body" id="modalBody">
+          Chargement...
+        </div>
         <div class="modal-footer">
-          <button class="btn btn-outline-light" data-bs-dismiss="modal">Fermer</button>
+          <button class="btn-ghost" data-bs-dismiss="modal">Fermer</button>
         </div>
       </div>
     </div>
@@ -679,7 +748,9 @@
             <span class="small" id="mapStatusMobile">Localisation : —</span>
           </div>
           <div id="mapMobile" style="height: 60vh; border-radius: 14px; border: 1px solid rgba(255,255,255,.12);"></div>
-          <div class="small mt-2">Source : OpenStreetMap + Overpass (gratuit).</div>
+          <div class="small mt-2">
+            Source : OpenStreetMap + Overpass (gratuit).
+          </div>
         </div>
       </div>
     </div>
@@ -688,156 +759,6 @@
   <!-- Bootstrap + Leaflet -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <!-- ✅ Sidebar + Auth-only + Burger -->
-  <script>
-    (function () {
-      const API_BASE =
-        (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-          ? "http://localhost:8082"
-          : "https://stephanedinahet.fr";
-
-      function renderSidebar() {
-        const path = (window.location.pathname || "").toLowerCase();
-        const active = (name) => path.endsWith(name) ? " active" : "";
-
-        return `
-          <aside class="sidebar" id="sidebar">
-            <div class="nav-title">Dashboard</div>
-
-            <a class="nav-item${active("index.html") || (path.endsWith("/") ? " active" : "")}" href="index.html" data-map="show">
-              <i class="fa-solid fa-chart-line"></i><span>Résultats</span>
-            </a>
-
-            <a class="nav-item auth-only${active("tickets.html")}" href="tickets.html" data-auth="required" data-map="hide" style="display:none;">
-              <i class="fa-solid fa-ticket"></i><span>Tickets</span>
-            </a>
-            <a class="nav-item auth-only${active("statistiques.html")}" href="statistiques.html" data-auth="required" data-map="hide" style="display:none;">
-              <i class="fa-solid fa-signal"></i><span>Statistiques</span>
-            </a>
-            <a class="nav-item auth-only${active("profil.html")}" href="profil.html" data-auth="required" data-map="hide" style="display:none;">
-              <i class="fa-solid fa-user-gear"></i><span>Compte</span>
-            </a>
-
-            <div class="nav-sep"></div>
-
-            <div class="nav-title">Jouer</div>
-            <a class="nav-item" href="index.html" data-map="show">
-              <i class="fa-solid fa-clover"></i><span>Loto</span>
-            </a>
-            <a class="nav-item${active("euromillions.html")}" href="euromillions.html" data-map="hide">
-              <i class="fa-solid fa-star"></i><span>Euromillions</span>
-            </a>
-
-            <div id="sidebarMapBlock">
-              <div class="nav-sep"></div>
-              <div class="nav-title">Carte</div>
-              <button class="btn-map" id="openMapModalBtn" type="button" data-bs-toggle="modal" data-bs-target="#mapModal">
-                <i class="fa-solid fa-map-location-dot"></i> Ouvrir la carte
-              </button>
-            </div>
-          </aside>
-        `;
-      }
-
-      function closeSidebarIfMobile() {
-        const sidebar = document.getElementById("sidebar");
-        const overlay = document.getElementById("overlay");
-        if (!sidebar || !overlay) return;
-        if (window.matchMedia("(max-width: 991px)").matches) {
-          sidebar.classList.remove("open");
-          overlay.classList.remove("show");
-          document.body.classList.remove("no-scroll");
-        }
-      }
-
-      function bindBurger() {
-        if (document.documentElement.dataset.burgerDelegation === "1") return;
-        document.documentElement.dataset.burgerDelegation = "1";
-
-        document.addEventListener("click", (e) => {
-          const isBurger = e.target.closest("#burgerBtn");
-          if (!isBurger) return;
-
-          const sidebar = document.getElementById("sidebar");
-          const overlay = document.getElementById("overlay");
-          if (!sidebar || !overlay) return;
-
-          const open = sidebar.classList.toggle("open");
-          overlay.classList.toggle("show", open);
-          document.body.classList.toggle("no-scroll", open);
-        });
-
-        document.addEventListener("click", (e) => {
-          const isOverlay = e.target.id === "overlay";
-          if (!isOverlay) return;
-
-          const sidebar = document.getElementById("sidebar");
-          const overlay = document.getElementById("overlay");
-          if (!sidebar || !overlay) return;
-
-          sidebar.classList.remove("open");
-          overlay.classList.remove("show");
-          document.body.classList.remove("no-scroll");
-        });
-
-        document.addEventListener("keydown", (e) => {
-          if (e.key !== "Escape") return;
-
-          const sidebar = document.getElementById("sidebar");
-          const overlay = document.getElementById("overlay");
-          if (!sidebar || !overlay) return;
-
-          sidebar.classList.remove("open");
-          overlay.classList.remove("show");
-          document.body.classList.remove("no-scroll");
-        });
-      }
-
-      async function fetchUserInfo() {
-        const res = await fetch(`${API_BASE}/api/protected/userinfo`, {
-          method: "GET",
-          credentials: "include",
-          cache: "no-store"
-        });
-        if (!res.ok) throw new Error("Not authenticated");
-        return await res.json();
-      }
-
-      async function applyAuthOnly() {
-        let logged = false;
-        try { await fetchUserInfo(); logged = true; } catch { logged = false; }
-
-        document.querySelectorAll(".auth-only").forEach((el) => {
-          el.style.display = logged ? "" : "none";
-        });
-
-        if (!logged) {
-          document.querySelectorAll(".auth-only").forEach((a) => {
-            a.addEventListener("click", (e) => {
-              e.preventDefault();
-              closeSidebarIfMobile();
-              window.location.href = "login.html";
-            });
-          });
-        }
-      }
-
-      document.addEventListener("layout:ready", () => {
-        const mount = document.getElementById("appSidebar");
-        if (mount) mount.innerHTML = renderSidebar();
-        bindBurger();
-
-        setTimeout(() => {
-          applyAuthOnly();
-        }, 80);
-
-        setTimeout(() => {
-          applyAuthOnly();
-        }, 800);
-      });
-    })();
-  </script>
 
   <script>
     /* =========================
@@ -849,6 +770,55 @@
         : "https://stephanedinahet.fr";
 
     /* =========================
+      Burger (mobile)
+    ========================== */
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+    const burgerBtn = document.getElementById("burgerBtn");
+
+    function openSidebar(){
+      sidebar.classList.add("open");
+      overlay.classList.add("show");
+      document.body.classList.add("no-scroll");
+    }
+    function closeSidebar(){
+      sidebar.classList.remove("open");
+      overlay.classList.remove("show");
+      document.body.classList.remove("no-scroll");
+    }
+    burgerBtn.addEventListener("click", () => {
+      sidebar.classList.contains("open") ? closeSidebar() : openSidebar();
+    });
+    overlay.addEventListener("click", closeSidebar);
+
+    /* =========================
+      Time Paris
+    ========================== */
+    function updateTime(){
+      document.getElementById("currentTime").textContent =
+        "Heure de Paris : " + moment().tz("Europe/Paris").format("HH:mm:ss");
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    /* =========================
+      API health badge (optionnel)
+    ========================== */
+    async function pingApi(){
+      const badge = document.getElementById("apiStatus");
+      try{
+        // Si tu as /api/health, utilise-le. Sinon, on ping last20.
+        await axios.get(`${API_BASE}/api/historique/last20`, { timeout: 4500 });
+        badge.textContent = "API : OK";
+        badge.style.color = "rgba(255,255,255,.92)";
+      }catch(e){
+        badge.textContent = "API : OFF";
+        badge.style.color = "rgba(239,68,68,.95)";
+      }
+    }
+    pingApi();
+
+    /* =========================
       Countdown next draw
     ========================== */
     function startCountdown(){
@@ -856,6 +826,7 @@
       const joursFr = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
       const countdownEl = document.getElementById("countdown");
       const infoEl = document.getElementById("nextDrawInfo");
+      const nextDrawsEl = document.getElementById("nextDraws");
 
       function getNextDrawDate(base = moment().tz("Europe/Paris")){
         let next = base.clone().set({ hour:20, minute:0, second:0, millisecond:0 });
@@ -864,6 +835,20 @@
         }
         return next;
       }
+
+      function renderNextDraws(){
+        nextDrawsEl.innerHTML = "";
+        let d = moment().tz("Europe/Paris");
+        for(let i=0; i<3; i++){
+          d = getNextDrawDate(d);
+          const pill = document.createElement("div");
+          pill.className = "pill";
+          pill.innerHTML = `<i class="fa-solid fa-calendar-days"></i> ${joursFr[d.day()]} ${d.format("DD/MM/YYYY")} à 20h`;
+          nextDrawsEl.appendChild(pill);
+          d.add(1,"minute"); // éviter doublons
+        }
+      }
+      renderNextDraws();
 
       setInterval(() => {
         const now = moment().tz("Europe/Paris");
@@ -875,6 +860,7 @@
         const txt = `${diff.days()}j ${diff.hours()}h ${diff.minutes()}m ${diff.seconds()}s`;
         countdownEl.textContent = txt;
 
+        // couleur selon proximité
         const h = diff.asHours();
         if(h <= 3){
           countdownEl.style.background = "rgba(239,68,68,.25)";
@@ -886,6 +872,10 @@
           countdownEl.style.background = "linear-gradient(135deg, rgba(59,130,246,.25), rgba(96,165,250,.18))";
           countdownEl.style.borderColor = "rgba(59,130,246,.25)";
         }
+
+        if(diff.asMilliseconds() <= 0){
+          renderNextDraws();
+        }
       }, 1000);
     }
     startCountdown();
@@ -894,6 +884,7 @@
       Helpers
     ========================== */
     function getDayName(dateString){
+      // "DD/MM/YYYY"
       const [day, month, year] = dateString.split("/").map(Number);
       const d = new Date(year, month-1, day);
       const jours = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
@@ -901,189 +892,14 @@
     }
 
     function formatDateForAPI(dateString){
+      // "DD/MM/YYYY" -> "YYYY-MM-DD"
       if(!dateString.includes("/")) return dateString;
       const [dd, mm, yyyy] = dateString.split("/");
       return `${yyyy}-${mm}-${dd}`;
     }
 
-    function safeStr(v){ return (v === null || v === undefined) ? "" : String(v); }
-
-    function formatDateForDisplay(v){
-      if(!v) return "-";
-      // si ISO (Mongo) -> convert en DD/MM/YYYY
-      const m = moment(v);
-      if(m.isValid()) return m.tz("Europe/Paris").format("DD/MM/YYYY");
-      return safeStr(v);
-    }
-
-    function formatMoney(value){
-      const n = Number(value);
-      if (!isFinite(n) || n <= 0) return "-";
-      return n.toLocaleString("fr-FR", { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " €";
-    }
-
-    function pickField(obj, names){
-      for (const n of names){
-        if (obj && obj[n] !== undefined && obj[n] !== null && obj[n] !== "") return obj[n];
-      }
-      return null;
-    }
-
-    function renderComboDots(rang){
-      const rules = {
-        1: { blue: 5, red: 1 },
-        2: { blue: 5, red: 0 },
-        3: { blue: 4, red: 1 },
-        4: { blue: 4, red: 0 },
-        5: { blue: 3, red: 1 },
-        6: { blue: 3, red: 0 },
-        7: { blue: 2, red: 1 },
-        8: { blue: 2, red: 0 },
-        9: { blue: 0, red: 1 },
-      };
-      const r = rules[rang] || { blue:0, red:0 };
-      const dots = [];
-      for(let i=0;i<r.blue;i++) dots.push(`<span class="combo-dot" title="Boule"></span>`);
-      for(let i=0;i<r.red;i++)  dots.push(`<span class="combo-dot chance" title="Chance"></span>`);
-      return dots.join("");
-    }
-
-    function buildReportsTablePrincipal(data){
-      const rows = [];
-      for(let rang=1; rang<=9; rang++){
-        const gagnants = pickField(data, [
-          `nombreDeGagnantAuRang${rang}`,
-          `nombreDeGagnantDuRang${rang}`,
-          `nbGagnantDuRang${rang}`,
-          `nombreGagnantRang${rang}`,
-          `gagnantsRang${rang}`
-        ]);
-
-        const gain = pickField(data, [
-          `rapportDuRang${rang}`,
-          `gainDuRang${rang}`,
-          `gainRang${rang}`,
-          `rapportRang${rang}`
-        ]);
-
-        rows.push(`
-          <tr>
-            <td>${rang}</td>
-            <td>${renderComboDots(rang)}</td>
-            <td>${(gagnants === null) ? "-" : Number(gagnants).toLocaleString("fr-FR")}</td>
-            <td>${formatMoney(gain)}</td>
-          </tr>
-        `);
-      }
-
-      return `
-        <h5 class="text-center mt-3" style="font-weight:950;">Rapports du tirage principal</h5>
-        <div class="mt-3">
-          <table class="report-table">
-            <thead>
-              <tr>
-                <th style="width:70px;">Rang</th>
-                <th>Combinaisons</th>
-                <th style="width:130px;">Gagnants</th>
-                <th style="width:140px;">Gain (€)</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rows.join("")}
-            </tbody>
-          </table>
-        </div>
-      `;
-    }
-
-    function buildReportsTableSecond(data){
-      // D'après ton modèle Mongo : rang 1..4 pour second tirage
-      const rows = [];
-      for(let rang=1; rang<=4; rang++){
-        const gagnants = pickField(data, [
-          `nombreDeGagnantAuRang${rang}SecondTirage`,
-          `nombreDeGagnantDuRang${rang}SecondTirage`,
-          `nbGagnantDuRang${rang}SecondTirage`
-        ]);
-
-        const gain = pickField(data, [
-          `rapportDuRang${rang}SecondTirage`,
-          `gainDuRang${rang}SecondTirage`
-        ]);
-
-        // combinaisons second tirage : c'est généralement 5 boules, sans chance.
-        // on met juste des pastilles bleues (5,4,3,2) selon rang
-        const blueByRang = {1:5, 2:4, 3:3, 4:2};
-        const dots = Array.from({length: blueByRang[rang] || 0}).map(() => `<span class="combo-dot"></span>`).join("");
-
-        rows.push(`
-          <tr>
-            <td>${rang}</td>
-            <td>${dots}</td>
-            <td>${(gagnants === null) ? "-" : Number(gagnants).toLocaleString("fr-FR")}</td>
-            <td>${formatMoney(gain)}</td>
-          </tr>
-        `);
-      }
-
-      return `
-        <h5 class="text-center mt-4" style="font-weight:950;">Rapports du second tirage</h5>
-        <div class="mt-3">
-          <table class="report-table">
-            <thead>
-              <tr>
-                <th style="width:70px;">Rang</th>
-                <th>Combinaisons</th>
-                <th style="width:130px;">Gagnants</th>
-                <th style="width:140px;">Gain (€)</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rows.join("")}
-            </tbody>
-          </table>
-        </div>
-      `;
-    }
-
-    function parseCodesGagnants(data){
-      const raw = pickField(data, ["codesGagnants", "codes", "winningCodes"]);
-      if(!raw) return [];
-
-      if (Array.isArray(raw)) {
-        return raw.map(x => safeStr(x).trim()).filter(Boolean);
-      }
-
-      // string type: "W 8843 9882, G 7132 6516, ..."
-      return safeStr(raw)
-        .split(",")
-        .map(s => s.trim())
-        .filter(Boolean);
-    }
-
-    function buildCodesGagnantsBlock(data){
-      const codes = parseCodesGagnants(data);
-      if(!codes.length) return "";
-
-      const nbCodes = pickField(data, ["nombreDeCodesGagnants", "nbCodesGagnants"]) ?? codes.length;
-      const rapportCodes = pickField(data, ["rapportCodesGagnants", "gainCodesGagnants"]);
-      const sorted = [...codes].sort((a,b) => a.localeCompare(b, "fr"));
-
-      return `
-        <hr style="border-color: rgba(255,255,255,.12); margin: 18px 0;">
-        <div class="text-center" style="font-weight:950;">
-          Codes gagnants :
-          <span style="color: rgba(96,165,250,.95);">${Number(nbCodes).toLocaleString("fr-FR")}</span>
-          ${rapportCodes !== null ? `<span class="muted" style="margin-left:8px;">• Gain code : ${formatMoney(rapportCodes)}</span>` : ""}
-        </div>
-        <div class="codes-wrap">
-          ${sorted.slice(0, 50).map(c => `<div class="code-pill">${c}</div>`).join("")}
-        </div>
-      `;
-    }
-
     /* =========================
-      Last20
+      Last20 (cards clean)
     ========================== */
     async function loadLast20(){
       try{
@@ -1098,7 +914,7 @@
           card.className = "result-card";
           card.innerHTML = `
             <h3>${dayName} ${draw.dateDeTirage}</h3>
-            <div class="balls" aria-label="Résultat">
+            <div class="balls">
               <span class="ball">${draw.boule1}</span>
               <span class="ball">${draw.boule2}</span>
               <span class="ball">${draw.boule3}</span>
@@ -1106,9 +922,11 @@
               <span class="ball">${draw.boule5}</span>
               <span class="ball chance">${draw.numeroChance}</span>
             </div>
-            <button class="btn-mini" onclick="viewDetails('${draw.dateDeTirage}')">
-              <i class="fa-solid fa-circle-info"></i> Détail du tirage
-            </button>
+            <div class="card-actions">
+              <button class="btn-mini" onclick="viewDetails('${draw.dateDeTirage}')">
+                <i class="fa-solid fa-circle-info"></i> Détail du tirage
+              </button>
+            </div>
           `;
           container.appendChild(card);
         });
@@ -1119,7 +937,7 @@
     loadLast20();
 
     /* =========================
-      DÉTAIL TIRAGE (MODAL COMPLET)
+      Detail modal (simple)
     ========================== */
     async function viewDetails(date){
       try{
@@ -1135,74 +953,39 @@
           return;
         }
 
-        const jour = pickField(data, ["jourDeTirage", "jour"]);
-        const dateIsoOrStr = pickField(data, ["dateDeTirage"]) || date;
-        const dateAff = formatDateForDisplay(dateIsoOrStr);
-
-        const anneeNumero = pickField(data, ["anneeNumeroDeTirage", "numeroDeTirage", "numTirage"]);
-        const forclusion = pickField(data, ["dateDeForclusion", "forclusion"]);
-        const combinaison = pickField(data, ["combinaisonGagnante", "combinaison", "combinaisonGagnantePrincipale"]);
-        const combSecond = pickField(data, ["combinaisonGagnanteSecondTirage", "combinaisonSecondTirage"]);
-
-        const jackpot = pickField(data, ["rapportDuRang1", "jackpotAnnonce", "jackpot", "montantDuJackpot"]);
-        const joker = pickField(data, ["numeroJokerplus", "jokerPlus", "numeroJokerPlus"]);
-        const devise = pickField(data, ["devise"]) || "€";
-
-        const tirage = [data.boule1, data.boule2, data.boule3, data.boule4, data.boule5].filter(v => v != null);
-        const chance = pickField(data, ["numeroChance", "chance", "bouleChance"]);
-
-        const second = [
-          data.boule1SecondTirage, data.boule2SecondTirage, data.boule3SecondTirage,
-          data.boule4SecondTirage, data.boule5SecondTirage
-        ].filter(v => v != null);
-
         document.getElementById("detailModalLabel").textContent =
-          `Détail du tirage — ${(jour ? (jour + " ") : "")}${dateAff}`;
+          `Détail du tirage — ${data.dateDeTirage}`;
 
         document.getElementById("modalBody").innerHTML = `
-          <div class="text-center">
-            <h4 style="font-weight:1000; margin:0;">
-              Résultat Loto du ${(jour ? (jour + " ") : "")}${dateAff}
-            </h4>
-
-          </div>
-
-          <div class="row g-4 mt-3">
-            <div class="col-md-6">
-              <h5 class="text-center" style="font-weight:950;">Le tirage</h5>
-              <div class="balls justify-content-center" style="margin-top:10px;">
-                ${tirage.map(n => `<span class="ball">${n}</span>`).join("")}
-                ${chance != null ? `<span class="ball chance">${chance}</span>` : ""}
+          <div class="d-flex flex-column gap-3">
+            <div>
+              <div class="muted">Tirage du ${data.jourDeTirage} ${data.dateDeTirage}</div>
+              <div class="balls" style="margin-top:10px;">
+                <span class="ball">${data.boule1}</span>
+                <span class="ball">${data.boule2}</span>
+                <span class="ball">${data.boule3}</span>
+                <span class="ball">${data.boule4}</span>
+                <span class="ball">${data.boule5}</span>
+                <span class="ball chance">${data.numeroChance}</span>
               </div>
             </div>
 
-            <div class="col-md-6">
-              <h5 class="text-center" style="font-weight:950;">Second tirage</h5>
-              <div class="balls justify-content-center" style="margin-top:10px;">
-                ${second.length ? second.map(n => `<span class="ball">${n}</span>`).join("") : `<span class="muted">—</span>`}
+            <div class="panel" style="background: rgba(255,255,255,.04); border-radius:16px; padding:14px; border: 1px solid rgba(255,255,255,.12);">
+              <div class="d-flex justify-content-between flex-wrap gap-2">
+                <div><b>Jackpot annoncé</b> : ${Number(data.rapportDuRang1 || 0).toLocaleString()} €</div>
+                <div><b>Joker+</b> : <span style="color: rgba(96,165,250,.95); font-weight: 950;">${data.numeroJokerplus || "-"}</span></div>
+              </div>
+              <hr style="border-color: rgba(255,255,255,.12);">
+              <div class="muted">Second tirage</div>
+              <div class="balls" style="margin-top:10px;">
+                <span class="ball">${data.boule1SecondTirage}</span>
+                <span class="ball">${data.boule2SecondTirage}</span>
+                <span class="ball">${data.boule3SecondTirage}</span>
+                <span class="ball">${data.boule4SecondTirage}</span>
+                <span class="ball">${data.boule5SecondTirage}</span>
               </div>
             </div>
           </div>
-
-          <div class="text-center mt-3" style="font-weight:950;">
-            <span style="color: rgba(96,165,250,.95);">Jackpot annoncé :</span>
-            <span>${jackpot ? formatMoney(jackpot).replace(" €","") : "-" } €</span>
-          </div>
-
-          <hr style="border-color: rgba(255,255,255,.12); margin: 18px 0;">
-
-          ${buildReportsTablePrincipal(data)}
-
-          ${buildReportsTableSecond(data)}
-
-          <hr style="border-color: rgba(255,255,255,.12); margin: 18px 0;">
-
-          <div class="text-center" style="font-weight:950;">
-            Joker+ :
-            <span style="color: rgba(96,165,250,.95);">${joker || "-"}</span>
-          </div>
-
-          ${buildCodesGagnantsBlock(data)}
         `;
 
         new bootstrap.Modal(document.getElementById("detailModal")).show();
@@ -1226,13 +1009,14 @@
           return;
         }
 
-        document.getElementById("predictedNumbers").innerHTML = `
+        const predictedNumbersEl = document.getElementById("predictedNumbers");
+        const predictedChanceEl = document.getElementById("predictedChance");
+        predictedNumbersEl.innerHTML = `
           <div class="balls">
             ${data.probableNumbers.map(n => `<span class="ball">${n}</span>`).join("")}
           </div>
         `;
-        document.getElementById("predictedChance").innerHTML =
-          `<div class="balls"><span class="ball chance">${data.probableChance}</span></div>`;
+        predictedChanceEl.innerHTML = `<div class="balls"><span class="ball chance">${data.probableChance}</span></div>`;
 
         const canvas = document.getElementById("sortieRatesChart");
         const ctx = canvas.getContext("2d");
@@ -1243,11 +1027,26 @@
 
         window.__ratesChart = new Chart(ctx,{
           type:"bar",
-          data:{ labels, datasets:[{ label:"Taux de sortie (%)", data: values, borderWidth: 1 }] },
+          data:{
+            labels,
+            datasets:[{
+              label:"Taux de sortie (%)",
+              data: values,
+              borderWidth: 1
+            }]
+          },
           options:{
             responsive:true,
-            plugins:{ title:{ display:true, text:"📈 Fréquence d'apparition des numéros", font:{ size:16 } } },
-            scales:{ y:{ beginAtZero:true } }
+            plugins:{
+              title:{
+                display:true,
+                text:"📈 Fréquence d'apparition des numéros",
+                font:{ size:16 }
+              }
+            },
+            scales:{
+              y:{ beginAtZero:true }
+            }
           }
         });
 
@@ -1259,14 +1058,16 @@
     }
 
     /* =========================
-      Search + pagination
+      Search + 1 month limit + pagination
     ========================== */
     let searchAllResults = [];
     let currentPage = 1;
     const pageSize = 9;
 
     function clampToOneMonth(startISO, endISO){
+      // return {startISO, endISO, wasClamped}
       if(!startISO) return {startISO, endISO, wasClamped:false};
+
       const s = moment(startISO);
       if(!endISO) return {startISO, endISO, wasClamped:false};
 
@@ -1317,6 +1118,7 @@
         container.appendChild(card);
       });
 
+      // Pagination controls
       const prev = document.createElement("button");
       prev.className = "page-btn";
       prev.textContent = "‹";
@@ -1324,10 +1126,10 @@
       prev.onclick = () => { currentPage--; renderSearchPage(); };
       pagination.appendChild(prev);
 
-      const totalPagesSafe = Math.max(1, totalPages);
+      // Page numbers (compact)
       const maxButtons = 7;
       let startPage = Math.max(1, currentPage - Math.floor(maxButtons/2));
-      let endPage = Math.min(totalPagesSafe, startPage + maxButtons - 1);
+      let endPage = Math.min(totalPages, startPage + maxButtons - 1);
       startPage = Math.max(1, endPage - maxButtons + 1);
 
       for(let p = startPage; p <= endPage; p++){
@@ -1341,7 +1143,7 @@
       const next = document.createElement("button");
       next.className = "page-btn";
       next.textContent = "›";
-      next.disabled = currentPage === totalPagesSafe;
+      next.disabled = currentPage === totalPages;
       next.onclick = () => { currentPage++; renderSearchPage(); };
       pagination.appendChild(next);
     }
@@ -1355,15 +1157,19 @@
         return;
       }
 
+      // clamp endDate to 1 month max
       const clamped = clampToOneMonth(startDate, endDate);
       if(clamped.wasClamped){
         document.getElementById("endDate").value = clamped.endISO;
         endDate = clamped.endISO;
-        document.getElementById("searchHint").textContent = "Plage limitée automatiquement à 1 mois maximum.";
+        document.getElementById("searchHint").textContent =
+          "Plage limitée automatiquement à 1 mois maximum.";
       }else{
-        document.getElementById("searchHint").textContent = "Astuce : si tu ne mets pas “Au”, on cherche uniquement sur “Du”.";
+        document.getElementById("searchHint").textContent =
+          "Astuce : si tu ne mets pas “Au”, on cherche uniquement sur “Du”.";
       }
 
+      // build url (comme ton code)
       let apiUrl;
       if(!endDate){
         apiUrl = `${API_BASE}/api/historique/last20/Detail/tirages?startDate=${startDate}`;
@@ -1388,13 +1194,62 @@
     }
 
     /* =========================
+      Auth (optionnel)
+    ========================== */
+    async function checkUserAuth(){
+      // Si tu as /api/protected/userinfo comme dans ton code
+      try{
+        const res = await fetch(`${API_BASE}/api/protected/userinfo`, {
+          method: "GET",
+          credentials: "include"
+        });
+
+        if(res.ok){
+          const userData = await res.json();
+          document.getElementById("loginButton").style.display = "none";
+          document.getElementById("userChip").style.display = "inline-flex";
+          document.getElementById("userEmail").textContent = userData.username || userData.email || "Utilisateur";
+        }else{
+          document.getElementById("loginButton").style.display = "inline-flex";
+          document.getElementById("userChip").style.display = "none";
+        }
+      }catch(e){
+        document.getElementById("loginButton").style.display = "inline-flex";
+        document.getElementById("userChip").style.display = "none";
+      }
+    }
+
+    async function logout(){
+      try{
+        const res = await fetch(`${API_BASE}/api/auth/logout`, {
+          method: "POST",
+          credentials: "include"
+        });
+        if(res.ok){
+          window.location.href = "index.html";
+        }else{
+          alert("Déconnexion échouée.");
+        }
+      }catch(e){
+        alert("Erreur lors de la déconnexion.");
+      }
+    }
+
+    checkUserAuth();
+
+    /* =========================
       MAP (Leaflet + Overpass)
+      - radius 30km
+      - Free APIs:
+        * OpenStreetMap tiles
+        * Overpass API query
     ========================== */
     let mapDesktop, mapMobile, userMarkerDesktop, userMarkerMobile;
     let poiLayerDesktop = L.layerGroup();
     let poiLayerMobile = L.layerGroup();
 
-    let userLat = 48.1173; // Rennes
+    // fallback Rennes (si pas de geoloc)
+    let userLat = 48.1173;
     let userLon = -1.6778;
 
     function initMapDesktop(){
@@ -1427,13 +1282,14 @@
       fetchPOIs(userLat, userLon, 30000, mapMobile, poiLayerMobile, "mapStatusMobile");
     }
 
+    // Overpass query: tabac/kiosk/convenience (souvent points FDJ)
     async function fetchPOIs(lat, lon, radiusMeters, map, layerGroup, statusElId){
       const statusEl = document.getElementById(statusElId);
-      if (!statusEl) return;
-
       statusEl.textContent = `Localisation : ${lat.toFixed(4)}, ${lon.toFixed(4)} — recherche 30 km…`;
+
       layerGroup.clearLayers();
 
+      // Overpass QL (gratuit) - on évite d’être trop agressif
       const query = `
         [out:json][timeout:25];
         (
@@ -1455,7 +1311,7 @@
         if(!res.ok) throw new Error("Overpass error");
         const json = await res.json();
 
-        const elements = (json.elements || []).slice(0, 120);
+        const elements = (json.elements || []).slice(0, 120); // limite pour UI
 
         if(elements.length === 0){
           statusEl.textContent = "Aucun point trouvé dans 30 km (OSM/Overpass).";
@@ -1472,8 +1328,14 @@
             el.tags?.["addr:city"]
           ].filter(Boolean).join(" ");
 
-          const m = L.circleMarker([el.lat, el.lon], { radius: 7, weight: 1 })
-            .bindPopup(`<b>${name}</b><br><span>${type}</span><br><small>${addr || ""}</small>`);
+          const m = L.circleMarker([el.lat, el.lon], {
+            radius: 7,
+            weight: 1
+          }).bindPopup(`
+            <b>${name}</b><br>
+            <span>${type}</span><br>
+            <small>${addr || ""}</small>
+          `);
 
           layerGroup.addLayer(m);
         });
@@ -1488,11 +1350,14 @@
 
     function applyUserPosition(lat, lon){
       userLat = lat; userLon = lon;
+
+      // Desktop
       if(mapDesktop){
         mapDesktop.setView([lat, lon], 12);
         userMarkerDesktop.setLatLng([lat, lon]).bindPopup("📍 Votre position");
         fetchPOIs(lat, lon, 30000, mapDesktop, poiLayerDesktop, "mapStatus");
       }
+      // Mobile
       if(mapMobile){
         mapMobile.setView([lat, lon], 12);
         userMarkerMobile.setLatLng([lat, lon]).bindPopup("📍 Votre position");
@@ -1502,7 +1367,10 @@
 
     async function locateUser(){
       return new Promise((resolve, reject) => {
-        if(!navigator.geolocation) return reject(new Error("Geolocation unsupported"));
+        if(!navigator.geolocation){
+          reject(new Error("Geolocation unsupported"));
+          return;
+        }
         navigator.geolocation.getCurrentPosition(
           pos => resolve(pos.coords),
           err => reject(err),
@@ -1511,7 +1379,8 @@
       });
     }
 
-    document.getElementById("locateBtn")?.addEventListener("click", async () => {
+    // Buttons
+    document.getElementById("locateBtn").addEventListener("click", async () => {
       try{
         const coords = await locateUser();
         applyUserPosition(coords.latitude, coords.longitude);
@@ -1519,11 +1388,13 @@
         alert("Impossible de récupérer la position. Autorise la localisation dans le navigateur.");
       }
     });
-    document.getElementById("refreshPoisBtn")?.addEventListener("click", () => {
-      if(mapDesktop) fetchPOIs(userLat, userLon, 30000, mapDesktop, poiLayerDesktop, "mapStatus");
+    document.getElementById("refreshPoisBtn").addEventListener("click", () => {
+      if(mapDesktop){
+        fetchPOIs(userLat, userLon, 30000, mapDesktop, poiLayerDesktop, "mapStatus");
+      }
     });
 
-    document.getElementById("locateBtnMobile")?.addEventListener("click", async () => {
+    document.getElementById("locateBtnMobile").addEventListener("click", async () => {
       try{
         const coords = await locateUser();
         applyUserPosition(coords.latitude, coords.longitude);
@@ -1531,20 +1402,27 @@
         alert("Impossible de récupérer la position.");
       }
     });
-    document.getElementById("refreshPoisBtnMobile")?.addEventListener("click", () => {
-      if(mapMobile) fetchPOIs(userLat, userLon, 30000, mapMobile, poiLayerMobile, "mapStatusMobile");
+    document.getElementById("refreshPoisBtnMobile").addEventListener("click", () => {
+      if(mapMobile){
+        fetchPOIs(userLat, userLon, 30000, mapMobile, poiLayerMobile, "mapStatusMobile");
+      }
     });
 
+    // Init maps
     initMapDesktop();
 
+    // Init map mobile ONLY when modal opens (sinon Leaflet bug sur container hidden)
     const mapModalEl = document.getElementById("mapModal");
-    mapModalEl?.addEventListener("shown.bs.modal", () => {
-      if(!mapMobile) initMapMobile();
-      else mapMobile.invalidateSize();
+    mapModalEl.addEventListener("shown.bs.modal", () => {
+      if(!mapMobile){
+        initMapMobile();
+      }else{
+        mapMobile.invalidateSize();
+      }
     });
   </script>
+<!-- Chargement du module IA -->
+<script src="ai-loader.js"></script>
 
-  <!-- IA (si tu l'utilises) -->
-  <script src="ai-loader.js"></script>
 </body>
 </html>

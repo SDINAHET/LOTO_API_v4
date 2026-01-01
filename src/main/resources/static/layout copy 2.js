@@ -42,14 +42,10 @@
 
       body.has-fixed-footer{ padding-bottom: var(--footer-h); }
 
-
-
       .topbar{
-        position: fixed;      /* ✅ toujours visible */
+        position: sticky;
         top: 0;
-        left: 0;
-        right: 0;
-        z-index: 9999;
+        z-index: 50;
         height: var(--topbar-h);
         display:flex;
         align-items:center;
@@ -60,10 +56,6 @@
         backdrop-filter: blur(12px);
         border-bottom: 1px solid var(--stroke);
       }
-      body{
-        padding-top: var(--topbar-h);
-      }
-
 
       .brand{
         display:flex;
@@ -150,77 +142,6 @@
       }
       .btn-danger-soft:hover{ background: rgba(239,68,68,.25); }
 
-
-      /* ================================
-        Bouton Déconnexion = style ghost
-        ================================ */
-        /* ✅ Déconnexion = exactement comme .btn-ghost (même taille) + teinte rouge */
-        .topbar #logoutBtn.btn-danger-soft{
-          display:inline-flex;
-          align-items:center;
-          gap:8px;
-
-          padding:10px 12px;                 /* identique btn-ghost */
-          border-radius:12px;                /* identique btn-ghost */
-          border:1px solid rgba(239,68,68,.25);
-          background: rgba(239,68,68,.12);
-
-          color: var(--text);
-          font-weight: 800;                  /* ✅ identique btn-ghost (pas 900) */
-          white-space: nowrap;
-          line-height: 1;                    /* ✅ évite que ça “gonfle” */
-          height: 40px;                      /* ✅ force la même hauteur */
-        }
-
-        .topbar #logoutBtn.btn-danger-soft:hover{
-          transform: translateY(-1px);
-          background: rgba(239,68,68,.2);
-        }
-
-        /* ✅ icône exactement comme les autres */
-        .topbar #logoutBtn.btn-danger-soft .btn-ico{
-          width:18px;
-          height:18px;
-          stroke: var(--text);
-        }
-
-        /* ✅ MOBILE: bouton Déconnexion compact */
-        @media (max-width: 480px){
-
-          /* on réduit l’espace global du bloc user */
-          .topbar .user-chip{
-            gap: 8px;
-          }
-
-          /* bouton logout plus petit */
-          .topbar #logoutBtn{
-            padding: 8px 10px;
-            height: 36px;
-            font-size: .85rem;
-          }
-
-          /* option: masquer le texte "Déconnexion" pour ne garder que l’icône */
-          .topbar #logoutBtn{
-            min-width: 36px;
-            justify-content: center;
-          }
-          .topbar #logoutBtn svg{
-            margin: 0;
-          }
-          .topbar #logoutBtn{
-            gap: 0;
-          }
-          .topbar #logoutBtn{
-            /* masque juste le texte, garde l'icône */
-          }
-          .topbar #logoutBtn{
-            /* on cible le texte après le svg (ton texte est en brut, donc on le masque via span) */
-          }
-        }
-
-
-
-
       .footer{
         position: fixed;
         left: 0; right: 0; bottom: 0;
@@ -262,46 +183,6 @@
         background:#ef4444;
         color:#ef4444;
       }
-
-      /* ✅ userChip fondu dans la topbar (pas un cadre) */
-      .user-chip{
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-        border-radius: 0 !important;
-        display: inline-flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      /* Texte plus “header” */
-      .user-chip span{
-        color: var(--text);
-        font-weight: 800;
-        opacity: .95;
-      }
-      .user-chip b{
-        font-weight: 900;
-      }
-
-      /* Bouton logout un peu plus “header” (optionnel) */
-      .user-chip .btn-danger-soft{
-        padding: 10px 12px;
-        border-radius: 12px;
-      }
-
-      /* ✅ Sidebar sticky uniquement sur desktop (évite de casser le offcanvas mobile) */
-      @media (min-width: 992px){
-        .sidebar{
-          position: sticky;
-          top: calc(var(--topbar-h) + 16px);
-          align-self: start;
-        }
-      }
-
-
-
     `;
     document.head.appendChild(style);
   }
@@ -384,18 +265,7 @@
             <span id="authActionText">Se connecter</span>
           </a>
 
-          <!-- ✅ AJOUT : créer un compte -->
-          <a href="register.html" class="btn-ghost" id="registerBtn">
-            <svg class="btn-ico" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="8.5" cy="7" r="4"></circle>
-              <path d="M20 8v6"></path>
-              <path d="M23 11h-6"></path>
-            </svg>
-            <span>Créer un compte</span>
-          </a>
-
-          <div class="chip user-chip" id="userChip" style="display:none;">
+          <div class="chip" id="userChip" style="display:none;">
             <span>Bienvenue, <b id="userEmail">—</b></span>
             <button class="btn-danger-soft" id="logoutBtn" type="button" title="Déconnexion">
               <svg class="btn-ico" viewBox="0 0 24 24" aria-hidden="true" style="stroke:white">
@@ -407,7 +277,6 @@
             </button>
           </div>
         </div>
-
       </header>
     `;
   }
@@ -446,54 +315,22 @@
   }
 
   function setAuthUI({ logged, label }) {
-    const authBtn = document.getElementById("authActionBtn");     // Se connecter
-    const registerBtn = document.getElementById("registerBtn");  // Créer un compte
+    const authBtn = document.getElementById("authActionBtn");
     const userChip = document.getElementById("userChip");
     const userEmail = document.getElementById("userEmail");
 
     if (!authBtn || !userChip || !userEmail) return;
 
-    const path = window.location.pathname.toLowerCase();
-    const isLoginPage = path.endsWith("/login.html");
-    const isRegisterPage = path.endsWith("/register.html");
-
-    // ================= CONNECTÉ =================
     if (logged) {
       authBtn.style.display = "none";
-      if (registerBtn) registerBtn.style.display = "none";
       userChip.style.display = "inline-flex";
       userEmail.textContent = label || "Utilisateur";
-      return;
-    }
-
-    // ================= DÉCONNECTÉ =================
-    userChip.style.display = "none";
-    userEmail.textContent = "—";
-
-    // login.html → Créer un compte seulement
-    if (isLoginPage) {
-      authBtn.style.display = "none";
-      if (registerBtn) registerBtn.style.display = "inline-flex";
-      return;
-    }
-
-    // register.html → Se connecter seulement
-    if (isRegisterPage) {
+    } else {
+      userChip.style.display = "none";
       authBtn.style.display = "inline-flex";
-      if (registerBtn) registerBtn.style.display = "none";
-      return;
+      userEmail.textContent = "—";
     }
-
-    // autres pages → Se connecter seulement
-    authBtn.style.display = "inline-flex";
-    if (registerBtn) registerBtn.style.display = "none";
   }
-
-
-
-
-
-
 
   /* =========================================================
      Auth UI (SOURCE DE VÉRITÉ = /userinfo)

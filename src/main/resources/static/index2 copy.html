@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Résultats Loto</title>
+
+  <link rel="icon" type="image/png" href="loto_tracker.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment/min/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment-timezone/builds/moment-timezone-with-data.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
+
+  <style>
+    .lottery-ball {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      border-radius: 50%;
+      background: blue;
+      color: white;
+      text-align: center;
+      font-weight: bold;
+      margin: 5px;
+    }
+    .lottery-ball2 {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: white;
+      border-radius: 50%;
+      margin: 3px;
+      text-align: center;
+    }
+    .blue-ball { background-color: #007bff; }
+    .red-ball { background-color: #dc3545; }
+    .lucky-number { background: red; }
+    .card-lottery { margin: 10px; }
+    .logo { width: 120px; height: 120px; }
+
+    .header {
+      background-color: #212529;
+      padding: 10px 20px;
+      box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
+    }
+    .header h1 { font-size: 24px; font-weight: bold; }
+
+    .countdown-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 3.5rem;
+      font-weight: bold;
+      color: #ffeb3b;
+      text-shadow: 4px 4px 12px rgba(255, 215, 0, 1);
+      padding: 20px;
+      border-radius: 15px;
+      background: linear-gradient(135deg, rgba(255, 87, 34, 0.95), rgba(255, 193, 7, 0.95));
+      box-shadow: 0px 0px 25px rgba(255, 87, 34, 0.8);
+      text-align: center;
+      width: fit-content;
+      margin: auto;
+      position: relative;
+      overflow: hidden;
+      animation: glow 2s infinite alternate, bounce 2s infinite ease-in-out;
+    }
+
+    .countdown-container::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: url('https://media.giphy.com/media/3o6Zt481isNVuQI1l6/giphy.gif') no-repeat center center;
+      background-size: cover;
+      opacity: 0.3;
+      z-index: -1;
+    }
+
+    .countdown-container::after {
+      content: "🐓";
+      position: absolute;
+      font-size: 4rem;
+      top: -20px;
+      right: 10px;
+      animation: coqFlap 1s infinite alternate;
+    }
+
+    @keyframes coqFlap {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(30deg); }
+    }
+
+    .dashboard-cards {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+    .dashboard-card {
+      width: 250px;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      background: white;
+      box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease-in-out;
+    }
+    .dashboard-card:hover { transform: scale(1.05); }
+    .dashboard-card h3 { font-size: 1.2rem; font-weight: bold; }
+
+    .next-draws-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 0;
+      overflow-x: hidden;
+    }
+    .next-date-box {
+      background: #f8f9fa;
+      border: 2px solid #0d6efd;
+      border-radius: 30px;
+      padding: 10px 20px;
+      font-weight: 600;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease-in-out;
+      animation: fadeInUp 0.6s ease-in-out;
+    }
+    .next-date-box:hover { transform: scale(1.05); }
+
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Footer */
+    body { display: flex; flex-direction: column; min-height: 100vh; }
+    main { flex: 1; }
+
+    .footer {
+      background: linear-gradient(135deg, #212529, #343a40);
+      color: #ffffff;
+      padding: 8px 0;
+      text-align: center;
+      font-size: 0.9rem;
+      width: 100%;
+      box-shadow: 0px -4px 6px rgba(0,0,0,0.3);
+      animation: fadeInUp 1.5s ease-in-out;
+    }
+    .footer-container {
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .footer-links { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+    .footer-links a {
+      color: #ffeb3b;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s ease-in-out;
+    }
+    .footer-links a:hover { color: #ff5722; }
+    .footer-social { display: flex; gap: 10px; margin-top: 6px; }
+    .footer-social a { color: #fff; font-size: 1.2rem; transition: transform 0.3s ease-in-out, color 0.3s; }
+    .footer-social a:hover { color: #ffeb3b; transform: scale(1.1); }
+    .footer-text { margin-top: 3px; font-size: 0.8rem; opacity: 0.7; }
+  </style>
+</head>
+
+<body class="bg-light">
+
+  <!-- HEADER -->
+  <header class="header d-flex justify-content-between align-items-center p-3 bg-dark text-white">
+    <div class="d-flex align-items-center">
+      <img src="loto_tracker.png" alt="Logo Loto" class="logo" />
+      <div class="ms-2">
+        <h1 class="m-0">Tracker du Loto Français</h1>
+        <p class="m-0 small" id="current-time"></p>
+      </div>
+    </div>
+
+    <!-- Bouton Se connecter (visible si NON connecté) -->
+    <a href="login.html" class="btn btn-outline-light" id="loginButton">
+      <i class="fas fa-user"></i> Se connecter
+    </a>
+
+    <!-- Menu utilisateur (visible si connecté) -->
+    <div class="dropdown" id="userMenu" style="display:none;">
+      <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fa-solid fa-circle-user"></i>
+        <span id="userLabel">Mon compte</span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><h6 class="dropdown-header">Connecté : <span id="userEmail"></span></h6></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="profil.html"><i class="fa-solid fa-id-card me-2"></i>Profil</a></li>
+        <li><a class="dropdown-item" href="tickets.html"><i class="fa-solid fa-ticket me-2"></i>Tickets</a></li>
+        <li><a class="dropdown-item" href="statistiques.html"><i class="fa-solid fa-chart-line me-2"></i>Statistiques</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <button class="dropdown-item text-danger" type="button" id="logoutBtn">
+            <i class="fas fa-sign-out-alt me-2"></i>Se déconnecter
+          </button>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <main>
+    <!-- DASHBOARD (uniquement si connecté) -->
+    <div class="container text-center" id="dashboardArea" style="display:none;">
+      <div class="dashboard-cards">
+        <div class="dashboard-card">
+          <h3>Compte</h3>
+          <p>Gérez vos informations personnelles.</p>
+          <a href="profil.html" class="btn btn-primary">Modifier</a>
+        </div>
+        <div class="dashboard-card">
+          <h3>Tickets</h3>
+          <p>Ajoutez et suivez vos tickets.</p>
+          <a href="tickets.html" class="btn btn-primary">Accéder</a>
+        </div>
+        <div class="dashboard-card">
+          <h3>Statistiques</h3>
+          <p>Consultez vos gains et tendances.</p>
+          <a href="statistiques.html" class="btn btn-primary">Voir</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message si non connecté -->
+    <div class="container mt-3" id="guestInfo">
+      <div class="alert alert-info text-center">
+        <i class="fa-solid fa-circle-info me-2"></i>
+        Connecte-toi pour afficher ton menu personnalisé (Compte / Tickets / Statistiques).
+      </div>
+    </div>
+
+    <div class="container mt-4">
+      <h1 class="text-center">Résultats du Loto</h1>
+
+      <div class="text-center my-3">
+        <p id="next-draw-info" class="text-center fw-bold text-primary mb-2"></p>
+        <div id="countdown" class="countdown-container"></div>
+        <div id="next-5-draws" class="next-draws-container"></div>
+        <audio id="alertSound" src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" preload="auto"></audio>
+      </div>
+
+      <div class="text-center my-3">
+        <button class="btn btn-lg btn-primary" type="button" onclick="showPrediction()">
+          🔮 Voir les statistiques du prochain tirage
+        </button>
+      </div>
+
+      <!-- MODAL PRÉDICTION -->
+      <div class="modal fade" id="predictionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title text-primary">📊 Statistique du prochain tirage</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <h5 class="text-center text-success">🔮 Numéros probables :</h5>
+              <div id="predictedNumbers" class="text-center my-3"></div>
+
+              <h5 class="text-center text-danger">🍀 Numéro Chance :</h5>
+              <p class="text-center fs-4" id="predictedChance"></p>
+
+              <canvas id="sortieRatesChart"></canvas>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL DÉTAIL -->
+      <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title fw-bold">Détail du Tirage</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row row-cols-1 row-cols-md-3 g-4" id="last20"></div>
+
+      <h3 class="mt-4">Rechercher un tirage</h3>
+      <div class="input-group mb-3">
+        <input type="date" id="startDate" class="form-control" />
+        <input type="date" id="endDate" class="form-control" />
+        <button class="btn btn-primary" type="button" onclick="searchTirages()">Rechercher</button>
+      </div>
+      <div id="searchResults" class="row row-cols-1 row-cols-md-3 g-4"></div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-links">
+        <a href="mentions_legales.html">Mentions légales</a>
+        <a href="conditions_utilisation.html">Conditions d'utilisation</a>
+        <a href="politique_confidentialite.html">Politique de confidentialité</a>
+      </div>
+      <div class="footer-social">
+        <a href="#"><i class="fab fa-facebook"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-youtube"></i></a>
+      </div>
+      <p class="footer-text">© 2025 Tracker du Loto Français / SDINAHET. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS (bundle = dropdown + modal + tabs) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // BASE URL dynamique
+    const API_BASE =
+      (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+        ? "http://localhost:8082"
+        : "https://stephanedinahet.fr";
+
+    // Heure Paris
+    function updateTime() {
+      const el = document.getElementById("current-time");
+      if (el) el.innerText = "Heure de Paris : " + moment().tz("Europe/Paris").format("HH:mm:ss");
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    // AUTH : un seul système propre (API /api/auth/me + logout)
+    async function refreshAuthUI() {
+      const loginBtn = document.getElementById("loginButton");
+      const userMenu = document.getElementById("userMenu");
+      const userEmail = document.getElementById("userEmail");
+      const dashboardArea = document.getElementById("dashboardArea");
+      const guestInfo = document.getElementById("guestInfo");
+
+      try {
+        const res = await axios.get(`${API_BASE}/api/auth/me`, { withCredentials: true });
+
+        // On considère connecté si l'API renvoie 200 + un email/username
+        const u = res.data || {};
+        const display = u.first_name || u.firstName || u.email || u.username || "Utilisateur";
+
+        loginBtn.style.display = "none";
+        userMenu.style.display = "block";
+        dashboardArea.style.display = "block";
+        guestInfo.style.display = "none";
+
+        userEmail.textContent = u.email || u.username || display;
+        document.getElementById("userLabel").textContent = display;
+      } catch (e) {
+        // Non connecté
+        loginBtn.style.display = "inline-block";
+        userMenu.style.display = "none";
+        dashboardArea.style.display = "none";
+        guestInfo.style.display = "block";
+      }
+    }
+
+    async function logout() {
+      try {
+        await axios.post(`${API_BASE}/api/auth/logout`, {}, { withCredentials: true });
+      } catch (e) {
+        // même si erreur, on force l'UI côté front
+      }
+      // nettoyages éventuels
+      document.cookie = "jwtToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      window.location.href = "index.html";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("logoutBtn").addEventListener("click", logout);
+      refreshAuthUI();
+      startCountdown();
+      loadLast20();
+    });
+
+    // Compte à rebours
+    function startCountdown() {
+      const tirageDays = [1, 3, 6]; // Lundi, Mercredi, Samedi
+      const joursFr = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
+      let alerted = false;
+      const alertSound = document.getElementById("alertSound");
+
+      function getNextDrawDate(baseDate = moment().tz("Europe/Paris")) {
+        let next = baseDate.clone().set({ hour: 20, minute: 0, second: 0, millisecond: 0 });
+        while (!tirageDays.includes(next.day()) || next.isBefore(baseDate)) next.add(1, "day");
+        return next;
+      }
+
+      function updateCalendar() {
+        const calendar = document.getElementById("next-5-draws");
+        calendar.innerHTML = "";
+        let date = moment().tz("Europe/Paris");
+        for (let i = 0; i < 3; i++) {
+          date = getNextDrawDate(date);
+          const div = document.createElement("div");
+          div.className = "next-date-box";
+          div.innerHTML = `<i class="fa-solid fa-calendar-days"></i> ${joursFr[date.day()]} ${date.format("DD/MM/YYYY")} à 20h`;
+          calendar.appendChild(div);
+          date.add(1, "minute");
+        }
+      }
+
+      updateCalendar();
+
+      setInterval(() => {
+        const now = moment().tz("Europe/Paris");
+        const nextDraw = getNextDrawDate(now);
+        const diff = moment.duration(nextDraw.diff(now));
+
+        document.getElementById("next-draw-info").innerText = `🕔 Prochain tirage : ${joursFr[nextDraw.day()]} à 20h`;
+
+        const countdownEl = document.getElementById("countdown");
+        countdownEl.innerText = `${diff.days()}j ${diff.hours()}h ${diff.minutes()}m ${diff.seconds()}s`;
+
+        const hoursLeft = diff.asHours();
+        if (hoursLeft <= 3) {
+          countdownEl.style.background = "#dc3545";
+          countdownEl.style.color = "white";
+        } else if (hoursLeft <= 5) {
+          countdownEl.style.background = "#ff5722";
+          countdownEl.style.color = "white";
+        } else if (hoursLeft <= 7) {
+          countdownEl.style.background = "#ffc107";
+          countdownEl.style.color = "#000";
+        } else {
+          countdownEl.style.background = "linear-gradient(135deg, rgba(255, 87, 34, 0.95), rgba(255, 193, 7, 0.95))";
+          countdownEl.style.color = "#fff";
+        }
+
+        if (diff.asMinutes() <= 60 && !alerted) {
+          if (alertSound) alertSound.play();
+          document.title = "🚨 Tirage bientôt !";
+          countdownEl.style.boxShadow = "0 0 30px red";
+          alerted = true;
+        }
+
+        if (diff.asMilliseconds() <= 0) {
+          alerted = false;
+          updateCalendar();
+        }
+      }, 1000);
+    }
+
+    function getDayName(dateString) {
+      const [day, month, year] = dateString.split("/").map(Number);
+      const date = new Date(year, month - 1, day);
+      const jours = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
+      return jours[date.getDay()];
+    }
+
+    async function loadLast20() {
+      try {
+        const response = await axios.get(`${API_BASE}/api/historique/last20`);
+        const data = response.data || [];
+        const container = document.getElementById("last20");
+        container.innerHTML = "";
+
+        data.forEach(draw => {
+          const dayName = getDayName(draw.dateDeTirage);
+          const card = document.createElement("div");
+          card.className = "col";
+          card.innerHTML = `
+            <div class="card card-lottery text-center">
+              <div class="card-body">
+                <h5>${dayName} ${draw.dateDeTirage}</h5>
+                <div>
+                  <span class="lottery-ball">${draw.boule1}</span>
+                  <span class="lottery-ball">${draw.boule2}</span>
+                  <span class="lottery-ball">${draw.boule3}</span>
+                  <span class="lottery-ball">${draw.boule4}</span>
+                  <span class="lottery-ball">${draw.boule5}</span>
+                  <span class="lottery-ball lucky-number">${draw.numeroChance}</span>
+                </div>
+                <button class="btn btn-outline-primary mt-2" type="button" onclick="viewDetails('${draw.dateDeTirage}')">
+                  Détail du Tirage
+                </button>
+              </div>
+            </div>`;
+          container.appendChild(card);
+        });
+      } catch (error) {
+        console.error("Erreur lors du chargement des derniers tirages", error);
+      }
+    }
+
+    function formatDateForAPI(dateString) {
+      if (!dateString.includes("/")) return dateString;
+      const parts = dateString.split("/");
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+
+    async function viewDetails(date) {
+      try {
+        const formattedDate = formatDateForAPI(date);
+        const apiUrl = `${API_BASE}/api/historique/last20/Detail/tirage/${formattedDate}`;
+
+        const response = await axios.get(apiUrl);
+        const data = response.data;
+
+        if (!data) {
+          document.getElementById("modalBody").innerHTML = "<p class='text-center text-warning'>Aucun détail trouvé.</p>";
+          new bootstrap.Modal(document.getElementById("detailModal")).show();
+          return;
+        }
+
+        document.getElementById("modalBody").innerHTML = `
+          <div class="container-fluid">
+            <h4 class="text-center text-danger fw-bold">Résultat Loto du ${data.jourDeTirage} ${data.dateDeTirage}</h4>
+            <div class="row">
+              <div class="col-md-6 text-center">
+                <h5 class="fw-bold">Le tirage</h5>
+                <div id="numbersContainer" class="mb-3">
+                  <span class="lottery-ball">${data.boule1}</span>
+                  <span class="lottery-ball">${data.boule2}</span>
+                  <span class="lottery-ball">${data.boule3}</span>
+                  <span class="lottery-ball">${data.boule4}</span>
+                  <span class="lottery-ball">${data.boule5}</span>
+                  <span class="lottery-ball lucky-number">${data.numeroChance}</span>
+                </div>
+              </div>
+              <div class="col-md-6 text-center">
+                <h5 class="fw-bold">Second tirage</h5>
+                <div class="mb-3">
+                  <span class="lottery-ball">${data.boule1SecondTirage}</span>
+                  <span class="lottery-ball">${data.boule2SecondTirage}</span>
+                  <span class="lottery-ball">${data.boule3SecondTirage}</span>
+                  <span class="lottery-ball">${data.boule4SecondTirage}</span>
+                  <span class="lottery-ball">${data.boule5SecondTirage}</span>
+                </div>
+              </div>
+            </div>
+
+            <hr>
+            <h5 class="text-center fw-bold">Joker+ : <span class="text-primary">${data.numeroJokerplus}</span></h5>
+
+            <hr>
+            <h5 class="text-center fw-bold">Codes gagnants :</h5>
+            <div class="d-flex flex-wrap gap-2 justify-content-center">
+              ${(data.codesGagnants || "").split(",").map(c => c.trim()).filter(Boolean)
+                .map(code => `<span class="badge text-bg-warning p-2">${code}</span>`).join("")}
+            </div>
+          </div>
+        `;
+
+        new bootstrap.Modal(document.getElementById("detailModal")).show();
+      } catch (error) {
+        console.error("Erreur viewDetails:", error);
+        document.getElementById("modalBody").innerHTML = "<p class='text-center text-danger'>Erreur lors du chargement des détails.</p>";
+        new bootstrap.Modal(document.getElementById("detailModal")).show();
+      }
+    }
+
+    async function searchTirages() {
+      const startDate = document.getElementById("startDate").value;
+      const endDate = document.getElementById("endDate").value;
+
+      if (!startDate) {
+        alert("Veuillez sélectionner une date de début.");
+        return;
+      }
+
+      const apiUrl = !endDate
+        ? `${API_BASE}/api/historique/last20/Detail/tirages?startDate=${startDate}`
+        : `${API_BASE}/api/historique/last20/Detail/tirages?startDate=${startDate}&endDate=${endDate}`;
+
+      const container = document.getElementById("searchResults");
+      container.innerHTML = `<div class="text-center my-3">Chargement en cours...</div>`;
+
+      try {
+        const response = await axios.get(apiUrl);
+        const data = Array.isArray(response.data) ? response.data : [response.data];
+
+        container.innerHTML = "";
+        if (!data.length) {
+          container.innerHTML = `<div class="alert alert-warning text-center">Aucun tirage trouvé.</div>`;
+          return;
+        }
+
+        data.forEach(draw => {
+          const dayName = getDayName(draw.dateDeTirage);
+          const card = document.createElement("div");
+          card.className = "col";
+          card.innerHTML = `
+            <div class="card card-lottery text-center">
+              <div class="card-body">
+                <h5>${dayName} ${draw.dateDeTirage}</h5>
+                <div>
+                  <span class="lottery-ball">${draw.boule1}</span>
+                  <span class="lottery-ball">${draw.boule2}</span>
+                  <span class="lottery-ball">${draw.boule3}</span>
+                  <span class="lottery-ball">${draw.boule4}</span>
+                  <span class="lottery-ball">${draw.boule5}</span>
+                  <span class="lottery-ball lucky-number">${draw.numeroChance}</span>
+                </div>
+                <button class="btn btn-outline-primary mt-2" type="button" onclick="viewDetails('${draw.dateDeTirage}')">
+                  Détail du Tirage
+                </button>
+              </div>
+            </div>`;
+          container.appendChild(card);
+        });
+      } catch (error) {
+        console.error("Erreur searchTirages:", error);
+        container.innerHTML = `<div class="alert alert-danger text-center">Erreur lors de la récupération des tirages.</div>`;
+      }
+    }
+
+    async function showPrediction() {
+      try {
+        const response = await axios.get(`${API_BASE}/api/predictions/latest`);
+        const data = response.data;
+
+        if (!data || !Array.isArray(data.probableNumbers) || typeof data.sortieRates !== "object") {
+          alert("⚠️ Les données de prédiction sont invalides !");
+          return;
+        }
+
+        document.getElementById("predictedNumbers").innerHTML =
+          data.probableNumbers.map(n => `<span class="lottery-ball blue-ball">${n}</span>`).join("");
+
+        document.getElementById("predictedChance").innerHTML =
+          `<span class="lottery-ball lucky-number">${data.probableChance}</span>`;
+
+        const canvas = document.getElementById("sortieRatesChart");
+        if (window.myChart) window.myChart.destroy();
+
+        const ctx = canvas.getContext("2d");
+        window.myChart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: Object.keys(data.sortieRates),
+            datasets: [{
+              label: "Taux de sortie (%)",
+              data: Object.values(data.sortieRates),
+              borderWidth: 1
+            }]
+          },
+          options: { responsive: true, scales: { y: { beginAtZero: true } } }
+        });
+
+        new bootstrap.Modal(document.getElementById("predictionModal")).show();
+      } catch (error) {
+        console.error("Erreur showPrediction:", error);
+        alert("⚠️ Impossible de charger les prédictions. Vérifiez votre serveur.");
+      }
+    }
+  </script>
+
+</body>
+</html>

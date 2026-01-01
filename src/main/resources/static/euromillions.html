@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Euromillions — En construction</title>
+  <link rel="icon" type="image/png" href="loto_tracker.png"/>
+
+  <script defer src="layout.js"></script>
+  <script defer src="dashboard.js"></script>
+
+  <style>
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: rgba(255,255,255,.92);
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(59,130,246,.22), transparent 60%),
+        radial-gradient(900px 500px at 90% 25%, rgba(239,68,68,.14), transparent 55%),
+        linear-gradient(135deg, #000428, #004e92);
+    }
+    .wrap{
+      min-height: calc(100vh - 72px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 24px;
+      text-align:center;
+    }
+    .card{
+      max-width: 620px;
+      background: rgba(0,0,0,.75);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      padding: 28px;
+    }
+    h1{ margin:0 0 10px; font-weight:950; }
+    p{ margin:0; opacity:.8; font-weight:700; }
+
+
+    /* ===== CONSTRUCTION ANIMATION ===== */
+
+    .construction {
+    animation: fadeInUp .8s ease-out;
+    }
+
+    .icon {
+    font-size: 56px;
+    margin-bottom: 12px;
+    animation: bounce 1.6s infinite;
+    }
+
+    .status {
+    font-size: 16px;
+    margin: 10px 0 20px;
+    letter-spacing: .3px;
+    }
+
+    /* Points animés */
+    .dots span {
+    animation: blink 1.4s infinite both;
+    font-weight: 900;
+    }
+
+    .dots span:nth-child(2) { animation-delay: .2s; }
+    .dots span:nth-child(3) { animation-delay: .4s; }
+
+    /* Barre de progression */
+    .progress {
+    position: relative;
+    height: 8px;
+    width: 100%;
+    background: rgba(255,255,255,.15);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 18px 0;
+    }
+
+    .progress .bar {
+    position: absolute;
+    height: 100%;
+    width: 40%;
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    animation: loading 1.6s infinite ease-in-out;
+    border-radius: 10px;
+    }
+
+    /* Texte secondaire */
+    .hint {
+    display: block;
+    margin-top: 10px;
+    font-size: 13px;
+    opacity: .7;
+    }
+
+    /* ===== KEYFRAMES ===== */
+
+    @keyframes loading {
+    0%   { left: -40%; }
+    50%  { left: 30%; }
+    100% { left: 100%; }
+    }
+
+    @keyframes blink {
+    0% { opacity: .2; }
+    20% { opacity: 1; }
+    100% { opacity: .2; }
+    }
+
+    @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+    }
+
+    @keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    }
+
+  </style>
+</head>
+<body>
+  <div id="appHeader"></div>
+
+    <div class="wrap">
+    <div class="card construction">
+        <div class="icon">🚧</div>
+
+        <h1>EuroMillions</h1>
+
+        <p class="status">
+        Page en cours de développement
+        <span class="dots">
+            <span>.</span><span>.</span><span>.</span>
+        </span>
+        </p>
+
+        <div class="progress">
+        <div class="bar"></div>
+        </div>
+
+        <small class="hint">
+        Cette fonctionnalité sera disponible prochainement.
+        </small>
+    </div>
+    </div>
+
+
+  <div id="appFooter"></div>
+</body>
+</html>
+
