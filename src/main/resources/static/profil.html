@@ -1,228 +1,477 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier mon profil - Loto Tracker</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="loto_tracker.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mon profil — Loto Tracker</title>
+
+  <link rel="icon" type="image/png" href="loto_tracker.png" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <style>
+    body{
+      margin:0;
+      min-height:100vh;
+      background:
+        radial-gradient(1200px 600px at 20% 20%, rgba(37,99,235,.28), transparent 60%),
+        radial-gradient(1000px 700px at 80% 30%, rgba(168,85,247,.22), transparent 60%),
+        rgba(6,10,18,1);
+      color: rgba(255,255,255,.92);
+    }
+
+    /* ===== Layout (comme index) ===== */
+    .app-shell{
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 18px;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px 16px 86px; /* place pour footer fixed */
+    }
+
+    .glass-panel{
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(15,23,42,.55);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 18px 50px rgba(0,0,0,.45);
+      padding: 22px;
+    }
+
+    .panel-title{
+      font-weight: 950;
+      letter-spacing: .2px;
+      margin: 0 0 8px;
+      font-size: 2.1rem;
+    }
+
+    .muted{ color: rgba(255,255,255,.65); }
+
+    /* ===== Form ===== */
+    .form-label{ font-weight: 850; }
+    .form-control{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      color: rgba(255,255,255,.92);
+      border-radius: 12px;
+      padding: 12px 12px;
+    }
+    .form-control:focus{
+      background: rgba(255,255,255,.08);
+      border-color: rgba(96,165,250,.55);
+      box-shadow: 0 0 0 .2rem rgba(96,165,250,.12);
+      color: rgba(255,255,255,.92);
+    }
+    .form-control:disabled{
+      opacity: .7;
+      cursor:not-allowed;
+      background: rgba(255,255,255,.30);
+      border-color: rgba(96,165,250,.55);
+      color: rgba(255,255,255,.92);
+    }
+
+    .btn-primary{
+      border-radius: 12px;
+      font-weight: 950;
+      padding: 12px 14px;
+    }
+
+    .danger-note{
+      border: 1px solid rgba(239,68,68,.25);
+      background: rgba(239,68,68,.08);
+      border-radius: 12px;
+      padding: 12px;
+      color: rgba(255,255,255,.85);
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar{
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(15,23,42,.55);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 18px 50px rgba(0,0,0,.35);
+      overflow: hidden;
+    }
+    .sidebar-inner{ padding: 14px; }
+
+    .sidebar-title{
+      font-weight: 950;
+      letter-spacing: .2px;
+      color: rgba(255,255,255,.75);
+      margin: 6px 8px 10px;
+      font-size: .92rem;
+      text-transform: uppercase;
+    }
+
+    .side-link{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 11px 12px;
+      border-radius: 12px;
+      color: rgba(255,255,255,.86);
+      text-decoration:none;
+      font-weight: 850;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      margin: 8px 0;
+    }
+    .side-link:hover{ background: rgba(255,255,255,.06); }
+    .side-link.active{
+      background: rgba(59,130,246,.18);
+      border-color: rgba(59,130,246,.25);
+    }
+
+    /* Desktop sticky sous le header fixed (layout.js gère --topbar-h) */
+    @media (min-width: 992px){
+      .sidebar{
+        position: sticky;
+        top: calc(var(--topbar-h) + 16px);
+        align-self: start;
+      }
+    }
+
+    /* ===== Overlay mobile (sidebar offcanvas) ===== */
+    #overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+      z-index: 80;
+    }
+    #overlay.show{
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Mobile : sidebar offcanvas sous le header */
+    @media (max-width: 991px){
+      .app-shell{ grid-template-columns: 1fr; }
+
+      .sidebar{
+        position: fixed;
+        top: var(--topbar-h);
+        left: 0;
+        height: calc(100vh - var(--topbar-h));
+        width: 300px;
+        transform: translateX(-105%);
+        transition: transform .2s ease;
+        z-index: 90;
+        border-radius: 0 18px 18px 0;
+      }
+      .sidebar.open{ transform: translateX(0); }
+    }
+
+    .password-wrap{
+    position: relative;
+    }
+
+    .password-wrap .form-control{
+    padding-right: 50px;
+    }
+
+    /* bouton œil */
+    .pw-toggle{
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #22c55e; /* 🟢 vert comme sur ton image */
+    }
+
+    /* icônes */
+    .pw-toggle svg{
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    }
+
+    /* toggle */
+    .pw-eye-off{ display: none; }
+    .pw-toggle.is-on .pw-eye{ display: none; }
+    .pw-toggle.is-on .pw-eye-off{ display: block; }
+
+  </style>
 </head>
 
-<body class="bg-light">
+<body>
+  <!-- Header injecté -->
+  <div id="appHeader"></div>
 
-<nav class="navbar navbar-dark bg-dark p-3 d-flex justify-content-between">
-    <a class="navbar-brand" href="index_connexion.html">
-        <i class="fas fa-home"></i> Accueil
-    </a>
+  <div class="app-shell">
+    <!-- Sidebar (ID requis pour burger layout.js) -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-title">Dashboard</div>
+        <a class="side-link" href="index.html"><i class="fa-solid fa-chart-line"></i> Résultats</a>
+        <a class="side-link" href="tickets.html"><i class="fa-solid fa-ticket"></i> Tickets</a>
+        <a class="side-link" href="stats.html"><i class="fa-solid fa-chart-column"></i> Statistiques</a>
+        <a class="side-link active" href="profil.html"><i class="fa-solid fa-user-gear"></i> Mon profil</a>
+        <hr style="border-color: rgba(255,255,255,.10); margin: 12px 0;">
 
-    <div class="d-flex align-items-center">
-        <span class="me-3 text-white">Bienvenue, <span id="userEmail">Utilisateur</span></span>
-        <button class="btn btn-danger" onclick="logout()">
-            <i class="fas fa-sign-out-alt"></i> Se déconnecter
-        </button>
-    </div>
-</nav>
+        <div class="sidebar-title">Jouer</div>
+        <a class="side-link" href="loto.html"><i class="fa-solid fa-clover"></i> Loto</a>
+        <a class="side-link" href="euromillions.html"><i class="fa-solid fa-star"></i> Euromillions</a>
+      </div>
+    </aside>
 
+    <!-- Contenu -->
+    <main>
+      <section class="glass-panel">
+        <h1 class="panel-title">Modifier mon profil</h1>
+        <p class="muted mb-4">Modifie ton prénom/nom, puis confirme avec ton mot de passe actuel.</p>
 
-<!-- ✅ Contenu principal -->
-<div class="container mt-5">
-    <h2 class="text-center">Modifier mon profil</h2>
-
-    <form id="profileForm" class="mt-4">
-        <!-- ✅ Champ Email (non modifiable) -->
-        <div class="mb-3">
-            <label for="email" class="form-label">Email :</label>
-            <input type="email" class="form-control" id="email" disabled>
+        <div class="danger-note mb-3">
+          <i class="fa-solid fa-circle-info me-2"></i>
+          L’email n’est pas modifiable (pour l’instant).
         </div>
 
-        <!-- ✅ Champ Prénom -->
-        <div class="mb-3">
-            <label for="firstName" class="form-label">Prénom :</label>
-            <input type="text" class="form-control" id="firstName">
+        <!-- ✅ Alerts propres (IDs uniques) -->
+        <div class="alert alert-success d-none" id="okBox">
+          <i class="fa-solid fa-circle-check me-2"></i>
+          <span id="okText">Modifications enregistrées.</span>
         </div>
 
-        <!-- ✅ Champ Nom -->
-        <div class="mb-3">
-            <label for="lastName" class="form-label">Nom :</label>
-            <input type="text" class="form-control" id="lastName">
+        <div class="alert alert-danger d-none" id="errBox">
+          <i class="fa-solid fa-triangle-exclamation me-2"></i>
+          <span id="errText">Erreur.</span>
         </div>
 
-        <!-- ✅ Champ Mot de passe actuel -->
-        <div class="mb-3">
-            <label for="currentPassword" class="form-label">Mot de passe actuel :</label>
-            <input type="password" class="form-control" id="currentPassword" required>
-        </div>
+        <form id="profileForm" class="mt-3">
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" disabled>
+            </div>
 
-        <!-- ✅ Bouton Enregistrer -->
-        <button type="submit" class="btn btn-primary w-100" id="saveChanges">
-            Enregistrer les modifications
-        </button>
-    </form>
-</div>
+            <div class="col-md-6">
+              <label for="firstName" class="form-label">Prénom</label>
+              <input type="text" class="form-control" id="firstName" autocomplete="given-name">
+            </div>
 
-<script>
-let userInfo = {}; // Stocker les infos utilisateur
+            <div class="col-md-6">
+              <label for="lastName" class="form-label">Nom</label>
+              <input type="text" class="form-control" id="lastName" autocomplete="family-name">
+            </div>
 
-// 🔧 BASE URL dynamique : local vs prod
-const API_BASE =
-    window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-        // ? "http://127.0.0.1:8082"           // 👉 backend Spring Boot local
+            <div class="col-12">
+            <label for="currentPassword" class="form-label">Mot de passe actuel</label>
+
+            <div class="password-wrap">
+                <input
+                type="password"
+                class="form-control"
+                id="currentPassword"
+                required
+                autocomplete="current-password"
+                />
+
+                <button
+                type="button"
+                class="pw-toggle"
+                id="togglePassword"
+                aria-label="Afficher le mot de passe"
+                >
+                <!-- 👁️ œil ouvert -->
+                <svg class="pw-eye" viewBox="0 0 24 24">
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+
+                <!-- 🙈 œil barré (comme ton image) -->
+                <svg class="pw-eye-off" viewBox="0 0 24 24">
+                    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20C5.5 20 2 12 2 12a21.8 21.8 0 0 1 5.06-6.94" />
+                    <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c6.5 0 10 8 10 8a21.9 21.9 0 0 1-4.06 5.94" />
+                    <path d="M14.12 14.12A3 3 0 1 1 9.88 9.88" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                </svg>
+                </button>
+            </div>
+            </div>
+
+
+            <div class="col-12">
+              <button type="submit" class="btn btn-primary w-100" id="saveChanges">
+                Enregistrer les modifications
+              </button>
+            </div>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <!-- overlay requis pour fermer le menu mobile -->
+  <div id="overlay"></div>
+
+  <!-- Footer injecté -->
+  <div id="appFooter"></div>
+
+  <!-- Layout global -->
+  <script src="layout.js"></script>
+
+  <!-- ====== JS Profil ====== -->
+  <script>
+    let userInfo = {};
+
+    const API_BASE =
+      (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
         ? "http://localhost:8082"
-        : "https://stephanedinahet.fr";     // 👉 prod (quand elle sera de retour)
+        : "https://stephanedinahet.fr";
 
-// ✅ Charger les infos utilisateur au démarrage
-document.addEventListener("DOMContentLoaded", async function () {
-    await loadUserProfile();
-    await checkUserAuth();
-});
+    const ME_URL = `${API_BASE}/api/auth/me`;
+    const TOKEN_URL = `${API_BASE}/api/auth/token`; // optionnel
+    const USERS_URL = `${API_BASE}/api/users`;
 
-// ✅ Charger le profil utilisateur
-async function loadUserProfile() {
-    try {
-        const response = await axios.get(`${API_BASE}/api/auth/me`, { withCredentials: true });
+    const emailEl = document.getElementById("email");
+    const firstEl = document.getElementById("firstName");
+    const lastEl  = document.getElementById("lastName");
+    const pwdEl   = document.getElementById("currentPassword");
+    const formEl  = document.getElementById("profileForm");
+    const btnEl   = document.getElementById("saveChanges");
 
-        console.log("Réponse /api/auth/me (profil) :", response.data);
+    const okBox  = document.getElementById("okBox");
+    const okText = document.getElementById("okText");
+    const errBox = document.getElementById("errBox");
+    const errText= document.getElementById("errText");
 
-        if (!response.data || !response.data.id) {
-            alert("Problème : L'ID utilisateur est invalide !");
-            return;
-        }
-
-        // ✅ Stocke toutes les infos de l'utilisateur
-        userInfo = response.data;
-
-        // ✅ Remplir le formulaire avec les infos actuelles
-        document.getElementById("email").value = userInfo.email;
-        document.getElementById("firstName").value = userInfo.first_name;
-        document.getElementById("lastName").value = userInfo.last_name;
-
-        // ✅ Sauvegarde correcte de l'ID utilisateur dans l'attribut du formulaire
-        document.getElementById("profileForm").setAttribute("data-user-id", userInfo.id);
-    } catch (error) {
-        console.error("❌ Erreur API /me :", error);
-        alert("Erreur lors de la récupération du profil !");
-        window.location.href = "login.html";
+    function showOk(msg){
+      errBox.classList.add("d-none");
+      okText.textContent = msg || "Modifications enregistrées.";
+      okBox.classList.remove("d-none");
     }
-}
 
-// ✅ Récupérer le JWT via API (si HttpOnly) ou Cookie direct
-//async function getJwtToken() {
-//    try {
-//        let response = await axios.get(`${API_BASE}/api/auth/token`, { withCredentials: true });
-//        return response.data.jwtToken || null;
-//    } catch (error) {
-//        console.error("❌ Impossible de récupérer le JWT :", error);
-//        return null;
-//    }
-//}
+    function showErr(msg){
+      okBox.classList.add("d-none");
+      errText.textContent = msg || "Erreur lors de la mise à jour.";
+      errBox.classList.remove("d-none");
+    }
 
-async function getJwtToken() {
-    try {
-        const response = await axios.get(`${API_BASE}/api/auth/token`, {
-            withCredentials: true
-        });
-        console.log("JWT récupéré via /api/auth/token :", response.data.jwtToken);
-        return response.data.jwtToken || null;
-    } catch (error) {
-        console.error("❌ Impossible de récupérer le JWT :", error.response?.data || error.message);
+    function setLoading(on){
+      btnEl.disabled = on;
+      btnEl.innerHTML = on
+        ? `<span class="spinner-border spinner-border-sm me-2"></span>Enregistrement...`
+        : `Enregistrer les modifications`;
+    }
+
+    // optionnel (si ton backend l’exige)
+    async function getJwtToken(){
+      try{
+        const res = await axios.get(TOKEN_URL, { withCredentials: true });
+        return res.data?.jwtToken || null;
+      }catch(e){
         return null;
-    }
-}
-
-
-
-// ✅ Sauvegarde des modifications
-document.getElementById("profileForm").addEventListener("submit", async function (event) {
-    event.preventDefault();
-
-    let userId = this.getAttribute("data-user-id");
-
-    if (!userId) {
-        alert("❌ Problème : ID utilisateur invalide !");
-        return;
+      }
     }
 
-    let updatedData = {
-        id: userInfo.id,   // 🔥 ID nécessaire pour le PUT
-        firstName: document.getElementById("firstName").value,
-        lastName: document.getElementById("lastName").value,
-        email: userInfo.email,  // 🔥 L'email doit être renvoyé sinon erreur backend
-        password: document.getElementById("currentPassword").value,  // 🔥 Obligatoire pour valider la modification
-        // admin: userInfo.admin,  // 🔥 Garder le statut Admin
-        // role: userInfo.role     // 🔥 Garder le rôle de l'utilisateur
-    };
+    async function loadUserProfile(){
+      try{
+        const res = await axios.get(ME_URL, { withCredentials: true });
+        userInfo = res.data || {};
 
-    let jwtToken = await getJwtToken();
+        // Mapping selon réponse /me (snake_case)
+        emailEl.value = userInfo.email || "";
+        firstEl.value = userInfo.first_name || userInfo.firstName || "";
+        lastEl.value  = userInfo.last_name  || userInfo.lastName  || "";
 
-    if (!jwtToken) {
-        alert("⚠️ Token JWT introuvable. Veuillez vous reconnecter.");
-        window.location.href = "login.html";
-        return;
+        if (userInfo.id) formEl.setAttribute("data-user-id", userInfo.id);
+
+      }catch(e){
+        console.error("Erreur /api/auth/me:", e);
+        showErr("Session expirée. Merci de te reconnecter.");
+        setTimeout(() => window.location.href = "login.html", 900);
+      }
     }
 
+    formEl.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-    try {
-        let response = await axios.put(`${API_BASE}/api/users/${userId}`, updatedData, {
+        okBox.classList.add("d-none");
+        errBox.classList.add("d-none");
+
+        const userId = formEl.getAttribute("data-user-id");
+        if (!userId) return showErr("ID utilisateur introuvable.");
+
+        const password = pwdEl.value;
+        if (!password) return showErr("Merci de saisir ton mot de passe actuel.");
+
+        const payload = {
+            id: userId,
+            email: userInfo.email,
+
+            // compat ancien backend
+            firstName: firstEl.value.trim(),
+            lastName: lastEl.value.trim(),
+            first_name: firstEl.value.trim(),
+            last_name: lastEl.value.trim(),
+
+            password: password,
+            currentPassword: password
+        };
+
+        try {
+            setLoading(true);
+
+            const jwt = await getJwtToken();
+            const headers = { "Content-Type": "application/json" };
+            if (jwt) headers["Authorization"] = `Bearer ${jwt}`;
+
+            await axios.put(`${USERS_URL}/${userId}`, payload, {
             withCredentials: true,
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${jwtToken}`  // ✅ Ajout du JWT dans les headers
+            headers
+            });
+
+            // ✅ MESSAGE DE SUCCÈS
+            showOk("Profil mis à jour avec succès. Redirection…");
+
+            pwdEl.value = "";
+
+            // ✅ REDIRECTION APRÈS 1 SECONDE
+            setTimeout(() => {
+            window.location.href = "index.html";
+            }, 1000);
+
+        } catch (err) {
+            console.error("Erreur PUT:", err?.response?.data || err.message);
+
+            if (err?.response?.status === 401) {
+            showErr("Mot de passe incorrect ou session expirée.");
+            } else {
+            showErr(err?.response?.data?.message || "Erreur lors de l’enregistrement.");
             }
+        } finally {
+            setLoading(false);
+        }
         });
 
-        if (response.status === 200) {
-            alert("✅ Modifications enregistrées !");
-            console.log("✅ Modification réussie. Redirection dans 2 secondes...");
+    document.addEventListener("DOMContentLoaded", loadUserProfile);
 
-       // ✅ Forcer la redirection après 2 secondes
-            setTimeout(() => {
-                window.location.href = "index_connexion.html";
-            }, 2000);
-        } else {
-            alert("⚠ Une erreur inattendue s'est produite.");
-        }
+    (function(){
+        const input = document.getElementById("currentPassword");
+        const btn = document.getElementById("togglePassword");
+        if (!input || !btn) return;
 
-    } catch (error) {
-        console.error("❌ Erreur PUT :", error.response?.data || error.message);
+        btn.addEventListener("click", () => {
+            const show = input.type === "password";
+            input.type = show ? "text" : "password";
+            btn.classList.toggle("is-on", show);
+        });
+    })();
 
-        if (error.response && error.response.status === 401) {
-            alert("❌ Mot de passe incorrect. Veuillez réessayer.");
-        } else {
-            alert("Erreur lors de la mise à jour du profil.");
-        }
-    }
-});
-
-async function checkUserAuth() {
-    try {
-        const response = await axios.get(`${API_BASE}/api/auth/me`, { withCredentials: true });
-
-        if (response.status === 200 && response.data.email) {
-            // Vérifie si `first_name` existe, sinon affiche l'email
-            document.getElementById("userEmail").textContent = response.data.first_name || response.data.email;
-        } else {
-            document.getElementById("userEmail").textContent = "Utilisateur inconnu";
-        }
-    } catch (error) {
-        console.error("❌ Erreur d'authentification :", error);
-        document.getElementById("userEmail").textContent = "Utilisateur inconnu";
-    }
-}
-
-// Appel automatique lors du chargement de la page
-document.addEventListener("DOMContentLoaded", checkUserAuth);
-
-
-
-// ✅ Déconnexion
-async function logout() {
-    await axios.post(`${API_BASE}/api/auth/logout`, {}, { withCredentials: true });
-    window.location.href = "index.html";
-}
-</script>
-
+  </script>
 </body>
 </html>
