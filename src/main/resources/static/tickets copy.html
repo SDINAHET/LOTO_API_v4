@@ -160,38 +160,45 @@
       box-shadow: 0 0 0 .2rem rgba(96,165,250,.12);
       color: rgba(255,255,255,.92);
     }
+    /* IMPORTANT: corrige le menu déroulant “blanc” */
     .form-select option{
       background: rgb(15,23,42);
       color: rgba(255,255,255,.92);
     }
 
-    /* ===== Table / pagination / alerts ===== */
+    /* ===== Table dark (moins agressif) ===== */
     .table-wrap{
       border-radius: 14px;
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(2,6,23,.30);
-    }
-    .table{
-      margin: 0;
-      color: rgba(255,255,255,.92);
-      background: rgba(255,255,255,.02);
-    }
-    .table thead th{
-      background: rgba(255,255,255,.10) !important;
-      color: rgba(255,255,255,.96) !important;
-      border-bottom: 1px solid rgba(255,255,255,.18) !important;
-      font-weight: 950;
-    }
-    .table tbody tr{ background: rgba(255,255,255,.03); }
-    .table tbody tr:nth-child(even){ background: rgba(255,255,255,.05); }
-    .table tbody tr:hover{ background: rgba(59,130,246,.12); }
-    .table td, .table th{
-      border-color: rgba(255,255,255,.12) !important;
-      vertical-align: middle;
-      color: rgba(255,255,255,.92) !important;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(2,6,23,.25);
     }
 
+    table.table{
+      margin: 0;
+      color: rgba(255,255,255,.90);
+    }
+
+    .table thead th{
+      background: rgba(255,255,255,.06) !important;
+      color: rgba(255,255,255,.88) !important;
+      border-bottom: 1px solid rgba(255,255,255,.12) !important;
+      font-weight: 900;
+    }
+
+    .table tbody tr{
+      background: rgba(255,255,255,.02);
+    }
+    .table tbody tr:hover{
+      background: rgba(255,255,255,.04);
+    }
+
+    .table td, .table th{
+      border-color: rgba(255,255,255,.08) !important;
+      vertical-align: middle;
+    }
+
+    /* ===== Pagination ===== */
     .pagination .page-link{
       border-radius: 10px;
       margin: 0 3px;
@@ -205,8 +212,11 @@
       border-color: rgba(59,130,246,.30);
       color: rgba(255,255,255,.95);
     }
-    .pagination .page-item.disabled .page-link{ opacity: .45; }
+    .pagination .page-item.disabled .page-link{
+      opacity: .45;
+    }
 
+    /* ===== Alerts ===== */
     .alert{
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,.12);
@@ -223,34 +233,34 @@
     }
 
     /* ===== Boules (tickets) ===== */
-    .num-main{
-      display:inline-block;
+    .num-main {
+      display: inline-block;
       min-width: 28px;
       padding: 4px 8px;
       border-radius: 50%;
-      text-align:center;
+      text-align: center;
       margin: 2px;
       background-color: rgba(59,130,246,.35);
-      color:#fff;
-      font-weight:800;
-      font-size:.9rem;
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.9rem;
       border: 1px solid rgba(59,130,246,.35);
     }
-    .num-main-win{
+    .num-main-win {
       background-color: rgba(59,130,246,.85);
       border-color: rgba(59,130,246,.85);
     }
     .num-chance{
-      display:inline-block;
+      display: inline-block;
       min-width: 28px;
       padding: 4px 8px;
       border-radius: 50%;
-      text-align:center;
+      text-align: center;
       margin: 2px;
       background-color: rgba(239,68,68,.30);
-      color:#fff;
-      font-weight:800;
-      font-size:.9rem;
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.9rem;
       border: 1px solid rgba(239,68,68,.30);
     }
     .num-chance-win{
@@ -269,9 +279,13 @@
     .modal-header, .modal-footer{
       border-color: rgba(255,255,255,.10);
     }
-    .btn-close{ filter: invert(1); opacity: .8; }
+    .btn-close{
+      filter: invert(1);
+      opacity: .8;
+    }
 
-    .lottery-ball{
+    /* Balls dans modal */
+    .lottery-ball {
       display:inline-block;
       width:40px;height:40px;
       line-height:40px;
@@ -284,13 +298,13 @@
       background-color: rgba(59,130,246,.85);
       border: 1px solid rgba(59,130,246,.75);
     }
-    .lucky-number{
+    .lucky-number {
       background-color: rgba(239,68,68,.90);
       border-color: rgba(239,68,68,.75);
     }
     .modal-table{
       border-radius: 14px;
-      overflow:hidden;
+      overflow: hidden;
       border: 1px solid rgba(255,255,255,.10);
     }
     .modal-table thead th{
@@ -301,47 +315,77 @@
       border-color: rgba(255,255,255,.08) !important;
     }
 
+    /* ===== Table : contraste + blanc moins agressif ===== */
+    .table-wrap{
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(2,6,23,.30); /* plus dark que avant */
+    }
+
+    /* Fond global table un peu cassé (pas blanc pur) */
+    .table{
+    margin: 0;
+    color: rgba(255,255,255,.92);
+    background: rgba(255,255,255,.02);
+    }
+
+    /* Header plus clair (lisible) sans être agressif */
+    .table thead th{
+    background: rgba(255,255,255,.10) !important;   /* ↑ contraste */
+    color: rgba(255,255,255,.96) !important;
+    border-bottom: 1px solid rgba(255,255,255,.18) !important;
+    font-weight: 950;
+    }
+
+    /* Lignes : pas blanc, mais “cassé” + séparation visible */
+    .table tbody tr{
+    background: rgba(255,255,255,.03);
+    }
+    .table tbody tr:nth-child(even){
+    background: rgba(255,255,255,.05);
+    }
+    .table tbody tr:hover{
+    background: rgba(59,130,246,.12);
+    }
+
+    /* Cellules : séparateurs plus visibles */
+    .table td, .table th{
+    border-color: rgba(255,255,255,.12) !important;
+    vertical-align: middle;
+    }
+
+    /* Si tu avais des textes “muted” trop faibles dans la table */
+    .table .muted, .table td.muted{
+    color: rgba(255,255,255,.75) !important;
+    }
+
+    /* Si ton tableau avait du texte “invisible” à cause de Bootstrap */
+    .table td, .table th{
+    color: rgba(255,255,255,.92) !important;
+    }
+
+    /* Badges : un peu plus “punchy” */
     .badge.bg-warning{ background-color: rgba(245,158,11,.95) !important; }
     .badge.bg-success{ background-color: rgba(34,197,94,.90) !important; }
     .badge.bg-secondary{ background-color: rgba(148,163,184,.35) !important; }
     .badge.bg-danger{ background-color: rgba(239,68,68,.90) !important; }
 
-    .table-responsive{ scrollbar-color: rgba(255,255,255,.22) transparent; }
+    .table tbody td{
+    background: transparent !important;
+    }
+
+    .table-responsive{
+    scrollbar-color: rgba(255,255,255,.22) transparent;
+    }
     .table-responsive::-webkit-scrollbar{ height: 10px; }
     .table-responsive::-webkit-scrollbar-thumb{
-      background: rgba(255,255,255,.18);
-      border-radius: 10px;
+    background: rgba(255,255,255,.18);
+    border-radius: 10px;
     }
     .table-responsive::-webkit-scrollbar-track{ background: transparent; }
 
-    /* ===== Fix: tableau qui devient blanc (Bootstrap) ===== */
-    .table-wrap{
-      background: rgba(2,6,23,.30) !important;
-    }
 
-    .table{
-      background: transparent !important;
-      color: rgba(255,255,255,.92) !important;
-    }
-
-    .table thead th{
-      background: rgba(255,255,255,.10) !important;
-  color: rgba(255,255,255,.96) !important;
-}
-
-.table tbody tr{
-  background: rgba(255,255,255,.03) !important;
-}
-
-.table tbody tr:nth-child(even){
-  background: rgba(255,255,255,.05) !important;
-}
-
-.table tbody td{
-  background: transparent !important;
-  color: rgba(255,255,255,.92) !important;
-  border-color: rgba(255,255,255,.12) !important;
-}
 
   </style>
 </head>
@@ -403,7 +447,9 @@
 
           <div class="d-flex align-items-center gap-2">
             <span class="muted fw-bold" id="pageInfo">Page 1</span>
-            <nav><ul class="pagination mb-0" id="pagination"></ul></nav>
+            <nav>
+              <ul class="pagination mb-0" id="pagination"></ul>
+            </nav>
           </div>
         </div>
 
@@ -463,37 +509,6 @@
     </div>
   </div>
 
-  <!-- Modal confirmation suppression (Windows-like) -->
-  <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title fw-bold">
-            <i class="fa-solid fa-triangle-exclamation me-2" style="color:#f59e0b;"></i>
-            Confirmer la suppression
-          </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-        <div class="modal-body">
-          <div class="muted" style="font-weight:850;">
-            Voulez-vous vraiment supprimer ce ticket ?
-          </div>
-          <div class="muted mt-2" style="font-size:.9rem;">
-            Cette action est <b>définitive</b>.
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-soft" data-bs-dismiss="modal">Annuler</button>
-          <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
-            <i class="fa-solid fa-trash me-2"></i>Supprimer
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Layout global -->
   <script src="layout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -506,10 +521,10 @@
           ? "http://localhost:8082"
           : "https://stephanedinahet.fr";
 
-      const ME_URL      = `${API_BASE}/api/auth/me`;
-      const API_TICKETS = `${API_BASE}/api/tickets`;
-      const API_GAINS   = `${API_BASE}/api/gains`;
-      const API_TIRAGE  = `${API_BASE}/api/historique/last20/Detail/tirage/`; // + YYYY-MM-DD
+      const ME_URL     = `${API_BASE}/api/auth/me`;
+      const API_TICKETS= `${API_BASE}/api/tickets`;
+      const API_GAINS  = `${API_BASE}/api/gains`;
+      const API_TIRAGE = `${API_BASE}/api/historique/last20/Detail/tirage/`; // + YYYY-MM-DD
 
       // ===== DOM
       const okBox  = document.getElementById("okBox");
@@ -593,9 +608,11 @@
         const drawDate = new Date(drawDateStr);
         const now = new Date();
 
+        // on compare en YYYY-MM-DD pour éviter les problèmes d'heure
         const todayYMD = now.toISOString().split("T")[0];
         const drawYMD  = drawDate.toISOString().split("T")[0];
 
+        // Lundi=1, Mercredi=3, Samedi=6
         const dayOfWeek = drawDate.getUTCDay();
         if (![1,3,6].includes(dayOfWeek)) {
           return { label: "Erreur date", cls: "bg-danger text-white", eyeEnabled: false };
@@ -603,6 +620,7 @@
 
         if (drawYMD < todayYMD) {
           if (gain === undefined || gain === null) {
+            // passé mais pas de gain en base => perdu probable, on garde "Perdu"
             return { label: "Perdu", cls: "bg-warning text-dark", eyeEnabled: true };
           }
           if (Number(gain) > 0) return { label: "Gagné", cls: "bg-success text-white", eyeEnabled: true };
@@ -709,6 +727,7 @@
 
         pagination.appendChild(mkBtn("&laquo;", currentPage-1, currentPage===1));
 
+        // affichage compact si beaucoup de pages
         const max = 7;
         let start = Math.max(1, currentPage - 2);
         let end = Math.min(tp, start + (max - 1));
@@ -746,6 +765,7 @@
           return;
         }
 
+        // 1) render rows “base”
         for (const ticket of pageTickets){
           const gain = gainsMap.has(ticket.id) ? Number(gainsMap.get(ticket.id)) : undefined;
           const st = getStatus(ticket.drawDate, gain);
@@ -780,16 +800,15 @@
           tableBody.insertAdjacentHTML("beforeend", rowHtml);
         }
 
+        // 2) fetch tirages en parallèle (1 request par date unique)
         const uniqueDates = [...new Set(pageTickets.map(t => ymd(t.drawDate)))];
         const tirages = await Promise.all(uniqueDates.map(d => getTirageByYMD(d)));
         const tirageByDate = new Map(uniqueDates.map((d,i) => [d, tirages[i]]));
 
+        // 3) apply highlight + second draw gains
         for (const ticket of pageTickets){
           const tYMD = ymd(ticket.drawDate);
           const tirage = tirageByDate.get(tYMD);
-          
-          /*console.log("TIRAGE", tYMD, tirage?.boule1SecondTirage, tirage);*/
-
 
           if (!tirage) continue;
 
@@ -805,44 +824,8 @@
 
           highlightTicketNumbers(ticket.id, winningNumbers, winningChance);
 
+          // second draw gain
           const secondGain = computeSecondDrawGain(ticket, tirage);
-
-          const secondDrawNumbers = [
-            tirage?.boule1SecondTirage,
-            tirage?.boule2SecondTirage,
-            tirage?.boule3SecondTirage,
-            tirage?.boule4SecondTirage,
-            tirage?.boule5SecondTirage
-          ].filter(v => v !== null && v !== undefined && v !== "")
-          .map(v => parseInt(v, 10))
-          .filter(v => !Number.isNaN(v));
-
-          const ticketNumbers = (ticket.numbers || "")
-            .split("-")
-            .map(n => parseInt(n,10))
-            .filter(n => !Number.isNaN(n));
-
-          const matches = ticketNumbers.filter(n => secondDrawNumbers.includes(n)).length;
-
-          let field = null;
-          if (matches === 5) field = "rapportDuRang1SecondTirage";
-          else if (matches === 4) field = "rapportDuRang2SecondTirage";
-          else if (matches === 3) field = "rapportDuRang3SecondTirage";
-          else if (matches === 2) field = "rapportDuRang4SecondTirage";
-
-          console.log("[2ND TIRAGE DEBUG]", {
-            ticketId: ticket.id,
-            drawDate: tYMD,
-            ticketNumbers,
-            secondDrawNumbers,
-            matches,
-            field,
-            rawValue: field ? tirage?.[field] : null,
-            secondGain
-          });
-
-
-
           if (secondGain > 0){
             const gainCell = document.getElementById(`gain-cell-${ticket.id}`);
             const statusSpan = document.getElementById(`status-${ticket.id}`);
@@ -864,6 +847,7 @@
               `;
             }
 
+            // statut -> gagné
             if (statusSpan && statusSpan.textContent.trim() !== "Gagné"){
               statusSpan.textContent = "Gagné";
               statusSpan.className = "badge bg-success text-white";
@@ -874,262 +858,256 @@
         renderPagination();
       }
 
-      // ===== Modal détails tirage (ta fonction existante, inchangée)
-      async function showTirageDetails(dateStr){
-        const modalEl   = document.getElementById("tirageModal");
-        const modalBody = document.getElementById("modalTirageBody");
-        const modalLbl  = document.getElementById("tirageModalLabel");
+      // ===== Modal détails tirage
+    // ===== Modal détails tirage (CORRIGÉE + CODES ENCADRÉS JAUNE/ORANGE)
+    async function showTirageDetails(dateStr){
+    const modalEl   = document.getElementById("tirageModal");
+    const modalBody = document.getElementById("modalTirageBody");
+    const modalLbl  = document.getElementById("tirageModalLabel");
 
-        modalBody.innerHTML = `
-          <p class="text-center muted mb-0">
-            <span class="spinner-border spinner-border-sm me-2"></span>Chargement…
-          </p>
+    modalBody.innerHTML = `
+        <p class="text-center muted mb-0">
+        <span class="spinner-border spinner-border-sm me-2"></span>Chargement…
+        </p>
+    `;
+
+    const key = ymd(dateStr);
+
+    // --- Helpers locaux ---
+    const pickField = (obj, keys) => {
+        for (const k of keys){
+        if (obj && obj[k] !== undefined && obj[k] !== null && obj[k] !== "") return obj[k];
+        }
+        return null;
+    };
+
+    const formatDateForDisplay = (v) => {
+        if (!v) return key;
+        const d = new Date(v);
+        return Number.isNaN(d.getTime()) ? String(v) : d.toLocaleDateString("fr-FR");
+    };
+
+    const moneyLike = (v) => {
+        if (v === null || v === undefined || v === "") return null;
+        const n = (typeof v === "number") ? v : parseFloat(String(v).replace(/\s/g,"").replace(",","."));
+        return Number.isNaN(n) ? null : n;
+    };
+
+    const formatMoney = (v) => {
+        const n = moneyLike(v);
+        if (n === null) return "-";
+        return `${n.toLocaleString("fr-FR")} €`; // ✅ devise fixe
+    };
+
+    const esc = (s) => String(s).replace(/[&<>"']/g, c => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[c]));
+
+    // ✅ Codes avec encadrement jaune/orange
+    const buildCodesGagnantsBlock = (data) => {
+        const raw = pickField(data, ["codesGagnants", "codes_gagnants", "codes", "codeGagnant", "codesGagnantsJokerPlus"]);
+        if (!raw) return "";
+
+        let items = [];
+        if (Array.isArray(raw)) items = raw.map(String);
+        else if (typeof raw === "object") items = Object.values(raw).map(String);
+        else {
+        const s = String(raw).trim();
+        items = s.includes(",") ? s.split(",").map(v => v.trim()) : [s];
+        }
+
+        items = items.filter(Boolean);
+        if (!items.length) return "";
+
+        return `
+        <hr class="my-4" style="border-color: rgba(255,255,255,.10);">
+        <h5 class="fw-bold mb-2">Codes Loto</h5>
+        <div class="d-flex flex-wrap gap-2">
+            ${items.map(code => `
+            <span style="
+                padding:.45rem .75rem;
+                border-radius:10px;
+                font-weight:900;
+                letter-spacing:.5px;
+                background: rgba(245,158,11,.18);
+                border: 2px solid rgba(245,158,11,.85);
+                color: #fde68a;
+                box-shadow: 0 0 0 1px rgba(0,0,0,.25) inset;
+            ">
+                ${esc(code)}
+            </span>
+            `).join("")}
+        </div>
         `;
+    };
 
-        const key = ymd(dateStr);
+    try{
+        const data = await getTirageByYMD(key);
 
-        const pickField = (obj, keys) => {
-          for (const k of keys){
-            if (obj && obj[k] !== undefined && obj[k] !== null && obj[k] !== "") return obj[k];
-          }
-          return null;
-        };
+        if (!data || Object.keys(data).length === 0){
+        modalLbl.textContent = "Détails du tirage";
+        modalBody.innerHTML = `<p class="text-center muted mb-0">Aucun détail trouvé pour ce tirage.</p>`;
+        new bootstrap.Modal(modalEl).show();
+        return;
+        }
 
-        const formatDateForDisplay = (v) => {
-          if (!v) return key;
-          const d = new Date(v);
-          return Number.isNaN(d.getTime()) ? String(v) : d.toLocaleDateString("fr-FR");
-        };
+        const jour  = pickField(data, ["jourDeTirage", "jour"]) || "";
+        const dtAff = formatDateForDisplay(pickField(data, ["dateDeTirage"]) || key);
 
-        const moneyLike = (v) => {
-          if (v === null || v === undefined || v === "") return null;
-          const n = (typeof v === "number") ? v : parseFloat(String(v).replace(/\s/g,"").replace(",","."));
-          return Number.isNaN(n) ? null : n;
-        };
+        const numeros = [data.boule1, data.boule2, data.boule3, data.boule4, data.boule5]
+        .filter(v => v !== null && v !== undefined && v !== "");
 
-        const formatMoney = (v) => {
-          const n = moneyLike(v);
-          if (n === null) return "-";
-          return `${n.toLocaleString("fr-FR")} €`;
-        };
+        const chance = pickField(data, ["numeroChance", "chance", "bouleChance"]);
 
-        const esc = (s) => String(s).replace(/[&<>"']/g, c => ({
-          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-        }[c]));
+        const secondTirage = [
+        data.boule1SecondTirage, data.boule2SecondTirage, data.boule3SecondTirage,
+        data.boule4SecondTirage, data.boule5SecondTirage
+        ].filter(v => v !== null && v !== undefined && v !== "");
 
-        const buildCodesGagnantsBlock = (data) => {
-          const raw = pickField(data, ["codesGagnants", "codes_gagnants", "codes", "codeGagnant", "codesGagnantsJokerPlus"]);
-          if (!raw) return "";
+        const jackpotRaw = pickField(data, ["rapportDuRang1", "jackpotAnnonce", "jackpot", "montantDuJackpot"]);
+        const jackpot = formatMoney(jackpotRaw);
 
-          let items = [];
-          if (Array.isArray(raw)) items = raw.map(String);
-          else if (typeof raw === "object") items = Object.values(raw).map(String);
-          else {
-            const s = String(raw).trim();
-            items = s.includes(",") ? s.split(",").map(v => v.trim()) : [s];
-          }
+        const joker = pickField(data, ["numeroJokerplus", "jokerPlus", "numeroJokerPlus"]);
 
-          items = items.filter(Boolean);
-          if (!items.length) return "";
+        const mainRows = [1,2,3,4,5,6,7,8,9].map(rang => {
+        const winners = data[`nombreDeGagnantAuRang${rang}`];
+        const payout  = data[`rapportDuRang${rang}`];
+        return `
+            <tr>
+            <td>${rang}</td>
+            <td><b>${winners ?? "-"}</b></td>
+            <td><b>${payout != null ? formatMoney(payout) : "-"}</b></td>
+            </tr>`;
+        }).join("");
 
-          return `
-            <hr class="my-4" style="border-color: rgba(255,255,255,.10);">
-            <h5 class="fw-bold mb-2">Codes Loto</h5>
-            <div class="d-flex flex-wrap gap-2">
-              ${items.map(code => `
-                <span style="
-                  padding:.45rem .75rem;
-                  border-radius:10px;
-                  font-weight:900;
-                  letter-spacing:.5px;
-                  background: rgba(245,158,11,.18);
-                  border: 2px solid rgba(245,158,11,.85);
-                  color: #fde68a;
-                  box-shadow: 0 0 0 1px rgba(0,0,0,.25) inset;
-                ">
-                  ${esc(code)}
-                </span>
-              `).join("")}
-            </div>
-          `;
-        };
+        const hasSecond = [1,2,3,4].some(r =>
+        data[`nombreDeGagnantAuRang${r}SecondTirage`] != null ||
+        data[`rapportDuRang${r}SecondTirage`] != null
+        );
 
-        try{
-          const data = await getTirageByYMD(key);
-
-          if (!data || Object.keys(data).length === 0){
-            modalLbl.textContent = "Détails du tirage";
-            modalBody.innerHTML = `<p class="text-center muted mb-0">Aucun détail trouvé pour ce tirage.</p>`;
-            new bootstrap.Modal(modalEl).show();
-            return;
-          }
-
-          const jour  = pickField(data, ["jourDeTirage", "jour"]) || "";
-          const dtAff = formatDateForDisplay(pickField(data, ["dateDeTirage"]) || key);
-
-          const numeros = [data.boule1, data.boule2, data.boule3, data.boule4, data.boule5]
-            .filter(v => v !== null && v !== undefined && v !== "");
-
-          const chance = pickField(data, ["numeroChance", "chance", "bouleChance"]);
-
-          const secondTirage = [
-            data.boule1SecondTirage, data.boule2SecondTirage, data.boule3SecondTirage,
-            data.boule4SecondTirage, data.boule5SecondTirage
-          ].filter(v => v !== null && v !== undefined && v !== "");
-
-          const jackpotRaw = pickField(data, ["rapportDuRang1", "jackpotAnnonce", "jackpot", "montantDuJackpot"]);
-          const jackpot = formatMoney(jackpotRaw);
-
-          const joker = pickField(data, ["numeroJokerplus", "jokerPlus", "numeroJokerPlus"]);
-
-          const mainRows = [1,2,3,4,5,6,7,8,9].map(rang => {
-            const winners = data[`nombreDeGagnantAuRang${rang}`];
-            const payout  = data[`rapportDuRang${rang}`];
+        let secondBlock = "";
+        if (hasSecond){
+        const secondRows = [1,2,3,4].map(rang => {
+            const winners = data[`nombreDeGagnantAuRang${rang}SecondTirage`];
+            const payout  = data[`rapportDuRang${rang}SecondTirage`];
             return `
-              <tr>
+            <tr>
                 <td>${rang}</td>
                 <td><b>${winners ?? "-"}</b></td>
                 <td><b>${payout != null ? formatMoney(payout) : "-"}</b></td>
-              </tr>`;
-          }).join("");
+            </tr>`;
+        }).join("");
 
-          const hasSecond = [1,2,3,4].some(r =>
-            data[`nombreDeGagnantAuRang${r}SecondTirage`] != null ||
-            data[`rapportDuRang${r}SecondTirage`] != null
-          );
-
-          let secondBlock = "";
-          if (hasSecond){
-            const secondRows = [1,2,3,4].map(rang => {
-              const winners = data[`nombreDeGagnantAuRang${rang}SecondTirage`];
-              const payout  = data[`rapportDuRang${rang}SecondTirage`];
-              return `
+        secondBlock = `
+            <hr class="my-4" style="border-color: rgba(255,255,255,.10);">
+            <h5 class="fw-bold mb-2">Rapports du second tirage</h5>
+            <div class="table-responsive modal-table">
+            <table class="table table-hover mb-0">
+                <thead>
                 <tr>
-                  <td>${rang}</td>
-                  <td><b>${winners ?? "-"}</b></td>
-                  <td><b>${payout != null ? formatMoney(payout) : "-"}</b></td>
-                </tr>`;
-            }).join("");
-
-            secondBlock = `
-              <hr class="my-4" style="border-color: rgba(255,255,255,.10);">
-              <h5 class="fw-bold mb-2">Rapports du second tirage</h5>
-              <div class="table-responsive modal-table">
-                <table class="table table-hover mb-0">
-                  <thead>
-                    <tr><th>Rang</th><th>Gagnants</th><th>Gain</th></tr>
-                  </thead>
-                  <tbody>${secondRows}</tbody>
-                </table>
-              </div>
-            `;
-          } else {
-            secondBlock = `
-              <hr class="my-4" style="border-color: rgba(255,255,255,.10);">
-              <p class="muted mb-0">Aucun rapport pour le second tirage sur ce tirage.</p>
-            `;
-          }
-
-          modalLbl.textContent = `Détails du tirage — ${jour ? (jour + " ") : ""}${dtAff}`;
-
-          modalBody.innerHTML = `
-            <div>
-              <h4 class="fw-bold mb-2">Résultat Loto — ${esc(jour)} ${esc(dtAff)}</h4>
-
-              <div class="row g-3 mt-1">
-                <div class="col-md-6">
-                  <div class="muted fw-bold mb-2">Tirage principal</div>
-                  <div>
-                    ${numeros.map(n => `<span class="lottery-ball">${esc(n)}</span>`).join("")}
-                    <span class="lottery-ball lucky-number">${chance != null ? esc(chance) : "—"}</span>
-                  </div>
-                </div>
-
-                <div class="col-md-6">
-                  <div class="muted fw-bold mb-2">Second tirage</div>
-                  <div>
-                    ${secondTirage.length
-                      ? secondTirage.map(n => `<span class="lottery-ball">${esc(n)}</span>`).join("")
-                      : `<span class="muted">Non disponible</span>`
-                    }
-                  </div>
-                </div>
-              </div>
-
-              <div class="mt-3" style="font-weight:950;">
-                <span class="muted">Jackpot annoncé :</span>
-                <span class="ms-2">${esc(jackpot)}</span>
-              </div>
-
-              <hr class="my-4" style="border-color: rgba(255,255,255,.10);">
-
-              <h5 class="fw-bold mb-2">Rapports du tirage principal</h5>
-              <div class="table-responsive modal-table">
-                <table class="table table-hover mb-0">
-                  <thead><tr><th>Rang</th><th>Gagnants</th><th>Gain</th></tr></thead>
-                  <tbody>${mainRows}</tbody>
-                </table>
-              </div>
-
-              ${secondBlock}
-
-              <hr class="my-4" style="border-color: rgba(255,255,255,.10);">
-              <div class="fw-bold">
-                Joker+ : <span class="ms-2">${joker ? esc(joker) : "—"}</span>
-              </div>
-
-              ${buildCodesGagnantsBlock(data)}
+                    <th>Rang</th>
+                    <th>Gagnants</th>
+                    <th>Gain</th>
+                </tr>
+                </thead>
+                <tbody>${secondRows}</tbody>
+            </table>
             </div>
-          `;
-
-          new bootstrap.Modal(modalEl).show();
-        }catch(e){
-          console.error(e);
-          modalLbl.textContent = "Détails du tirage";
-          modalBody.innerHTML = `<p class="text-center text-danger mb-0">Erreur lors du chargement du tirage.</p>`;
-          new bootstrap.Modal(modalEl).show();
+        `;
+        } else {
+        secondBlock = `
+            <hr class="my-4" style="border-color: rgba(255,255,255,.10);">
+            <p class="muted mb-0">Aucun rapport pour le second tirage sur ce tirage.</p>
+        `;
         }
-      }
 
-      // ===== Delete ticket (confirmation Windows-like modal)
-      let pendingDeleteTicketId = null;
-      let confirmModalInstance = null;
+        modalLbl.textContent = `Détails du tirage — ${jour ? (jour + " ") : ""}${dtAff}`;
 
-      function openDeleteConfirm(ticketId){
-        pendingDeleteTicketId = ticketId;
+        modalBody.innerHTML = `
+        <div>
+            <h4 class="fw-bold mb-2">Résultat Loto — ${esc(jour)} ${esc(dtAff)}</h4>
 
-        const modalEl = document.getElementById("confirmDeleteModal");
-        confirmModalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
-        confirmModalInstance.show();
-      }
+            <div class="row g-3 mt-1">
+            <div class="col-md-6">
+                <div class="muted fw-bold mb-2">Tirage principal</div>
+                <div>
+                ${numeros.map(n => `<span class="lottery-ball">${esc(n)}</span>`).join("")}
+                <span class="lottery-ball lucky-number">${chance != null ? esc(chance) : "—"}</span>
+                </div>
+            </div>
 
-      async function performDeleteTicket(){
-        if (!pendingDeleteTicketId) return;
+            <div class="col-md-6">
+                <div class="muted fw-bold mb-2">Second tirage</div>
+                <div>
+                ${secondTirage.length
+                    ? secondTirage.map(n => `<span class="lottery-ball">${esc(n)}</span>`).join("")
+                    : `<span class="muted">Non disponible</span>`
+                }
+                </div>
+            </div>
+            </div>
 
-        const ticketId = pendingDeleteTicketId;
-        pendingDeleteTicketId = null;
+            <div class="mt-3" style="font-weight:950;">
+            <span class="muted">Jackpot annoncé :</span>
+            <span class="ms-2">${esc(jackpot)}</span>
+            </div>
 
-        const btn = document.getElementById("confirmDeleteBtn");
-        const oldHtml = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Suppression...`;
+            <hr class="my-4" style="border-color: rgba(255,255,255,.10);">
 
-        try{
-          await axios.delete(`${API_TICKETS}/${ticketId}`, { withCredentials: true });
+            <h5 class="fw-bold mb-2">Rapports du tirage principal</h5>
+            <div class="table-responsive modal-table">
+            <table class="table table-hover mb-0">
+                <thead>
+                <tr>
+                    <th>Rang</th>
+                    <th>Gagnants</th>
+                    <th>Gain</th>
+                </tr>
+                </thead>
+                <tbody>${mainRows}</tbody>
+            </table>
+            </div>
 
-          allTickets = allTickets.filter(t => t.id !== ticketId);
-          showOk("Ticket supprimé.");
-          renderTicketsPage();
+            ${secondBlock}
 
-          if (confirmModalInstance) confirmModalInstance.hide();
-        }catch(e){
-          console.error(e);
-          showErr("Impossible de supprimer ce ticket.");
-        }finally{
-          btn.disabled = false;
-          btn.innerHTML = oldHtml;
+            <hr class="my-4" style="border-color: rgba(255,255,255,.10);">
+            <div class="fw-bold">
+            Joker+ :
+            <span class="ms-2">${joker ? esc(joker) : "—"}</span>
+            </div>
+
+            ${buildCodesGagnantsBlock(data)}
+        </div>
+        `;
+
+        new bootstrap.Modal(modalEl).show();
+    }catch(e){
+        console.error(e);
+        modalLbl.textContent = "Détails du tirage";
+        modalBody.innerHTML = `<p class="text-center text-danger mb-0">Erreur lors du chargement du tirage.</p>`;
+        new bootstrap.Modal(modalEl).show();
+    }
+    }
+
+
+
+        // ===== Delete ticket (sans alert)
+        async function deleteTicket(ticketId){
+            // confirm “propre” : on garde confirm natif (simple). Si tu veux, je te fais un modal confirm.
+            const ok = confirm("Voulez-vous vraiment supprimer ce ticket ?");
+            if (!ok) return;
+
+            try{
+            await axios.delete(`${API_TICKETS}/${ticketId}`, { withCredentials: true });
+            // refresh local
+            allTickets = allTickets.filter(t => t.id !== ticketId);
+            showOk("Ticket supprimé.");
+            renderTicketsPage();
+            }catch(e){
+            console.error(e);
+            showErr("Impossible de supprimer ce ticket.");
+            }
         }
-      }
 
       // ===== Load
       async function loadTickets(){
@@ -1143,7 +1121,7 @@
           ]);
 
           const tickets = Array.isArray(ticketsRes.data) ? ticketsRes.data : [];
-          const gains   = Array.isArray(gainsRes.data) ? gainsRes.data : [];
+          const gains = Array.isArray(gainsRes.data) ? gainsRes.data : [];
 
           gainsMap = new Map(gains.map(g => [g.ticketId, g.gainAmount]));
 
@@ -1154,6 +1132,7 @@
           currentPage = 1;
           await renderTicketsPage();
           showOk("Tickets chargés.");
+
         }catch(e){
           console.error(e);
           showErr("Impossible de charger les tickets (tickets/gains).");
@@ -1170,15 +1149,14 @@
         renderTicketsPage();
       });
 
-      // Modal confirm delete
-      document.getElementById("confirmDeleteBtn").addEventListener("click", performDeleteTicket);
-
       // Expose for inline onclick
       window.__showTirageDetails = showTirageDetails;
-      window.__deleteTicket = openDeleteConfirm;
+      window.__deleteTicket = deleteTicket;
 
       document.addEventListener("DOMContentLoaded", loadTickets);
     })();
+
+
   </script>
 
   <!-- IA (si tu l'utilises) -->

@@ -42,3 +42,6 @@ build/
 .env.exemple
 /scripts
 .venv/
+
+/frontend-angular/node_modules
+/frontend-angular
