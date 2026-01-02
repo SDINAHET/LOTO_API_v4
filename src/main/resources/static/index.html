@@ -1252,10 +1252,24 @@
         });
 
         new bootstrap.Modal(document.getElementById("predictionModal")).show();
-      }catch(err){
-        console.error(err);
-        alert("Impossible de charger les prédictions.");
+      }catch (err) {
+        console.warn("API prédictions indisponible", err);
+
+        const container = document.getElementById("predictedNumbers");
+        const chance = document.getElementById("predictedChance");
+
+        container.innerHTML = `
+          <div class="muted text-warning text-center">
+            ⏳ Les statistiques ne sont pas encore disponibles.<br>
+            Réessaie dans quelques instants.
+          </div>
+        `;
+        chance.innerHTML = "";
+
+        // optionnel : ouvrir quand même le modal
+        new bootstrap.Modal(document.getElementById("predictionModal")).show();
       }
+
     }
 
     /* =========================
