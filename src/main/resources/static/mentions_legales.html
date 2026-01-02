@@ -1,159 +1,325 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mentions Légales - Loto Tracker</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentions légales – Loto Tracker</title>
+
+  <link rel="icon" type="image/png" href="loto_tracker.png">
+
+  <!-- Bootstrap + Font Awesome -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- ✅ Layout global (header/footer injectés) -->
+  <script defer src="layout.js"></script>
+
+  <style>
+    :root{
+      --bg0:#0b1220;
+      --bg1:#0f1b2d;
+      --stroke: rgba(255,255,255,.12);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.65);
+      --primary:#3b82f6;
+      --primary2:#60a5fa;
+      --radius:18px;
+      --shadow:0 16px 45px rgba(0,0,0,.35);
+      --topbar-h:72px;
+      --footer-h:56px;
+    }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(59,130,246,.22), transparent 60%),
+        radial-gradient(900px 500px at 90% 25%, rgba(239,68,68,.14), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      color:var(--text);
+      min-height:100vh;
+      padding-top: var(--topbar-h);
+      padding-bottom: var(--footer-h);
+    }
+
+    main{
+      max-width: 1150px;
+      margin: 0 auto;
+      padding: 20px 16px 32px;
+    }
+
+    .panel{
+      background: rgba(255,255,255,.05);
+      border:1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    h1{
+      font-size: clamp(1.35rem, 2.6vw, 1.7rem);
+      font-weight: 950;
+      margin-bottom: 6px;
+    }
+
+    .meta{
+      color: var(--muted);
+      font-weight: 750;
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+
+    h2{
+      font-size: 1.05rem;
+      font-weight: 900;
+      margin-top: 20px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+
+    p, li{
+      color: rgba(255,255,255,.82);
+      font-weight: 700;
+      line-height: 1.7;
+    }
+
+    ul{ padding-left: 18px; margin-top: 6px; }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap: wrap;
+      margin: 12px 0 6px;
+    }
+
+    .btn-ghost{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:900;
+      text-decoration:none;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    .btn-primary{
+      border:0;
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      color:white;
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:900;
+      text-decoration:none;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    .notice{
+      border:1px solid rgba(245,158,11,.35);
+      background: rgba(245,158,11,.12);
+      border-radius: 14px;
+      padding: 14px;
+      font-weight: 850;
+      margin: 12px 0;
+    }
+
+    .info{
+      border:1px solid rgba(59,130,246,.35);
+      background: rgba(59,130,246,.12);
+      border-radius: 14px;
+      padding: 14px;
+      font-weight: 820;
+      margin: 12px 0;
+    }
+
+    a.link{
+      color: rgba(96,165,250,.95);
+      font-weight: 900;
+      text-decoration:none;
+    }
+    a.link:hover{ text-decoration: underline; }
+
+    .table-like{
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 14px;
+      overflow:hidden;
+      margin-top: 10px;
+    }
+    .rowx{
+      display:grid;
+      grid-template-columns: 260px 1fr;
+      border-top:1px solid rgba(255,255,255,.10);
+    }
+    .rowx:first-child{ border-top:0; }
+    .cell{
+      padding: 12px 12px;
+      background: rgba(255,255,255,.04);
+      font-weight: 800;
+      color: rgba(255,255,255,.86);
+    }
+    .cell.key{
+      background: rgba(255,255,255,.07);
+      color: rgba(255,255,255,.92);
+      font-weight: 950;
+    }
+
+    @media (max-width: 768px){
+      .rowx{ grid-template-columns: 1fr; }
+      .cell.key{ border-bottom:1px solid rgba(255,255,255,.10); }
+    }
+  </style>
 </head>
-<body class="bg-light">
-    <!-- HEADER -->
-    <header class="header d-flex justify-content-between align-items-center p-3 bg-dark text-white">
-        <div class="d-flex align-items-center">
-            <img src="loto_tracker.png" alt="Logo Loto" class="logo" width="50" height="50">
-            <h1 class="m-0 ms-2">Tracker du Loto Français</h1>
-        </div>
-        <a href="login.html" class="btn btn-outline-light">
-            <i class="fas fa-user"></i> Se connecter
+
+<body class="has-fixed-footer">
+
+  <!-- ✅ Header injecté -->
+  <div id="appHeader"></div>
+
+  <main>
+    <section class="panel">
+
+      <h1><i class="fa-solid fa-gavel"></i> Mentions légales</h1>
+      <div class="meta">
+        Version RNCP6 (niveau Licence/Bachelor) – mise à jour : <b>2025</b><br>
+        Ces mentions sont fournies dans une logique de conformité (information des utilisateurs, responsabilité, RGPD).
+      </div>
+
+      <div class="actions">
+        <button class="btn-ghost" onclick="history.length>1?history.back():location.href='index.html'">
+          <i class="fa-solid fa-arrow-left"></i> Retour
+        </button>
+        <a href="index.html" class="btn-primary">
+          <i class="fa-solid fa-house"></i> Accueil
         </a>
-    </header>
+        <a href="conditions_utilisation.html" class="btn-ghost">
+          <i class="fa-solid fa-file-signature"></i> Conditions
+        </a>
+        <a href="politique_confidentialite.html" class="btn-ghost">
+          <i class="fa-solid fa-user-shield"></i> Confidentialité
+        </a>
+      </div>
 
-    <main class="container mt-4">
-        <h2>Mentions Légales</h2>
-        <h3>1. Éditeur du Site</h3>
-        <p>Nom du site : Loto Tracker<br>Responsable de publication : SDINAHET<br>Email : contact@lototracker.com</p>
+      <div class="notice">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        Le site <b>Loto Tracker</b> est un projet indépendant, non affilié à la FDJ. Les informations sont fournies à titre informatif,
+        sans garantie d’exhaustivité, de mise à jour en temps réel, ni de résultat.
+      </div>
 
-        <h3>2. Hébergement</h3>
-        <p>Hébergeur : Alwaysdata<br>Adresse : 91 rue du Faubourg Saint-Honoré, 75008 Paris</p>
-
-        <h3>3. Propriété Intellectuelle</h3>
-        <p>Le contenu de ce site est protégé par le droit d'auteur. Toute reproduction est interdite sans autorisation expresse.</p>
-
-        <h3>4. Responsabilité</h3>
-        <p>Nous nous efforçons d'assurer l'exactitude des informations présentes sur ce site, cependant nous ne pouvons garantir qu'elles sont exemptes d'erreurs.</p>
-
-        <h3>5. Protection des Données</h3>
-        <p>Les informations collectées sont traitées conformément à notre <a href="politique_confidentialite.html">Politique de Confidentialité</a>. Vous avez le droit d’accéder, de rectifier ou de supprimer vos données personnelles en nous contactant.</p>
-
-        <h3>6. Cookies</h3>
-        <p>Ce site utilise des cookies afin d'améliorer l'expérience utilisateur. Vous pouvez configurer les paramètres de votre navigateur pour gérer vos préférences en matière de cookies.</p>
-    </main>
-
-    <!-- FOOTER -->
-    <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-links">
-                <a href="mentions_legales.html" class="footer-button">Mentions légales</a>
-                <a href="conditions_utilisation.html" class="footer-button">Conditions d'utilisation</a>
-                <a href="politique_confidentialite.html" class="footer-button">Politique de confidentialité</a>
-            </div>
-            <div class="footer-social">
-                <a href="#"><i class="fab fa-facebook"></i></a>
-                <a href="#"><i class="fab fa-twitter"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-youtube"></i></a>
-            </div>
-            <p class="footer-text">© 2025 Tracker du Loto Français / SDINAHET. Tous droits réservés.</p>
+      <h2><i class="fa-solid fa-user-pen"></i> 1. Éditeur du Site</h2>
+      <div class="table-like">
+        <div class="rowx">
+          <div class="cell key">Nom du site</div>
+          <div class="cell">Loto Tracker – Tracker du Loto Français</div>
         </div>
-    </footer>
+        <div class="rowx">
+          <div class="cell key">Responsable de publication</div>
+          <div class="cell">SDINAHET (éditeur / responsable du contenu)</div>
+        </div>
+        <div class="rowx">
+          <div class="cell key">Contact</div>
+          <div class="cell">stephane.dinahet@gmail.com</div>
+        </div>
+      </div>
 
-    <style>
-        /* 📌 Footer Compact & Fixé en Bas */
+      <div class="info">
+        <i class="fa-solid fa-circle-info"></i>
+        Pour une version “production entreprise”, tu peux ajouter : raison sociale, adresse, n° SIRET, directeur de la publication,
+        et moyen de contact rapide (formulaire).
+      </div>
 
+      <h2><i class="fa-solid fa-server"></i> 2. Hébergement</h2>
+      <p>
+        Hébergeur :
+      </p>
+      <div class="table-like">
+        <div class="rowx">
+          <div class="cell key">Hébergeur</div>
+          <div class="cell">Serveur</div>
+        </div>
+        <div class="rowx">
+          <div class="cell key">Adresse</div>
+          <!-- <div class="cell">91 rue du Faubourg Saint-Honoré, 75008 Paris</div> -->
+          <div class="cell">NA</div>
+        </div>
+      </div>
 
-        .footer {
-            background: linear-gradient(135deg, #212529, #343a40);
-            color: #ffffff;
-            padding: 8px 0;
-            text-align: center;
-            font-size: 0.9rem;
-            position: fixed;
-            width: 100%;
-            bottom: 0;
-            left: 0;
-            box-shadow: 0px -4px 6px rgba(0, 0, 0, 0.3);
-        }
+      <h2><i class="fa-solid fa-code"></i> 3. Technologies et fonctionnement</h2>
+      <p>
+        Le Site s’appuie sur une architecture web comprenant :
+      </p>
+      <ul>
+        <li>un frontend (HTML/CSS/JS),</li>
+        <li>une API backend (endpoints sécurisés),</li>
+        <li>des bases de données (selon les modules : SQL/NoSQL),</li>
+        <li>des mécanismes de sécurité (authentification, contrôle d’accès, cookies de session, etc.).</li>
+      </ul>
 
-        /* 📌 Contenu Centré */
-        .footer-container {
-            max-width: 1200px;
-            margin: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+      <h2><i class="fa-solid fa-copyright"></i> 4. Propriété intellectuelle</h2>
+      <p>
+        L’ensemble des éléments du Site (structure, textes, code source, interface, graphismes, logos) est protégé
+        par le droit d’auteur et/ou le droit de la propriété intellectuelle.
+      </p>
+      <p>
+        Toute reproduction, représentation, modification ou diffusion, totale ou partielle, sans autorisation écrite préalable,
+        est interdite.
+      </p>
 
-        /* 📌 Flexbox pour tout aligner en une seule ligne */
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            width: 100%;
-            padding: 0 10px;
-        }
+      <h2><i class="fa-solid fa-triangle-exclamation"></i> 5. Limitation de responsabilité</h2>
+      <p>
+        L’éditeur met en œuvre des moyens raisonnables pour assurer la qualité et l’exactitude des informations proposées,
+        mais ne garantit pas l’absence d’erreurs, de retards, d’omissions ou d’indisponibilités.
+      </p>
+      <p>
+        Le Site ne constitue pas un service officiel FDJ, ni une incitation au jeu. L’utilisateur reste seul responsable
+        de l’utilisation des informations et des décisions prises sur la base du contenu affiché.
+      </p>
 
-        /* 🔗 Liens */
-        .footer-links {
-            display: flex;
-            gap: 15px;
-        }
+      <h2><i class="fa-solid fa-user-shield"></i> 6. Données personnelles (RGPD)</h2>
+      <p>
+        Les traitements de données personnelles sont décrits dans la
+        <a class="link" href="politique_confidentialite.html">Politique de Confidentialité</a>,
+        conformément au RGPD (UE 2016/679).
+      </p>
+      <ul>
+        <li>Données traitées : identifiants, email, tickets utilisateur, logs techniques</li>
+        <li>Finalités : fonctionnement, sécurité, traçabilité, amélioration</li>
+        <li>Droits : accès, rectification, effacement, opposition, limitation, portabilité (si applicable)</li>
+      </ul>
 
-        .footer-links a {
-            color: #ffeb3b;
-            text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s ease-in-out;
-        }
+      <h2><i class="fa-solid fa-cookie-bite"></i> 7. Cookies</h2>
+      <p>
+        Le Site peut utiliser des cookies strictement nécessaires au fonctionnement (ex. session).
+        Des cookies non essentiels ne doivent être déposés qu’après consentement (si ajoutés).
+      </p>
 
-        .footer-links a:hover {
-            color: #ff5722;
-        }
+      <h2><i class="fa-solid fa-link"></i> 8. Liens externes</h2>
+      <p>
+        Le Site peut contenir des liens vers des sites tiers. L’éditeur ne peut être tenu responsable
+        du contenu ou de la disponibilité de ces sites externes.
+      </p>
 
-        /* 🎵 Réseaux Sociaux */
-        .footer-social {
-            display: flex;
-            gap: 10px;
-        }
+      <h2><i class="fa-solid fa-envelope"></i> 9. Contact</h2>
+      <p>
+        Pour toute question : <b>stephane.dinahet@gmail.com</b>
+      </p>
 
-        .footer-social a {
-            color: #ffffff;
-            font-size: 1.2rem;
-            transition: transform 0.3s ease-in-out, color 0.3s;
-        }
+      <div class="actions mt-3">
+        <button class="btn-primary" type="button" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+          <i class="fa-solid fa-arrow-up"></i> Retour en haut
+        </button>
+      </div>
 
-        .footer-social a:hover {
-            color: #ffeb3b;
-            transform: scale(1.1);
-        }
+    </section>
+  </main>
 
-        /* 📜 Texte du footer */
-        .footer-text {
-            margin-top: 3px;
-            font-size: 0.8rem;
-            opacity: 0.7;
-        }
+  <!-- ✅ Footer injecté -->
+  <div id="appFooter"></div>
 
-        /* 🌀 Animation d’apparition */
-        @keyframes fadeInUp {
-            0% { opacity: 0; transform: translateY(10px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-
-        .footer {
-            animation: fadeInUp 1.5s ease-in-out;
-        }
-
-
-
-    </style>
-
-
-    </body>
-    </html>
-
-
-
-
-
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

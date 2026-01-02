@@ -1,176 +1,281 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conditions d'Utilisation - Loto Tracker</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conditions Générales d’Utilisation – Loto Tracker</title>
+
+  <link rel="icon" type="image/png" href="loto_tracker.png">
+
+  <!-- Bootstrap + Font Awesome -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Layout global -->
+  <script defer src="layout.js"></script>
+
+  <style>
+    :root{
+      --bg0:#0b1220;
+      --bg1:#0f1b2d;
+      --stroke: rgba(255,255,255,.12);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.65);
+      --primary:#3b82f6;
+      --primary2:#60a5fa;
+      --radius:18px;
+      --shadow:0 16px 45px rgba(0,0,0,.35);
+      --topbar-h:72px;
+      --footer-h:56px;
+    }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(59,130,246,.22), transparent 60%),
+        radial-gradient(900px 500px at 90% 25%, rgba(239,68,68,.14), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      color:var(--text);
+      min-height:100vh;
+      padding-top: var(--topbar-h);
+      padding-bottom: var(--footer-h);
+    }
+
+    main{
+      max-width: 1150px;
+      margin: 0 auto;
+      padding: 20px 16px 32px;
+    }
+
+    .panel{
+      background: rgba(255,255,255,.05);
+      border:1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    h1{
+      font-size: clamp(1.35rem, 2.6vw, 1.7rem);
+      font-weight: 950;
+    }
+
+    h2{
+      font-size: 1.05rem;
+      font-weight: 900;
+      margin-top: 20px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+
+    p, li{
+      color: rgba(255,255,255,.82);
+      font-weight: 700;
+      line-height: 1.7;
+    }
+
+    ul{
+      padding-left: 18px;
+      margin-top: 6px;
+    }
+
+    .muted{ color: var(--muted); font-weight:700; }
+
+    .alert-legal{
+      border:1px solid rgba(239,68,68,.35);
+      background: rgba(239,68,68,.12);
+      border-radius: 14px;
+      padding: 14px;
+      font-weight: 800;
+      margin: 14px 0;
+    }
+
+    .alert-info{
+      border:1px solid rgba(59,130,246,.35);
+      background: rgba(59,130,246,.12);
+      border-radius: 14px;
+      padding: 14px;
+      font-weight: 800;
+      margin: 14px 0;
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .btn-ghost{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:900;
+      text-decoration:none;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    .btn-primary{
+      border:0;
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      color:white;
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:900;
+      text-decoration:none;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    a.link{
+      color: rgba(96,165,250,.95);
+      font-weight:900;
+      text-decoration:none;
+    }
+    a.link:hover{ text-decoration:underline; }
+  </style>
 </head>
-<body class="bg-light">
-    <!-- HEADER -->
-    <header class="header d-flex justify-content-between align-items-center p-3 bg-dark text-white">
-        <div class="d-flex align-items-center">
-            <img src="loto_tracker.png" alt="Logo Loto" class="logo" width="50" height="50">
-            <h1 class="m-0 ms-2">Tracker du Loto Français</h1>
-        </div>
-        <a href="login.html" class="btn btn-outline-light">
-            <i class="fas fa-user"></i> Se connecter
+
+<body class="has-fixed-footer">
+
+  <!-- Header injecté -->
+  <div id="appHeader"></div>
+
+  <main>
+    <section class="panel">
+
+      <h1><i class="fa-solid fa-scale-balanced"></i> Conditions Générales d’Utilisation</h1>
+      <p class="muted">
+        Application web <b>Loto Tracker – Tracker du Loto Français</b><br>
+        Version conforme RNCP6 (niveau Licence/Bachelor) – Mise à jour 2025
+      </p>
+
+      <div class="actions">
+        <button class="btn-ghost" onclick="history.length>1?history.back():location.href='index.html'">
+          <i class="fa-solid fa-arrow-left"></i> Retour
+        </button>
+        <a href="index.html" class="btn-primary">
+          <i class="fa-solid fa-house"></i> Accueil
         </a>
-    </header>
+        <a href="mentions_legales.html" class="btn-ghost">
+          <i class="fa-solid fa-file-signature"></i> Mention Légales
+        </a>
+        <a href="politique_confidentialite.html" class="btn-ghost">
+          <i class="fa-solid fa-user-shield"></i> Confidentialité
+        </a>
+      </div>
 
-    <main class="container mt-4">
-        <h2>Conditions d'Utilisation</h2>
-        <p>Bienvenue sur Loto Tracker. En accédant et en utilisant ce site, vous acceptez l’ensemble des conditions décrites ci-dessous.</p>
+      <div class="alert-legal">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Le Site est un projet indépendant, non affilié à la Française des Jeux (FDJ).
+        Les informations présentées ne constituent ni un conseil financier,
+        ni une incitation au jeu.
+      </div>
 
-        <h3>1. Objet du Site</h3>
-        <p>Le site Loto Tracker fournit des informations sur les résultats du loto français. Il permet également d’accéder à des statistiques et d’analyser des tendances basées sur les tirages passés.</p>
+      <h2><i class="fa-solid fa-diagram-project"></i> 1. Périmètre et nature du service</h2>
+      <p>
+        Le Site fournit un service de consultation, d’analyse et de visualisation
+        de données relatives aux tirages du Loto français.
+        Il s’agit d’un service numérique expérimental à vocation informative,
+        pédagogique et démonstrative.
+      </p>
 
-        <h3>2. Utilisation des Services</h3>
-        <p>L’utilisateur s’engage à utiliser le site uniquement dans un cadre légal et respectueux. Toute tentative de fraude, d’utilisation abusive ou de perturbation du bon fonctionnement du site est strictement interdite.</p>
+      <h2><i class="fa-solid fa-check-double"></i> 2. Acceptation contractuelle</h2>
+      <p>
+        L’utilisation du Site vaut acceptation pleine et entière des présentes CGU.
+        Toute utilisation non conforme pourra entraîner une suspension ou un blocage
+        sans préavis.
+      </p>
 
-        <h3>3. Responsabilité</h3>
-        <p>Bien que nous nous efforcions de fournir des données exactes et mises à jour, Loto Tracker ne peut garantir l’absence d’erreurs. Les informations fournies sont à titre indicatif, et nous déclinons toute responsabilité quant à l’utilisation qui en est faite.</p>
+      <h2><i class="fa-solid fa-network-wired"></i> 3. Accès, disponibilité et architecture</h2>
+      <p>
+        Le Site repose sur une architecture web distribuée (frontend, API, bases de données).
+        L’éditeur s’efforce d’assurer une continuité de service sans garantir
+        une disponibilité permanente.
+      </p>
 
-        <h3>4. Création et Gestion de Compte</h3>
-        <p>Certains services nécessitent la création d’un compte utilisateur. L’utilisateur est responsable de la confidentialité de ses identifiants et s’engage à ne pas partager ses accès avec des tiers.</p>
+      <h2><i class="fa-solid fa-user-shield"></i> 4. Comptes, authentification et sécurité</h2>
+      <p>
+        L’accès à certaines fonctionnalités nécessite une authentification sécurisée.
+        Les sessions peuvent reposer sur des cookies sécurisés (HttpOnly, SameSite)
+        et des mécanismes de contrôle d’accès.
+      </p>
 
-        <h3>5. Protection des Données</h3>
-        <p>Les informations personnelles collectées sont traitées conformément à notre <a href="politique_confidentialite.html">Politique de Confidentialité</a>. Vous avez le droit d’accéder, de rectifier ou de supprimer vos données personnelles en nous contactant.</p>
+      <h2><i class="fa-solid fa-ban"></i> 5. Usages interdits et responsabilité utilisateur</h2>
+      <ul>
+        <li>Toute tentative d’intrusion, d’altération ou d’exploitation de vulnérabilités</li>
+        <li>L’accès non autorisé à des données ou services protégés</li>
+        <li>La surcharge volontaire de l’API ou du serveur</li>
+        <li>L’utilisation du Site à des fins frauduleuses ou illicites</li>
+      </ul>
 
-        <h3>6. Propriété Intellectuelle</h3>
-        <p>Le contenu du site, incluant les textes, images, logos et graphiques, est protégé par le droit d’auteur. Toute reproduction sans autorisation est interdite.</p>
+      <h2><i class="fa-solid fa-database"></i> 6. Données, sources et limites</h2>
+      <p>
+        Les données proviennent de sources publiques ou ouvertes.
+        L’éditeur ne garantit ni leur exhaustivité, ni leur exactitude absolue,
+        ni leur mise à jour en temps réel.
+      </p>
 
-        <h3>7. Modification des Conditions</h3>
-        <p>Nous nous réservons le droit de modifier ces conditions à tout moment. Les utilisateurs seront informés des mises à jour via le site.</p>
+      <h2><i class="fa-solid fa-lock"></i> 7. Données personnelles & conformité RGPD</h2>
+      <p>
+        Le traitement des données personnelles est conforme au
+        <b>Règlement (UE) 2016/679 (RGPD)</b>.
+      </p>
+      <ul>
+        <li>Données traitées : identifiants, email, tickets utilisateur, journaux techniques</li>
+        <li>Finalités : authentification, sécurité, traçabilité, fonctionnement du service</li>
+        <li>Principe de minimisation et durée de conservation limitée</li>
+      </ul>
+      <p>
+        Les droits des personnes concernées sont détaillés dans la
+        <a class="link" href="politique_confidentialite.html">Politique de Confidentialité</a>.
+      </p>
 
-        <h3>8. Interruption et Maintenance</h3>
-        <p>Nous nous réservons le droit d’interrompre temporairement ou définitivement l’accès au site pour des raisons de maintenance ou d’amélioration des services.</p>
+      <h2><i class="fa-solid fa-triangle-exclamation"></i> 8. Limitation de responsabilité</h2>
+      <p>
+        L’utilisateur reconnaît utiliser le Site sous sa seule responsabilité.
+        L’éditeur décline toute responsabilité concernant les décisions,
+        interprétations ou conséquences financières liées à l’usage du Site.
+      </p>
 
-        <h3>9. Sécurité</h3>
-        <p>L’utilisateur s’engage à ne pas tenter d’accéder aux données d’autres utilisateurs, ni à introduire des logiciels malveillants ou à perturber les services du site.</p>
+      <h2><i class="fa-solid fa-copyright"></i> 9. Propriété intellectuelle</h2>
+      <p>
+        Le code source, l’architecture logicielle, l’interface utilisateur
+        et les contenus sont protégés par le droit d’auteur.
+        Toute reproduction ou exploitation non autorisée est interdite.
+      </p>
 
-        <h3>10. Litiges et Juridiction</h3>
-        <p>En cas de litige lié à l’utilisation du site, les parties s’efforceront de résoudre le conflit à l’amiable. À défaut, toute action en justice sera soumise aux tribunaux compétents en France.</p>
+      <h2><i class="fa-solid fa-pen-to-square"></i> 10. Évolution du service et des CGU</h2>
+      <p>
+        L’éditeur se réserve le droit de modifier, suspendre ou faire évoluer
+        le service et les présentes CGU à tout moment, sans obligation de notification individuelle.
+      </p>
 
-        <h3>11. Contact</h3>
-        <p>Pour toute question relative aux présentes conditions, vous pouvez nous contacter à l’adresse suivante : <strong>contact@lototracker.com</strong>.</p>
-    </main>
+      <h2><i class="fa-solid fa-scale-balanced"></i> 11. Droit applicable et juridiction</h2>
+      <p>
+        Les présentes CGU sont soumises au droit français.
+        Tout litige relèvera de la compétence exclusive des juridictions françaises.
+      </p>
 
-    <!-- FOOTER -->
-    <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-links">
-                <a href="mentions_legales.html" class="footer-button">Mentions légales</a>
-                <a href="conditions_utilisation.html" class="footer-button">Conditions d'utilisation</a>
-                <a href="politique_confidentialite.html" class="footer-button">Politique de confidentialité</a>
-            </div>
-            <div class="footer-social">
-                <a href="#"><i class="fab fa-facebook"></i></a>
-                <a href="#"><i class="fab fa-twitter"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-youtube"></i></a>
-            </div>
-            <p class="footer-text">© 2025 Tracker du Loto Français / SDINAHET. Tous droits réservés.</p>
-        </div>
-    </footer>
+      <h2><i class="fa-solid fa-envelope"></i> 12. Contact et gouvernance</h2>
+      <p>
+        Pour toute question juridique, technique ou relative à la protection des données :<br>
+        <b>stephane.dinahet@gmail.com</b>
+      </p>
 
-    <style>
-        /* 📌 Footer Compact & Fixé en Bas */
+    </section>
+  </main>
 
+  <!-- Footer injecté -->
+  <div id="appFooter"></div>
 
-        .footer {
-            background: linear-gradient(135deg, #212529, #343a40);
-            color: #ffffff;
-            padding: 8px 0;
-            text-align: center;
-            font-size: 0.9rem;
-            position: fixed;
-            width: 100%;
-            bottom: 0;
-            left: 0;
-            box-shadow: 0px -4px 6px rgba(0, 0, 0, 0.3);
-        }
-
-        /* 📌 Contenu Centré */
-        .footer-container {
-            max-width: 1200px;
-            margin: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* 📌 Flexbox pour tout aligner en une seule ligne */
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            width: 100%;
-            padding: 0 10px;
-        }
-
-        /* 🔗 Liens */
-        .footer-links {
-            display: flex;
-            gap: 15px;
-        }
-
-        .footer-links a {
-            color: #ffeb3b;
-            text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s ease-in-out;
-        }
-
-        .footer-links a:hover {
-            color: #ff5722;
-        }
-
-        /* 🎵 Réseaux Sociaux */
-        .footer-social {
-            display: flex;
-            gap: 10px;
-        }
-
-        .footer-social a {
-            color: #ffffff;
-            font-size: 1.2rem;
-            transition: transform 0.3s ease-in-out, color 0.3s;
-        }
-
-        .footer-social a:hover {
-            color: #ffeb3b;
-            transform: scale(1.1);
-        }
-
-        /* 📜 Texte du footer */
-        .footer-text {
-            margin-top: 3px;
-            font-size: 0.8rem;
-            opacity: 0.7;
-        }
-
-        /* 🌀 Animation d’apparition */
-        @keyframes fadeInUp {
-            0% { opacity: 0; transform: translateY(10px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-
-        .footer {
-            animation: fadeInUp 1.5s ease-in-out;
-        }
-
-
-
-    </style>
-
-
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-
-
-
-
