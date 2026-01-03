@@ -90,6 +90,8 @@ public class GainCalculationService {
         if (correspondances == 2 && chanceMatch) return lotoResult.getRapportDuRang7();
         if (correspondances == 2) return lotoResult.getRapportDuRang8();
         if (correspondances == 0 && chanceMatch) return lotoResult.getRapportDuRang9();
+        // ✅ Rang 10: 1 numéro + chance = 2.20 €
+        if (correspondances == 1 && chanceMatch) return 2.20;
         return 0.0;
     }
 
