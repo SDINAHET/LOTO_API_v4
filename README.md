@@ -687,6 +687,8 @@ sudo apt install -y \
   postgresql postgresql-contrib \
   mongodb \
   git
+
+pip install "fastapi[standard]" uvicorn httpx pymongo python-dotenv
 ```
 
 ## 8. Installation du projet
