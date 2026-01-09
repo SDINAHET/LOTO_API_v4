@@ -50,3 +50,4 @@ build/
 /LOG_PATH_IS_UNDEFINED
 /__pycache__
 /ai-service/__pycache__
+/document
