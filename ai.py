@@ -16,6 +16,9 @@ from typing import Optional
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
+import logging
+from logging.handlers import RotatingFileHandler
+
 
 # -----------------------------
 # Config
@@ -68,6 +71,25 @@ INCLUDE_SECOND_RE = re.compile(r"(inclure\s+second|include\s+second|second\s+tir
 DEFAULT_RANK10_GAIN = 2.20
 
 ASK_CODES_RE = re.compile(r"\b(codes?\s+gagnants?)\b", re.IGNORECASE)
+
+
+LOG_DIR = Path(os.getenv("AI_LOG_DIR", "/tmp"))
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+MONGO_LOG_FILE = Path(os.getenv("MONGO_LOG_FILE", str(LOG_DIR / "mongo_queries.log")))
+
+LOG_MONGO = os.getenv("LOG_MONGO", "0") == "1"
+
+logger = logging.getLogger("ai")
+logger.setLevel(logging.INFO)
+logger.propagate = False
+
+if not any(isinstance(h, RotatingFileHandler) and getattr(h, "baseFilename", "") == str(MONGO_LOG_FILE)
+           for h in logger.handlers):
+    handler = RotatingFileHandler(
+        MONGO_LOG_FILE, maxBytes=2_000_000, backupCount=3, encoding="utf-8"
+    )
+    handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
+    logger.addHandler(handler)
 
 
 # -----------------------------
@@ -185,10 +207,13 @@ def _paris_day_to_utc_range(date_fr: str) -> Tuple[datetime, datetime]:
 def find_draw_by_date_fr(date_fr: str) -> Optional[dict]:
     # ✅ Cherche le tirage correspondant au JOUR Paris (corrige le 23:00Z = J+1 Paris)
     start_utc, end_utc = _paris_day_to_utc_range(date_fr)
-    return historique.find_one({"dateDeTirage": {"$gte": start_utc, "$lt": end_utc}})
+    q = {"dateDeTirage": {"$gte": start_utc, "$lt": end_utc}}
+    return mongo_find_one(q)
+
 
 def get_latest_draw() -> Optional[dict]:
-    return historique.find_one({}, sort=[("dateDeTirage", -1)])
+    return mongo_find_one({}, sort=[("dateDeTirage", -1)])
+
 
 def format_draw(draw: dict) -> str:
     nums = [draw.get("boule1"), draw.get("boule2"), draw.get("boule3"), draw.get("boule4"), draw.get("boule5")]
@@ -326,14 +351,17 @@ def compute_number_frequencies_cached() -> Tuple[Counter, Counter]:
     if cached:
         return cached
 
-    cursor = historique.find({}, {
+    proj = {
         "boule1": 1, "boule2": 1, "boule3": 1, "boule4": 1, "boule5": 1,
         "numeroChance": 1
-    })
+    }
+
+    docs = mongo_find_all({}, projection=proj)
 
     nums: List[int] = []
     chances: List[int] = []
-    for d in cursor:
+
+    for d in docs:
         for k in ("boule1", "boule2", "boule3", "boule4", "boule5"):
             v = d.get(k)
             if isinstance(v, int):
@@ -344,8 +372,10 @@ def compute_number_frequencies_cached() -> Tuple[Counter, Counter]:
 
     num_freq = Counter(nums)
     chance_freq = Counter(chances)
+
     cache_set("freq:all", (num_freq, chance_freq), ttl=6 * 3600)
     return num_freq, chance_freq
+
 
 def weighted_sample_without_replacement(items: List[int], weights: List[float], k: int) -> List[int]:
     chosen = []
@@ -430,6 +460,60 @@ async def ollama_chat(user_message: str) -> str:
         return "⏳ L’IA met trop de temps à répondre (timeout). Réessaie dans quelques secondes."
     except Exception:
         return "❌ Erreur IA."
+
+def mongo_to_pseudo_sql(collection: str, op: str, query, projection=None, sort=None, limit=None) -> str:
+    q = query or {}
+    proj = projection or {}
+    parts = [f"{op.upper()} {collection}"]
+    parts.append(f"WHERE {q}")
+    if proj:
+        parts.append(f"PROJECTION {proj}")
+    if sort:
+        parts.append(f"SORT {sort}")
+    if limit is not None:
+        parts.append(f"LIMIT {limit}")
+    return " | ".join(parts)
+
+def log_mongo(op: str, *, query=None, projection=None, sort=None, limit=None, took_ms: float | None = None):
+    if not LOG_MONGO:
+        return
+
+    msg = mongo_to_pseudo_sql(MONGO_COL, op, query, projection, sort, limit)
+    if took_ms is not None:
+        msg += f" | took_ms={took_ms:.2f}"
+
+    logger.info(msg)
+
+
+def mongo_find_one(query: dict, *, projection: dict | None = None, sort=None) -> Optional[dict]:
+    t0 = time.perf_counter()
+    doc = historique.find_one(query, projection=projection, sort=sort)
+    took_ms = (time.perf_counter() - t0) * 1000
+    log_mongo("find_one", query=query, projection=projection, sort=sort, took_ms=took_ms)
+    return doc
+
+def mongo_find_all(query: dict, *, projection=None, sort=None, limit=None) -> List[dict]:
+    t0 = time.perf_counter()
+    cursor = historique.find(query, projection=projection, sort=sort)
+    if limit is not None:
+        cursor = cursor.limit(limit)
+    docs = list(cursor)
+    took_ms = (time.perf_counter() - t0) * 1000
+    log_mongo("find_all", query=query, projection=projection, sort=sort, limit=limit, took_ms=took_ms)
+    return docs
+
+
+def mongo_find(query: dict, *, projection: dict | None = None, sort=None, limit: int | None = None):
+    # On log l'intention ici (car le cursor est lazy)
+    log_mongo("find", query=query, projection=projection, sort=sort, limit=limit)
+    cursor = historique.find(query, projection=projection, sort=sort)
+    if limit is not None:
+        cursor = cursor.limit(limit)
+    return cursor
+
+
+
+
 
 # -----------------------------
 # API models
@@ -538,17 +622,17 @@ async def ai_chat(req: ChatReq, request: Request):
 
             start = datetime(since_year, 1, 1, tzinfo=UTC_TZ)
 
-            cursor = historique.find(
-                {"dateDeTirage": {"$gte": start}},
-                projection={
-                    "dateDeTirage": 1,
-                    "boule1": 1, "boule2": 1, "boule3": 1, "boule4": 1, "boule5": 1,
-                    "numeroChance": 1,
-                    "rapportDuRang1": 1, "rapportDuRang2": 1, "rapportDuRang3": 1, "rapportDuRang4": 1,
-                    "rapportDuRang5": 1, "rapportDuRang6": 1, "rapportDuRang7": 1, "rapportDuRang8": 1,
-                    "rapportDuRang9": 1, "rapportDuRang10": 1,
-                },
-            )
+            q = {"dateDeTirage": {"$gte": start}}
+            proj = {
+                "dateDeTirage": 1,
+                "boule1": 1, "boule2": 1, "boule3": 1, "boule4": 1, "boule5": 1,
+                "numeroChance": 1,
+                "rapportDuRang1": 1, "rapportDuRang2": 1, "rapportDuRang3": 1, "rapportDuRang4": 1,
+                "rapportDuRang5": 1, "rapportDuRang6": 1, "rapportDuRang7": 1, "rapportDuRang8": 1,
+                "rapportDuRang9": 1, "rapportDuRang10": 1,
+            }
+            cursor = mongo_find(q, projection=proj)
+
 
             total = 0.0
             played = 0

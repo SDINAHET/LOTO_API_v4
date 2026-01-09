@@ -135,8 +135,9 @@ start_ai_service() {
     return
   fi
 
+  export LOG_MONGO=1
   nohup python3 -m uvicorn ai:app --host 0.0.0.0 --port "$PORT_AI" \
-    >/tmp/ai_8090.log 2>&1 & disown
+    >/tmp/ai_${PORT_AI}.log 2>&1 & disown
 
   for _ in {1..20}; do
     if curl -s "http://localhost:$PORT_AI/health" >/dev/null 2>&1; then

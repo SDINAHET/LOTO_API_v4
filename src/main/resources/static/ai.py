@@ -32,6 +32,8 @@ RL_MAX = int(os.getenv("RL_MAX", "30"))
 RL_WINDOW = int(os.getenv("RL_WINDOW", "60"))
 
 CACHE_TTL_SEC = int(os.getenv("CACHE_TTL_SEC", "3600"))
+LOG_MONGO = os.getenv("LOG_MONGO", "0") == "1"
+
 ALLOWED_ORIGINS_RAW = os.getenv("ALLOWED_ORIGINS", "*").strip()
 
 PARIS_TZ = ZoneInfo("Europe/Paris")
@@ -162,6 +164,21 @@ def rate_limit(ip: str) -> None:
     if count > RL_MAX:
         raise HTTPException(status_code=429, detail="Trop de requêtes. Réessaie dans 1 minute.")
 
+
+def log_mongo(op: str, *, query=None, projection=None, sort=None, limit=None, took_ms: float | None = None):
+    if not LOG_MONGO:
+        return
+    msg = f"[MONGO] op={op} query={query}"
+    if projection is not None:
+        msg += f" projection={projection}"
+    if sort is not None:
+        msg += f" sort={sort}"
+    if limit is not None:
+        msg += f" limit={limit}"
+    if took_ms is not None:
+        msg += f" took_ms={took_ms:.2f}"
+    print(msg)
+
 # -----------------------------
 # Dates / Mongo helpers (Paris-correct)
 # -----------------------------
@@ -180,13 +197,37 @@ def _paris_day_to_utc_range(date_fr: str) -> Tuple[datetime, datetime]:
     end_utc = end_paris.astimezone(UTC_TZ)
     return start_utc, end_utc
 
+# def find_draw_by_date_fr(date_fr: str) -> Optional[dict]:
+#     # ✅ Cherche le tirage correspondant au JOUR Paris (corrige le 23:00Z = J+1 Paris)
+#     start_utc, end_utc = _paris_day_to_utc_range(date_fr)
+#     return historique.find_one({"dateDeTirage": {"$gte": start_utc, "$lt": end_utc}})
+
 def find_draw_by_date_fr(date_fr: str) -> Optional[dict]:
-    # ✅ Cherche le tirage correspondant au JOUR Paris (corrige le 23:00Z = J+1 Paris)
     start_utc, end_utc = _paris_day_to_utc_range(date_fr)
-    return historique.find_one({"dateDeTirage": {"$gte": start_utc, "$lt": end_utc}})
+    query = {"dateDeTirage": {"$gte": start_utc, "$lt": end_utc}}
+
+    t0 = time.perf_counter()
+    doc = historique.find_one(query)
+    took = (time.perf_counter() - t0) * 1000
+
+    log_mongo("find_one", query=query, took_ms=took)
+    return doc
+
+
+# def get_latest_draw() -> Optional[dict]:
+    return historique.find_one({}, sort=[("dateDeTirage", -1)])
 
 def get_latest_draw() -> Optional[dict]:
-    return historique.find_one({}, sort=[("dateDeTirage", -1)])
+    query = {}
+    sort = [("dateDeTirage", -1)]
+
+    t0 = time.perf_counter()
+    doc = historique.find_one(query, sort=sort)
+    took = (time.perf_counter() - t0) * 1000
+
+    log_mongo("find_one", query=query, sort=sort, took_ms=took)
+    return doc
+
 
 def format_draw(draw: dict) -> str:
     nums = [draw.get("boule1"), draw.get("boule2"), draw.get("boule3"), draw.get("boule4"), draw.get("boule5")]
@@ -319,19 +360,55 @@ def read_second_gain(draw: dict, rank: int) -> Optional[float]:
 # -----------------------------
 # Stats + combos (MongoDB)
 # -----------------------------
+# def compute_number_frequencies_cached() -> Tuple[Counter, Counter]:
+#     cached = cache_get("freq:all")
+#     if cached:
+#         return cached
+
+#     cursor = historique.find({}, {
+#         "boule1": 1, "boule2": 1, "boule3": 1, "boule4": 1, "boule5": 1,
+#         "numeroChance": 1
+#     })
+
+#     nums: List[int] = []
+#     chances: List[int] = []
+#     for d in cursor:
+#         for k in ("boule1", "boule2", "boule3", "boule4", "boule5"):
+#             v = d.get(k)
+#             if isinstance(v, int):
+#                 nums.append(v)
+#         c = d.get("numeroChance")
+#         if isinstance(c, int):
+#             chances.append(c)
+
+#     num_freq = Counter(nums)
+#     chance_freq = Counter(chances)
+#     cache_set("freq:all", (num_freq, chance_freq), ttl=6 * 3600)
+#     return num_freq, chance_freq
+
 def compute_number_frequencies_cached() -> Tuple[Counter, Counter]:
     cached = cache_get("freq:all")
     if cached:
         return cached
 
-    cursor = historique.find({}, {
+    query = {}
+    projection = {
         "boule1": 1, "boule2": 1, "boule3": 1, "boule4": 1, "boule5": 1,
         "numeroChance": 1
-    })
+    }
+
+    # Log avant exécution
+    log_mongo("find", query=query, projection=projection)
+
+    t0 = time.perf_counter()
+    cursor = historique.find(query, projection)
 
     nums: List[int] = []
     chances: List[int] = []
+    n_docs = 0
+
     for d in cursor:
+        n_docs += 1
         for k in ("boule1", "boule2", "boule3", "boule4", "boule5"):
             v = d.get(k)
             if isinstance(v, int):
@@ -339,6 +416,9 @@ def compute_number_frequencies_cached() -> Tuple[Counter, Counter]:
         c = d.get("numeroChance")
         if isinstance(c, int):
             chances.append(c)
+
+    took = (time.perf_counter() - t0) * 1000
+    log_mongo("find_done", query=query, projection=projection, took_ms=took, limit=n_docs)
 
     num_freq = Counter(nums)
     chance_freq = Counter(chances)

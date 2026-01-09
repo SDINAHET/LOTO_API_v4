@@ -49,7 +49,8 @@
         top: 0;
         left: 0;
         right: 0;
-        z-index: 9999;
+        /* z-index: 9999; */
+        z-index: 1030;
         height: var(--topbar-h);
         display:flex;
         align-items:center;
@@ -421,6 +422,7 @@
         <a href="mentions_legales.html">Mentions légales</a>
         <a href="conditions_utilisation.html">Conditions</a>
         <a href="politique_confidentialite.html">Confidentialité</a>
+        <a href="#" id="openCookiePrefs">🍪 Cookies</a>
         <span>© 2025 SDINAHET</span>
 
         <span class="api-status" title="État de l'API">
@@ -635,6 +637,9 @@
 
       checkApiAlive();
       setInterval(checkApiAlive, 30000);
+
+      trackPageView(); // 📊 LOG AUTOMATIQUE DE LA PAGE
+      bindAnalyticsNavigationTracking(); // ✅ log sur navigation (si tu utilises des liens)
     });
 
     document.dispatchEvent(new CustomEvent("layout:ready"));
@@ -642,3 +647,46 @@
 
   document.addEventListener("DOMContentLoaded", injectLayout);
 })();
+
+
+/* =========================================================
+   📊 Analytics – page view automatique
+   👉 détecte TOUTES les pages automatiquement
+========================================================= */
+function trackPageView() {
+  const base =
+    window.__API_BASE_ACTIVE__ ||
+    ((location.hostname === "localhost" || location.hostname === "127.0.0.1")
+      ? `http://${location.hostname}:8082`
+      : "https://stephanedinahet.fr");
+
+  const url = `${base}/api/analytics/event`;
+
+  fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({
+      eventType: "page_view",
+      page: window.location.pathname,
+      ts: new Date().toISOString(),
+      extra: {
+        referrer: document.referrer || "-",
+        screen: `${screen.width}x${screen.height}`
+      }
+    })
+  })
+    .then(async (res) => {
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        console.warn("[analytics] POST failed", res.status, txt);
+      } else {
+        console.log("[analytics] page_view sent:", window.location.pathname);
+      }
+    })
+    .catch((err) => {
+      console.warn("[analytics] network error", err);
+    });
+}
+
+

@@ -104,6 +104,8 @@ public class SecurityConfig {
 
                         // ✅ CORS preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/api/analytics/**").permitAll()
+
 
                         // --- AUTH PUBLIC ---
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()

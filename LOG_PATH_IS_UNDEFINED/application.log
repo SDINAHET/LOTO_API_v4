@@ -1,0 +1,9 @@
+2026-01-09 15:42:55 INFO  [SpringApplicationShutdownHook] org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-01-09 15:42:55 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-01-09 15:42:55 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-01-09 15:59:53 INFO  [scheduling-1] com.fdjloto.api.service.PredictionTirageService - ⏰ Exécution planifiée de la génération de prédiction...
+2026-01-09 15:59:53 INFO  [scheduling-1] com.fdjloto.api.service.PredictionTirageService - ✅ Nouvelle prédiction enregistrée avec succès !
+2026-01-09 15:59:53 INFO  [scheduling-1] com.fdjloto.api.service.PredictionTirageService - ✅ Prédiction enregistrée avec succès : com.fdjloto.api.model.PredictionTirageModel@572c72dd
+2026-01-09 16:16:53 INFO  [SpringApplicationShutdownHook] org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-01-09 16:16:53 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-01-09 16:16:53 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

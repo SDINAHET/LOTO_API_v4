@@ -10,6 +10,8 @@
   <!-- (Optionnel) Font Awesome pour le header comme index -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
+  <link rel="stylesheet" href="styles.css">
+
   <style>
     :root{
       --bg0:#0b1220;
@@ -43,7 +45,9 @@
         radial-gradient(900px 500px at 90% 25%, rgba(239,68,68,.14), transparent 55%),
         linear-gradient(180deg, var(--bg0), var(--bg1));
       overflow:hidden;
+      /*overflow:auto; */
     }
+
 
     /* ====== TOPBAR + FOOTER (styles proches index) ====== */
     .topbar{
@@ -441,6 +445,9 @@
 
   <!-- Injection header/footer -->
   <script src="layout.js"></script>
+
+  <script src="cookies.js"></script>
+
 
   <script>
     const API_BASE =

@@ -704,6 +704,47 @@ public class AdminLoginController {
     <meta charset="UTF-8">
     <title>Login admin - Swagger</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  /* Base inputs (au cas où le navigateur force un style) */
+  input {
+    background-color: #020617 !important;
+    color: #e5e7eb !important;
+  }
+
+  /* Focus */
+  input:focus {
+    background-color: #020617 !important;
+    color: #e5e7eb !important;
+    outline: none;
+  }
+
+  /* ✅ Chrome/Safari: autofill (cause du fond blanc) */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus {
+    -webkit-text-fill-color: #e5e7eb !important;
+    caret-color: #e5e7eb !important;
+
+    /* Peint le fond en sombre malgré l'autofill */
+    -webkit-box-shadow: 0 0 0px 1000px #020617 inset !important;
+            box-shadow: 0 0 0px 1000px #020617 inset !important;
+
+    border: 1px solid #4b5563 !important;
+    transition: background-color 9999s ease-out 0s;
+  }
+
+  /* Optionnel (selon versions Chrome) */
+  input:-internal-autofill-selected {
+    background-color: #020617 !important;
+    color: #e5e7eb !important;
+  }
+</style>
 </head>
 <body style="background:#020617;color:#e5e7eb;font-family:system-ui, sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0">
 <div style="background:#0f172a;border-radius:16px;padding:24px 28px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(15,23,42,0.9)">

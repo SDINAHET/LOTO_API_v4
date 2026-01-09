@@ -23,7 +23,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- ✅ Layout (header/footer) -->
-  <script defer src="layout.js"></script>
+  <script src="layout.js"></script>
 
   <style>
     :root{
@@ -518,6 +518,239 @@
         grid-template-columns: 1fr;
       }
     }
+
+  /* ==========================
+   POPUP COOKIES
+   ========================== */
+  .cookie-popup{
+    position: fixed;
+    inset: 0;
+    background: rgba(3, 8, 18, .72);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 16px;
+  }
+
+  .cookie-content{
+    width: min(640px, 94vw);
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,.14);
+    background: linear-gradient(180deg, rgba(15,23,42,.92), rgba(10,16,28,.86));
+    box-shadow: 0 24px 80px rgba(0,0,0,.55);
+    padding: 22px;
+    color: var(--text);
+    animation: cookieIn .22s ease;
+  }
+
+  .cookie-head{
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .cookie-icon{
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    background: rgba(59,130,246,.12);
+    border: 1px solid rgba(59,130,246,.22);
+    font-size: 22px;
+    box-shadow: 0 10px 28px rgba(59,130,246,.14);
+    flex: 0 0 auto;
+  }
+
+  .cookie-content h2{
+    margin: 0 0 6px;
+    font-size: 1.25rem;
+    font-weight: 1000;
+    letter-spacing: .2px;
+  }
+
+  .cookie-content p{
+    margin: 0;
+    color: var(--muted);
+    font-weight: 750;
+    line-height: 1.55;
+  }
+
+  .cookie-cards{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .cookie-card{
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.04);
+    padding: 12px 12px 11px;
+  }
+
+  .cookie-card-title{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .cookie-card-text{
+    margin-top: 8px;
+    color: rgba(255,255,255,.78);
+    font-weight: 750;
+  }
+
+  .dot{
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    box-shadow: 0 0 10px currentColor;
+  }
+  .dot-blue{ color: var(--primary2); background: var(--primary2); }
+  .dot-cyan{ color: #22d3ee; background: #22d3ee; }
+
+  .pill-pill{
+    font-size: .78rem;
+    font-weight: 950;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(59,130,246,.12);
+    color: rgba(255,255,255,.9);
+  }
+
+  .pill-muted{
+    background: rgba(255,255,255,.06);
+    color: rgba(255,255,255,.8);
+  }
+
+  .cookie-footer{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+
+  .cookie-link{
+    color: rgba(255,255,255,.78);
+    font-weight: 850;
+    text-decoration: none;
+    border-bottom: 1px dashed rgba(255,255,255,.22);
+  }
+  .cookie-link:hover{ color: rgba(255,255,255,.92); }
+
+  .cookie-actions{
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .cookie-actions button{
+    padding: 12px 14px;
+    border-radius: 14px;
+    font-weight: 950;
+    cursor: pointer;
+    transition: transform .12s ease, filter .15s ease, background .15s ease;
+  }
+
+  /* secondaire */
+  #reject-cookies{
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.06);
+    color: rgba(255,255,255,.9);
+  }
+  #reject-cookies:hover{
+    background: rgba(255,255,255,.09);
+    transform: translateY(-1px);
+  }
+
+  /* primaire */
+  #accept-cookies{
+    border: 0;
+    background: linear-gradient(135deg, var(--primary), var(--primary2));
+    color: #fff;
+    box-shadow: 0 12px 35px rgba(59,130,246,.22);
+  }
+  #accept-cookies:hover{
+    filter: brightness(1.07);
+    transform: translateY(-1px);
+  }
+
+  @keyframes cookieIn{
+    from{ opacity: 0; transform: translateY(12px) scale(.98); }
+    to{ opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @media (max-width: 640px){
+    .cookie-cards{ grid-template-columns: 1fr; }
+    .cookie-content{ padding: 18px; border-radius: 20px; }
+  }
+
+  body.popup-open{ overflow: hidden; }
+
+  .cookie-popup[hidden]{
+    display: none !important;
+  }
+
+  .cookie-popup {
+    pointer-events: auto;
+  }
+
+  .cookie-popup[hidden] {
+    display: none !important;
+    pointer-events: none;
+  }
+
+  /* ✅ Point GPS pulsé (Leaflet DivIcon) */
+  .gps-wrap{
+    position: relative;
+    width: 18px;
+    height: 18px;
+  }
+
+  .gps-dot{
+    position:absolute;
+    inset: 0;
+    width: 12px;
+    height: 12px;
+    margin: auto;
+    border-radius: 999px;
+    background: #ef4444;                 /* rouge */
+    border: 2px solid rgba(255,255,255,.95);
+    box-shadow: 0 0 14px rgba(239,68,68,.55);
+    z-index: 2;
+  }
+
+  .gps-pulse{
+    position:absolute;
+    inset: 0;
+    width: 18px;
+    height: 18px;
+    margin: auto;
+    border-radius: 999px;
+    background: rgba(239,68,68,.25);
+    animation: gpsPulse 1.4s ease-out infinite;
+    z-index: 1;
+  }
+
+  @keyframes gpsPulse{
+    0%   { transform: scale(0.6); opacity: 0.75; }
+    70%  { transform: scale(2.2); opacity: 0.0; }
+    100% { transform: scale(2.2); opacity: 0.0; }
+  }
+
+
+
+
+
   </style>
 </head>
 
@@ -614,7 +847,8 @@
       </div>
       <div id="map"></div>
       <div class="small">
-        Source : OpenStreetMap (Leaflet) + Overpass (gratuit).
+        <!-- Source : OpenStreetMap (Leaflet) + Overpass (gratuit). -->
+        Source : OpenStreetMap
       </div>
     </aside>
   </div>
@@ -684,6 +918,64 @@
       </div>
     </div>
   </div>
+
+
+  <!-- Cookie Consent Popup -->
+  <div id="cookie-popup" class="cookie-popup" hidden>
+    <div class="cookie-content">
+
+      <div class="cookie-head">
+        <div class="cookie-icon" aria-hidden="true">🍪</div>
+        <div>
+          <h2 id="cookie-title">Cookies & confidentialité</h2>
+          <p id="cookie-desc">
+            On utilise des cookies pour faire fonctionner le site et, si vous l’acceptez,
+            mesurer l’audience pour améliorer Loto Tracker.
+          </p>
+        </div>
+      </div>
+
+      <div class="cookie-cards">
+        <div class="cookie-card">
+          <div class="cookie-card-title">
+            <span class="dot dot-blue"></span>
+            <strong>Essentiels</strong>
+            <span class="pill-pill">Toujours actifs</span>
+          </div>
+          <div class="cookie-card-text">
+            Connexion, sécurité, navigation.
+          </div>
+        </div>
+
+        <div class="cookie-card">
+          <div class="cookie-card-title">
+            <span class="dot dot-cyan"></span>
+            <strong>Mesure d’audience</strong>
+            <span class="pill-pill pill-muted">Optionnel</span>
+          </div>
+          <div class="cookie-card-text">
+            Activé uniquement avec votre accord.
+          </div>
+        </div>
+      </div>
+
+      <div class="cookie-footer">
+        <a class="cookie-link" href="politique_confidentialite.html#cookies-traceurs">
+          En savoir plus
+        </a>
+
+        <div class="cookie-actions">
+          <button id="reject-cookies" type="button">Continuer sans accepter</button>
+          <button id="accept-cookies" type="button">Accepter</button>
+        </div>
+      </div>
+
+
+
+    </div>
+  </div>
+
+
 
   <!-- Bootstrap + Leaflet -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -893,12 +1185,30 @@
     /* =========================
       Helpers
     ========================== */
+    // function getDayName(dateString){
+    //  const [day, month, year] = dateString.split("/").map(Number);
+    //  const d = new Date(year, month-1, day);
+    //  const jours = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
+    //  return jours[d.getDay()];
+    //}
+
+    //function getDayName(dateString) {
+    //  const m = moment.tz(dateString, "MM/DD/YYYY", "Europe/Paris");
+    //  if (!m.isValid()) return "";
+
+    //  const jours = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
+    //  return jours[m.day()];
+    //}
+
     function getDayName(dateString){
-      const [day, month, year] = dateString.split("/").map(Number);
-      const d = new Date(year, month-1, day);
+      const m = moment(dateString, "DD/MM/YYYY", true);
+      if (!m.isValid()) return "";
       const jours = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
-      return jours[d.getDay()];
+      return jours[m.day()];
     }
+
+
+
 
     function formatDateForAPI(dateString){
       if(!dateString.includes("/")) return dateString;
@@ -908,13 +1218,31 @@
 
     function safeStr(v){ return (v === null || v === undefined) ? "" : String(v); }
 
+    //function formatDateForDisplay(v){
+    //  if(!v) return "-";
+      // si ISO (Mongo) -> convert en DD/MM/YYYY
+    //  const m = moment(v);
+    //  if(m.isValid()) return m.tz("Europe/Paris").format("DD/MM/YYYY");
+    //  return safeStr(v);
+    //}
+
     function formatDateForDisplay(v){
       if(!v) return "-";
-      // si ISO (Mongo) -> convert en DD/MM/YYYY
-      const m = moment(v);
-      if(m.isValid()) return m.tz("Europe/Paris").format("DD/MM/YYYY");
+
+      // ✅ si c'est "DD/MM/YYYY" (avec slash), on parse explicitement en strict
+      if (typeof v === "string" && v.includes("/")) {
+        const m = moment(v, "DD/MM/YYYY", true);
+        if (m.isValid()) return m.format("DD/MM/YYYY");
+        return v;
+      }
+
+      // ✅ ISO / Mongo / timestamp
+      const mIso = moment(v);
+      if (mIso.isValid()) return mIso.tz("Europe/Paris").format("DD/MM/YYYY");
+
       return safeStr(v);
     }
+
 
     function formatMoney(value){
       const n = Number(value);
@@ -1135,9 +1463,13 @@
           return;
         }
 
-        const jour = pickField(data, ["jourDeTirage", "jour"]);
-        const dateIsoOrStr = pickField(data, ["dateDeTirage"]) || date;
-        const dateAff = formatDateForDisplay(dateIsoOrStr);
+        //const jour = pickField(data, ["jourDeTirage", "jour"]);
+        //const dateIsoOrStr = pickField(data, ["dateDeTirage"]) || date;
+        //const dateAff = formatDateForDisplay(dateIsoOrStr);
+
+        const jour = getDayName(date); // ✅ recalculé depuis la date cliquée
+        const dateAff = date;          // ✅ affiche EXACTEMENT la date de la carte
+
 
         const anneeNumero = pickField(data, ["anneeNumeroDeTirage", "numeroDeTirage", "numTirage"]);
         const forclusion = pickField(data, ["dateDeForclusion", "forclusion"]);
@@ -1160,12 +1492,12 @@
           `Détail du tirage — ${(jour ? (jour + " ") : "")}${dateAff}`;
 
         document.getElementById("modalBody").innerHTML = `
-          <div class="text-center">
+          <!-- <div class="text-center">
             <h4 style="font-weight:1000; margin:0;">
               Résultat Loto du ${(jour ? (jour + " ") : "")}${dateAff}
             </h4>
 
-          </div>
+          </div> -->
 
           <div class="row g-4 mt-3">
             <div class="col-md-6">
@@ -1411,6 +1743,31 @@
     let userLat = 48.1173; // Rennes
     let userLon = -1.6778;
 
+
+    // ✅ Icône rouge pour la position utilisateur
+    const userRedIcon = L.icon({
+      iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+      shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+
+    // ✅ Icône GPS animé (DivIcon) — à placer AVANT initMapDesktop/initMapMobile
+    const gpsDivIcon = L.divIcon({
+      className: "",
+      html: `
+        <div class="gps-wrap">
+          <div class="gps-pulse"></div>
+          <div class="gps-dot"></div>
+        </div>
+      `,
+      iconSize: [18, 18],
+      iconAnchor: [9, 9]
+    });
+
+
     function initMapDesktop(){
       mapDesktop = L.map('map', { zoomControl: true }).setView([userLat, userLon], 11);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -1420,7 +1777,11 @@
 
       poiLayerDesktop.addTo(mapDesktop);
 
-      userMarkerDesktop = L.marker([userLat, userLon]).addTo(mapDesktop)
+      //userMarkerDesktop = L.marker([userLat, userLon]).addTo(mapDesktop)
+      userMarkerDesktop = L.marker([userLat, userLon], { icon: userRedIcon }).addTo(mapDesktop)
+      //userMarkerDesktop = L.marker([userLat, userLon], { icon: gpsDivIcon, interactive: true }).addTo(mapDesktop)
+
+
         .bindPopup("📍 Votre position (approx.)");
 
       fetchPOIs(userLat, userLon, 30000, mapDesktop, poiLayerDesktop, "mapStatus");
@@ -1435,7 +1796,11 @@
 
       poiLayerMobile.addTo(mapMobile);
 
-      userMarkerMobile = L.marker([userLat, userLon]).addTo(mapMobile)
+      //userMarkerMobile = L.marker([userLat, userLon]).addTo(mapMobile)
+      userMarkerMobile = L.marker([userLat, userLon], { icon: userRedIcon }).addTo(mapMobile)
+      //userMarkerMobile = L.marker([userLat, userLon], { icon: gpsDivIcon, interactive: true }).addTo(mapMobile)
+
+
         .bindPopup("📍 Votre position (approx.)");
 
       fetchPOIs(userLat, userLon, 30000, mapMobile, poiLayerMobile, "mapStatusMobile");
@@ -1556,6 +1921,80 @@
       if(!mapMobile) initMapMobile();
       else mapMobile.invalidateSize();
     });
+
+  // =========================
+  // Cookies popup (simple + UX)
+  // =========================
+  const popup = document.getElementById("cookie-popup");
+  const acceptBtn = document.getElementById("accept-cookies");
+  const rejectBtn = document.getElementById("reject-cookies");
+
+  function safeGetConsent() {
+    try { return localStorage.getItem("cookieConsent"); }
+    catch (e) { return null; }
+  }
+
+  function safeSetConsent(value) {
+    try { localStorage.setItem("cookieConsent", value); }
+    catch (e) { /* localStorage indisponible */ }
+  }
+
+  function openCookies() {
+    if (!popup) return;
+    if (!popup.hidden) return; // évite réouverture en boucle
+    popup.hidden = false;
+    document.body.classList.add("popup-open");
+  }
+
+  function closeCookies(choice) {
+    if (!popup) return;
+    safeSetConsent(choice);
+    popup.hidden = true;
+    document.body.classList.remove("popup-open");
+  }
+
+  // Init
+  (function initCookies() {
+    if (!popup) return;
+
+    const consent = safeGetConsent();
+    if (!consent) openCookies();
+    else closeCookies(consent); // ferme proprement + enlève popup-open
+  })();
+
+  // Boutons
+  acceptBtn?.addEventListener("click", () => closeCookies("accepted"));
+  rejectBtn?.addEventListener("click", () => closeCookies("rejected"));
+
+  // ESC ferme
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && popup && !popup.hidden) closeCookies("rejected");
+  });
+
+  // Clic sur le fond sombre = ferme (option UX)
+  popup?.addEventListener("click", (e) => {
+    if (e.target === popup) closeCookies("rejected");
+  });
+
+  // Lien footer "🍪 Cookies" => ouvre (sans boucle)
+  document.addEventListener("click", (e) => {
+    const link = e.target.closest("#openCookiePrefs");
+    if (!link) return;
+    e.preventDefault();
+    openCookies();
+  });
+
+
+
+
+
+
+
+
+
+
+
+
   </script>
 
   <!-- IA (si tu l'utilises) -->

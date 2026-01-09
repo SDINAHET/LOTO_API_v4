@@ -1,0 +1,9 @@
+2026-01-09 15:42:42 DEBUG [http-nio-8082-exec-2] org.springframework.security.web.FilterChainProxy - Securing GET /api/protected/userinfo
+2026-01-09 15:42:42 DEBUG [http-nio-8082-exec-10] org.springframework.security.web.FilterChainProxy - Securing GET /api/protected/userinfo
+2026-01-09 15:42:42 DEBUG [http-nio-8082-exec-8] org.springframework.security.web.FilterChainProxy - Securing GET /admin/logs?lines=800
+2026-01-09 15:42:42 DEBUG [http-nio-8082-exec-2] org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2026-01-09 15:42:42 DEBUG [http-nio-8082-exec-10] org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2026-01-09 15:42:42 DEBUG [http-nio-8082-exec-8] org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2026-01-09 15:42:42 DEBUG [http-nio-8082-exec-6] org.springframework.security.web.FilterChainProxy - Securing GET /api/protected/userinfo
+2026-01-09 15:42:42 DEBUG [http-nio-8082-exec-8] org.springframework.security.web.FilterChainProxy - Secured GET /admin/logs?lines=800
+2026-01-09 15:42:42 DEBUG [http-nio-8082-exec-6] org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext

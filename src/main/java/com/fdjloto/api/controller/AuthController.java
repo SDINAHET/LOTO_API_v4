@@ -1,3 +1,243 @@
+// package com.fdjloto.api.controller;
+
+// import com.fdjloto.api.model.LoginRequest;
+// import com.fdjloto.api.model.User;
+// import com.fdjloto.api.repository.UserRepository;
+// import com.fdjloto.api.security.JwtUtils;
+// import com.fdjloto.api.service.UserService;
+// import io.swagger.v3.oas.annotations.Operation;
+// import io.swagger.v3.oas.annotations.enums.ParameterIn;
+// import io.swagger.v3.oas.annotations.responses.ApiResponse;
+// import io.swagger.v3.oas.annotations.responses.ApiResponses;
+// import io.swagger.v3.oas.annotations.tags.Tag;
+// import jakarta.annotation.security.PermitAll;
+// import jakarta.servlet.http.HttpServletResponse;
+// import org.springframework.http.HttpHeaders;
+// import org.springframework.http.HttpStatus;
+// import org.springframework.http.ResponseEntity;
+// import org.springframework.security.authentication.AuthenticationManager;
+// import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+// import org.springframework.security.core.Authentication;
+// import org.springframework.security.core.context.SecurityContextHolder;
+// import org.springframework.security.core.userdetails.UsernameNotFoundException;
+// import org.springframework.security.crypto.password.PasswordEncoder;
+// import org.springframework.web.bind.annotation.*;
+// import io.swagger.v3.oas.annotations.Parameter;
+
+// import java.util.HashMap;
+// import java.util.List;
+// import java.util.Map;
+// import java.util.Optional;
+// import java.util.UUID;
+
+// @Tag(name = "Authentication", description = "Endpoints for user authentication, login, logout, and account management.")
+// @CrossOrigin(
+//         origins = {"http://127.0.0.1:5500", "http://localhost:5500"},
+//         allowCredentials = "true"
+// )
+// @RestController
+// @RequestMapping("/api/auth")
+// public class AuthController {
+
+//     private final AuthenticationManager authenticationManager;
+//     private final JwtUtils jwtUtils;
+//     private final UserService userService;
+//     private final PasswordEncoder passwordEncoder;
+//     private final UserRepository userRepository;
+
+//     private static final String JWT_COOKIE_NAME = "jwtToken";
+//     private static final String REFRESH_COOKIE_NAME = "refreshToken";
+
+//     // 30 jours
+//     private static final int REFRESH_COOKIE_MAX_AGE = 30 * 24 * 60 * 60;
+
+//     // 🔐 Gestion des tentatives de login admin (Swagger)
+//     private final java.util.concurrent.ConcurrentHashMap<String, Integer> loginAttempts = new java.util.concurrent.ConcurrentHashMap<>();
+//     private static final int MAX_ATTEMPTS = 3;
+
+//     public AuthController(AuthenticationManager authenticationManager,
+//                           JwtUtils jwtUtils,
+//                           UserService userService,
+//                           PasswordEncoder passwordEncoder,
+//                           UserRepository userRepository) {
+//         this.authenticationManager = authenticationManager;
+//         this.jwtUtils = jwtUtils;
+//         this.userService = userService;
+//         this.passwordEncoder = passwordEncoder;
+//         this.userRepository = userRepository;
+//     }
+
+//     @Operation(summary = "User login with JWT", description = "Authenticates a user and returns a JWT token.")
+//     @ApiResponses({
+//             @ApiResponse(responseCode = "200", description = "Successful login, returns JWT token."),
+//             @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid credentials.")
+//     })
+//     @PostMapping("/login4")
+//     public ResponseEntity<String> authenticateUser(@RequestParam String email, @RequestParam String password) {
+//         Authentication authentication = authenticationManager.authenticate(
+//                 new UsernamePasswordAuthenticationToken(email, password)
+//         );
+//         SecurityContextHolder.getContext().setAuthentication(authentication);
+
+//         // Ancienne méthode: tu peux la garder si tu veux
+//         String jwt = jwtUtils.generateAccessToken(authentication);
+//         return ResponseEntity.ok(jwt);
+//     }
+
+//     @Operation(summary = "User login (access token + refresh cookie)",
+//             description = "Returns access token and stores refresh token in HttpOnly cookie.")
+//     @ApiResponses({
+//             @ApiResponse(responseCode = "200", description = "Successful login"),
+//             @ApiResponse(responseCode = "401", description = "Unauthorized")
+//     })
+//     @PostMapping("/login3")
+//     public ResponseEntity<Map<String, String>> login3(
+//             @RequestBody LoginRequest loginRequest,
+//             HttpServletResponse response
+//     ) {
+//         try {
+//             Authentication authentication = authenticationManager.authenticate(
+//                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+//             );
+//             SecurityContextHolder.getContext().setAuthentication(authentication);
+
+//             String accessToken = jwtUtils.generateAccessToken(authentication);
+//             String refreshToken = jwtUtils.generateRefreshToken(authentication);
+
+//             // DEV HTTP: SameSite=Lax + Secure absent
+//             String setCookie = REFRESH_COOKIE_NAME + "=" + refreshToken
+//                     + "; HttpOnly"
+//                     + "; Path=/api/auth"
+//                     + "; Max-Age=" + REFRESH_COOKIE_MAX_AGE
+//                     + "; SameSite=Lax";
+
+//             // PROD HTTPS cross-site:
+//             // setCookie = REFRESH_COOKIE_NAME + "=" + refreshToken
+//             //        + "; HttpOnly; Secure; Path=/api/auth; Max-Age=" + REFRESH_COOKIE_MAX_AGE
+//             //        + "; SameSite=None";
+
+//             response.addHeader(HttpHeaders.SET_COOKIE, setCookie);
+
+//             Map<String, String> body = new HashMap<>();
+//             body.put("accessToken", accessToken);
+//             body.put("message", "Login successful");
+//             return ResponseEntity.ok(body);
+
+//         } catch (Exception e) {
+//             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                     .body(Map.of("message", "Login failed"));
+//         }
+//     }
+
+//     @Operation(summary = "Register a new user", description = "Creates a new user account with encrypted password.")
+//     @ApiResponses({
+//             @ApiResponse(responseCode = "200", description = "User registered successfully."),
+//             @ApiResponse(responseCode = "400", description = "Bad Request - Invalid input data.")
+//     })
+//     @PostMapping("/register")
+//     @PermitAll
+//     public ResponseEntity<User> registerUser(@RequestBody User user) {
+//         user.setId(UUID.randomUUID().toString());
+//         user.setPassword(passwordEncoder.encode(user.getPassword()));
+//         user.setAdmin(false);
+//         return ResponseEntity.ok(userService.createUser(user));
+//     }
+
+//     @Operation(summary = "Get JWT from cookie", description = "Retrieves the JWT token stored in the 'jwtToken' cookie.")
+//     @ApiResponses({
+//             @ApiResponse(responseCode = "200", description = "JWT successfully retrieved"),
+//             @ApiResponse(responseCode = "401", description = "JWT missing")
+//     })
+//     @GetMapping("/token")
+//     public ResponseEntity<Map<String, String>> getJwtFromCookie(
+//             @Parameter(name = "jwtToken", required = false, in = ParameterIn.COOKIE)
+//             @CookieValue(name = JWT_COOKIE_NAME, required = false) String jwtToken
+//     ) {
+//         if (jwtToken == null || jwtToken.isBlank()) {
+//             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "JWT manquant"));
+//         }
+//         return ResponseEntity.ok(Map.of("jwtToken", jwtToken));
+//     }
+
+//     @Operation(summary = "Get authenticated user info", description = "Retrieves user details based on access token.")
+//     @ApiResponses({
+//             @ApiResponse(responseCode = "200", description = "User authenticated successfully."),
+//             @ApiResponse(responseCode = "401", description = "Unauthorized"),
+//             @ApiResponse(responseCode = "404", description = "User not found.")
+//     })
+//     @GetMapping("/me")
+//     public ResponseEntity<Map<String, String>> getUserInfo(
+//             @RequestHeader(name = "Authorization", required = false) String authorization
+//     ) {
+//         if (authorization == null || !authorization.startsWith("Bearer ")) {
+//             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Missing access token"));
+//         }
+
+//         String token = authorization.substring(7);
+
+//         if (!jwtUtils.validateAccessToken(token)) {
+//             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                     .body(Map.of("error", "Invalid or expired access token"));
+//         }
+
+//         String email = jwtUtils.getUserFromJwtToken(token);
+
+//         Optional<User> user = userRepository.findByEmail(email);
+//         if (user.isEmpty()) {
+//             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
+//         }
+
+//         User u = user.get();
+//         Map<String, String> res = new HashMap<>();
+//         res.put("id", u.getId()); // si String
+//         res.put("email", email);
+//         res.put("first_name", u.getFirstName());
+//         res.put("last_name", u.getLastName());
+//         res.put("message", "User authenticated");
+//         return ResponseEntity.ok(res);
+//     }
+
+//     @Operation(summary = "User logout", description = "Clears refresh cookie and logs out the user.")
+//     @PostMapping("/logout")
+//     public ResponseEntity<Map<String, String>> logout(HttpServletResponse response) {
+//         SecurityContextHolder.clearContext();
+
+//         String clearCookie = REFRESH_COOKIE_NAME + "=; HttpOnly; Path=/api/auth; Max-Age=0; SameSite=Lax";
+//         // PROD HTTPS cross-site:
+//         // clearCookie = REFRESH_COOKIE_NAME + "=; HttpOnly; Secure; Path=/api/auth; Max-Age=0; SameSite=None";
+//         response.addHeader(HttpHeaders.SET_COOKIE, clearCookie);
+
+//         return ResponseEntity.ok(Map.of("message", "Logout successful"));
+//     }
+
+//     @Operation(summary = "Refresh access token", description = "Uses refresh token cookie to issue a new access token.")
+//     @PostMapping("/refresh")
+//     public ResponseEntity<Map<String, String>> refresh(
+//             @CookieValue(name = REFRESH_COOKIE_NAME, required = false) String refreshToken
+//     ) {
+//         if (refreshToken == null || refreshToken.isBlank()) {
+//             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Missing refresh token"));
+//         }
+
+//         if (!jwtUtils.validateRefreshToken(refreshToken)) {
+//             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Invalid refresh token"));
+//         }
+
+//         String email = jwtUtils.getUserFromJwtToken(refreshToken);
+
+//         User user = userRepository.findByEmail(email)
+//                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+//         List<String> roles = user.isAdmin()
+//                 ? List.of("ROLE_ADMIN")
+//                 : List.of("ROLE_USER");
+
+//         String newAccessToken = jwtUtils.generateAccessTokenFromEmail(email, roles);
+
+//         return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+//     }
+// }
+
 package com.fdjloto.api.controller;
 
 import com.fdjloto.api.model.LoginRequest;
