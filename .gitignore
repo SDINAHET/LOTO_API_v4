@@ -52,4 +52,4 @@ build/
 /ai-service/__pycache__
 /document
 /docker
-
+/data
