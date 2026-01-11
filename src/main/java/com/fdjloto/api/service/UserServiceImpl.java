@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
 
@@ -20,9 +23,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -106,6 +111,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
+        if (user.getEmail() != null && user.getEmail().endsWith("@deleted.local")) {
+            throw new UsernameNotFoundException("Account deleted");
+        }
+        if ("DELETED".equals(user.getPassword())) {
+            throw new UsernameNotFoundException("Account deleted");
+        }
+
         // String role = user.getRole(); // Maintenant ROLE_ADMIN ou ROLE_USER
         // Utilisation du getter pour obtenir le rôle
         String role = user.getRole(); // ROLE_ADMIN ou ROLE_USER
@@ -119,6 +131,29 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .roles(role.replace("ROLE_", "")) // ⚠️ Supprime le préfixe ROLE_ pour Spring Security
                 .build();
     }
+
+
+    @Override
+    public void deleteOwnAccount(String email, String currentPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        if (currentPassword == null || currentPassword.isBlank()
+                || !passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new RuntimeException("Wrong password");
+        }
+
+        // ✅ RGPD : anonymiser les données perso (sans casser les FK)
+        user.setFirstName("Deleted");
+        user.setLastName("User");
+        user.setEmail("deleted_" + user.getId() + "@deleted.local");
+
+        // Rendre le password inutilisable
+        user.setPassword("DELETED");
+
+        userRepository.save(user);
+    }
+
 
 
 }

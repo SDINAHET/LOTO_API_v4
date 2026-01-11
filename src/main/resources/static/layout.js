@@ -224,14 +224,20 @@
 
       .footer{
         position: fixed;
-        left: 0; right: 0; bottom: 0;
-        height: var(--footer-h);
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        height: auto;                 /* ✅ ne bloque plus la hauteur */
+        min-height: var(--footer-h);  /* ✅ hauteur minimale */
+        padding: 10px 16px calc(14px + env(safe-area-inset-bottom));
+
         display:flex;
         align-items:center;
         justify-content:center;
-        gap: 14px;
+        gap: 12px;
         flex-wrap: wrap;
-        padding: 10px 16px 14px;
+
         background: rgba(10,16,28,.55);
         backdrop-filter: blur(10px);
         border-top: 1px solid var(--stroke);
@@ -240,8 +246,25 @@
         font-size: .9rem;
         z-index: 40;
       }
-      .footer a{ color: var(--muted); text-decoration:none; }
-      .footer a:hover{ color: var(--text); }
+
+      .footer a{
+        color: var(--muted);
+        text-decoration: none;
+      }
+      .footer a:hover{
+        color: var(--text);
+      }
+
+      @media (max-width: 480px){
+        .footer{
+          font-size: .82rem;
+          gap: 8px;
+        }
+        .footer a{
+          padding: 4px 6px;
+        }
+      }
+
 
       .api-status{
         display:flex;
@@ -300,6 +323,55 @@
           align-self: start;
         }
       }
+
+      /* ✅ Empêche le header de déborder */
+      .brand > div { min-width: 0; }
+      .brand-title, .brand-sub {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      /* ✅ MOBILE : on masque titre + heure */
+      @media (max-width: 480px){
+        #brandTitle { display: none !important; }
+        #currentTime { display: none !important; }
+      }
+
+      /* ✅ MOBILE : on masque TOUT le bloc texte (titre + heure) */
+      @media (max-width: 480px){
+        .brand > div { display: none !important; }  /* <-- le plus important */
+      }
+
+      /* ===== HEADER USER : MOBILE RESPONSIVE ===== */
+@media (max-width: 480px) {
+
+    /* Le span "Bienvenue, nom" passe en colonne */
+    .user-chip > span {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      line-height: 1.1;
+    }
+
+    /* "Bienvenue," */
+    .user-chip > span {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    /* Nom + prénom */
+    .user-chip > span b {
+      font-size: 1rem;
+      font-weight: 900;
+      color: var(--text);
+    }
+  }
+
+
+
+
 
 
 
@@ -371,7 +443,7 @@
         <a class="brand" href="index.html" aria-label="Retour à l'accueil">
           <img src="loto_tracker.png" alt="Loto Tracker" class="brand-logo">
           <div>
-            <div class="brand-title">Tracker du Loto Français</div>
+            <div class="brand-title" id="brandTitle">Tracker du Loto Français</div>
             <div class="brand-sub" id="currentTime">Heure de Paris : --:--:--</div>
           </div>
         </a>
@@ -429,6 +501,7 @@
           <span id="apiDot" class="api-dot api-offline"></span>
           API
         </span>
+        <span><span id="visitCount">—</span> visites</span>
       </footer>
     `;
   }
@@ -572,6 +645,30 @@
     }
   }
 
+  async function loadVisitCount() {
+    const base =
+      window.__API_BASE_ACTIVE__ ||
+      ((location.hostname === "localhost" || location.hostname === "127.0.0.1")
+        ? `http://${location.hostname}:8082`
+        : "https://stephanedinahet.fr");
+
+    try {
+      const res = await fetch(`${base}/api/visits`, {
+        method: "GET",
+        credentials: "include"
+      });
+
+      if (!res.ok) throw new Error("visit fetch failed");
+
+      const data = await res.json();
+      const el = document.getElementById("visitCount");
+      if (el) el.textContent = data.total.toLocaleString("fr-FR");
+    } catch (e) {
+      console.warn("Visites indisponibles");
+    }
+  }
+
+
   /* =========================================================
      Logout (toujours retour index.html)
   ========================================================= */
@@ -614,6 +711,39 @@
   }
 
   /* =========================================================
+    Visits counter (footer)
+  ========================================================= */
+  async function loadVisitCount() {
+    const base =
+      window.__API_BASE_ACTIVE__ ||
+      ((location.hostname === "localhost" || location.hostname === "127.0.0.1")
+        ? `http://${location.hostname}:8082`
+        : "https://stephanedinahet.fr");
+
+    const el = document.getElementById("visitCount");
+    if (!el) return;
+
+    try {
+      const key = "visitCountedThisSession";
+      const already = sessionStorage.getItem(key) === "1";
+
+      const url = already ? `${base}/api/visits/total` : `${base}/api/visits`;
+
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error("Visits API error");
+
+      const data = await res.json();
+      el.textContent = Number(data.total ?? 0).toLocaleString("fr-FR");
+
+      if (!already) sessionStorage.setItem(key, "1");
+    } catch (e) {
+      console.warn("Visites indisponibles", e);
+      el.textContent = "—";
+    }
+  }
+
+
+  /* =========================================================
      Init layout
   ========================================================= */
   function injectLayout() {
@@ -628,8 +758,12 @@
     if (headerMount) headerMount.innerHTML = renderHeader();
     if (footerMount) footerMount.innerHTML = renderFooter();
 
-    updateParisTime();
-    setInterval(updateParisTime, 1000);
+    // ✅ inutile sur mobile car caché (et économise des ressources)
+    if (!window.matchMedia("(max-width: 480px)").matches) {
+      updateParisTime();
+      setInterval(updateParisTime, 1000);
+    }
+
 
     // ✅ D'abord auth (détermine parfois la base active), ensuite logout + ping API
     checkUserAuthUI().finally(() => {
@@ -638,8 +772,11 @@
       checkApiAlive();
       setInterval(checkApiAlive, 30000);
 
+      loadVisitCount();
+
       trackPageView(); // 📊 LOG AUTOMATIQUE DE LA PAGE
       bindAnalyticsNavigationTracking(); // ✅ log sur navigation (si tu utilises des liens)
+
     });
 
     document.dispatchEvent(new CustomEvent("layout:ready"));
@@ -690,3 +827,14 @@ function trackPageView() {
 }
 
 
+function syncFooterHeight(){
+  const footer = document.querySelector(".footer");
+  if (!footer) return;
+  document.documentElement.style.setProperty(
+    "--footer-h",
+    footer.offsetHeight + "px"
+  );
+}
+
+syncFooterHeight();
+window.addEventListener("resize", syncFooterHeight);

@@ -14,5 +14,9 @@ public interface UserService {
     User updateUser(UUID id, User user); // ✅ Garde UUID
     void deleteUser(UUID id); // ✅ Garde UUID
     Optional<User> findByEmail(String email);
+
+    // ✅ RGPD: suppression de son propre compte
+    void deleteOwnAccount(String email, String currentPassword);
 }
+
 

@@ -18,6 +18,13 @@ import java.util.Optional;
 import java.util.UUID;
 import jakarta.validation.Valid;
 
+import com.fdjloto.api.payload.DeleteAccountRequest;
+import com.fdjloto.api.security.JwtUtils;
+import jakarta.servlet.http.Cookie;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+
 /**
  * **Controller for managing user-related operations.**
  */
@@ -36,11 +43,16 @@ public class UserController {
 
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtils jwtUtils;
 
-    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
+
+    public UserController(UserService userService, PasswordEncoder passwordEncoder, JwtUtils jwtUtils) {
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
+        this.jwtUtils = jwtUtils;
     }
+
+
 
     /**
      *  Retrieves all users (Admin only)
@@ -102,7 +114,12 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<User> registerUser(@RequestBody User user) {
         user.setId(UUID.randomUUID().toString()); // Generate a unique UUID
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // Encrypt password
+        if (user.getPassword() != null && !user.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        } else {
+            user.setPassword(null); // évite d’écraser en service
+        }
+
         user.setAdmin(false); // Default role is USER
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(user));
@@ -157,5 +174,37 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
+@Operation(summary = "Delete my account (RGPD) - User")
+@ApiResponses(value = {
+    @ApiResponse(responseCode = "204", description = "Account deleted/anonymized successfully"),
+    @ApiResponse(responseCode = "401", description = "Unauthorized"),
+    @ApiResponse(responseCode = "400", description = "Wrong password")
+})
+@DeleteMapping("/me")
+@PreAuthorize("hasAnyRole('USER','ADMIN')")
+public ResponseEntity<Void> deleteMyAccount(
+        @CookieValue(name = "jwtToken", required = false) String token,
+        @RequestBody DeleteAccountRequest req
+) {
+    if (token == null || !jwtUtils.validateJwtToken(token)) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    if (req == null || req.getCurrentPassword() == null || req.getCurrentPassword().isBlank()) {
+        return ResponseEntity.badRequest().build();
+    }
+
+    String email = jwtUtils.getUserFromJwtToken(token);
+
+    try {
+        userService.deleteOwnAccount(email, req.getCurrentPassword());
+        return ResponseEntity.noContent().build();
+    } catch (RuntimeException e) {
+        // mot de passe incorrect / user introuvable
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+}
+
 
 }

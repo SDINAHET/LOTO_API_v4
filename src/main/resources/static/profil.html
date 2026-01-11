@@ -11,6 +11,7 @@
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
   <link rel="stylesheet" href="styles.css">
+
   <style>
     body{
       margin:0;
@@ -168,43 +169,73 @@
       .sidebar.open{ transform: translateX(0); }
     }
 
-    .password-wrap{
-    position: relative;
-    }
-
-    .password-wrap .form-control{
-    padding-right: 50px;
-    }
+    .password-wrap{ position: relative; }
+    .password-wrap .form-control{ padding-right: 50px; }
 
     /* bouton œil */
     .pw-toggle{
-    position: absolute;
-    top: 50%;
-    right: 10px;
-    transform: translateY(-50%);
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
-    border: none;
-    background: transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: #22c55e; /* 🟢 vert comme sur ton image */
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      border: none;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #22c55e;
     }
-
-    /* icônes */
     .pw-toggle svg{
-    width: 20px;
-    height: 20px;
-    stroke: currentColor;
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
-
-    /* toggle */
     .pw-eye-off{ display: none; }
     .pw-toggle.is-on .pw-eye{ display: none; }
     .pw-toggle.is-on .pw-eye-off{ display: block; }
+
+    /* Modal bootstrap (fond harmonisé) */
+    .modal-backdrop.show{ opacity: .65; }
+
+    /* ✅ Fix empilement (évite overlay/chat au-dessus) */
+    .modal { z-index: 2000 !important; }
+    .modal-backdrop { z-index: 1990 !important; }
+
+    /*.danger-note {
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .danger-note.fade-out {
+      opacity: 0;
+      transform: translateY(-5px);
+      pointer-events: none;
+    }*/
+
+    .info-note{
+      border: 1px solid rgba(59,130,246,.25);
+      background: rgba(59,130,246,.10);
+      border-radius: 12px;
+      padding: 12px;
+      color: rgba(255,255,255,.85);
+
+      transition: opacity .5s ease, transform .5s ease;
+    }
+
+    .info-note.fade-out{
+      opacity: 0;
+      transform: translateY(-5px);
+      pointer-events: none;
+    }
+
+
 
   </style>
 </head>
@@ -236,7 +267,9 @@
         <h1 class="panel-title">Modifier mon profil</h1>
         <p class="muted mb-4">Modifie ton prénom/nom, puis confirme avec ton mot de passe actuel.</p>
 
-        <div class="danger-note mb-3">
+        <!-- <div class="danger-note mb-3"> -->
+        <!-- <div class="info-note mb-3" id="emailNote"> -->
+        <div class="info-note mb-3" id="emailNote">
           <i class="fa-solid fa-circle-info me-2"></i>
           L’email n’est pas modifiable (pour l’instant).
         </div>
@@ -270,39 +303,49 @@
             </div>
 
             <div class="col-12">
-            <label for="currentPassword" class="form-label">Mot de passe actuel</label>
+              <label for="currentPassword" class="form-label">Mot de passe actuel</label>
 
-            <div class="password-wrap">
+              <div class="password-wrap">
                 <input
-                type="password"
-                class="form-control"
-                id="currentPassword"
-                required
-                autocomplete="current-password"
+                  type="password"
+                  class="form-control"
+                  id="currentPassword"
+                  required
+                  autocomplete="current-password"
                 />
 
                 <button
-                type="button"
-                class="pw-toggle"
-                id="togglePassword"
-                aria-label="Afficher le mot de passe"
+                  type="button"
+                  class="pw-toggle"
+                  id="togglePassword"
+                  aria-label="Afficher le mot de passe"
                 >
-                <!-- 👁️ œil ouvert -->
-                <svg class="pw-eye" viewBox="0 0 24 24">
+                  <!-- 👁️ œil ouvert -->
+                  <svg class="pw-eye" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"></path>
                     <circle cx="12" cy="12" r="3"></circle>
-                </svg>
+                  </svg>
 
-                <!-- 🙈 œil barré (comme ton image) -->
-                <svg class="pw-eye-off" viewBox="0 0 24 24">
-                    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20C5.5 20 2 12 2 12a21.8 21.8 0 0 1 5.06-6.94" />
-                    <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c6.5 0 10 8 10 8a21.9 21.9 0 0 1-4.06 5.94" />
-                    <path d="M14.12 14.12A3 3 0 1 1 9.88 9.88" />
-                    <line x1="1" y1="1" x2="23" y2="23" />
-                </svg>
+                  <!-- 🙈 œil barré -->
+                  <svg class="pw-eye-off" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20C5.5 20 2 12 2 12a21.8 21.8 0 0 1 5.06-6.94"></path>
+                    <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c6.5 0 10 8 10 8a21.9 21.9 0 0 1-4.06 5.94"></path>
+                    <path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
                 </button>
+              </div>
             </div>
+
+            <!-- <div class="col-md-6">
+              <label for="newPassword" class="form-label">Nouveau mot de passe</label>
+              <input type="password" class="form-control" id="newPassword" autocomplete="new-password">
             </div>
+
+            <div class="col-md-6">
+              <label for="confirmPassword" class="form-label">Confirmer le nouveau mot de passe</label>
+              <input type="password" class="form-control" id="confirmPassword" autocomplete="new-password">
+            </div> -->
 
 
             <div class="col-12">
@@ -312,6 +355,25 @@
             </div>
           </div>
         </form>
+
+        <!-- ===== Zone sensible : suppression compte RGPD ===== -->
+        <hr style="border-color: rgba(255,255,255,.10); margin: 18px 0;">
+
+        <div class="danger-note">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fa-solid fa-triangle-exclamation mt-1"></i>
+            <div class="flex-grow-1">
+              <h5 class="mb-1" style="font-weight:950;">Zone sensible</h5>
+              <p class="mb-2 muted">
+                Supprimer ton compte anonymise tes données (RGPD) et te déconnecte immédiatement.
+              </p>
+              <button class="btn btn-danger" id="btnDeleteAccount" type="button">
+                <i class="fa-solid fa-user-slash me-2"></i> Supprimer mon compte
+              </button>
+            </div>
+          </div>
+        </div>
+
       </section>
     </main>
   </div>
@@ -324,6 +386,43 @@
 
   <!-- Layout global -->
   <script src="layout.js"></script>
+
+  <!-- Bootstrap bundle requis pour la modal -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- ===== Zone Modal en FIN de body (✅ recommandé) ===== -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background: rgba(15,23,42,.95); border:1px solid rgba(255,255,255,.10); border-radius:18px;">
+        <div class="modal-header" style="border-color: rgba(255,255,255,.10);">
+          <h5 class="modal-title" style="font-weight:950;">Confirmer la suppression</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+
+        <div class="modal-body">
+          <p class="muted mb-2">
+            Cette action est <strong>irréversible</strong>. Ton compte sera anonymisé (RGPD).
+          </p>
+
+          <label for="deletePassword" class="form-label">Mot de passe actuel</label>
+          <input type="password" id="deletePassword" class="form-control" autocomplete="current-password" required>
+
+          <div class="alert alert-danger d-none mt-3" id="delErrBox">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i>
+            <span id="delErrText">Erreur.</span>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="border-color: rgba(255,255,255,.10);">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+            Oui, supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ===== /Modal ===== -->
 
   <!-- ====== JS Profil ====== -->
   <script>
@@ -338,10 +437,16 @@
     const TOKEN_URL = `${API_BASE}/api/auth/token`; // optionnel
     const USERS_URL = `${API_BASE}/api/users`;
 
+    // RGPD delete account
+    const DELETE_ME_URL = `${API_BASE}/api/users/me`;
+    const LOGOUT_URL = `${API_BASE}/api/auth/logout`;
+
     const emailEl = document.getElementById("email");
     const firstEl = document.getElementById("firstName");
     const lastEl  = document.getElementById("lastName");
     const pwdEl   = document.getElementById("currentPassword");
+    const confirmPwdEl = document.getElementById("confirmPassword");
+    const newPwdEl = document.getElementById("newPassword");
     const formEl  = document.getElementById("profileForm");
     const btnEl   = document.getElementById("saveChanges");
 
@@ -384,13 +489,11 @@
         const res = await axios.get(ME_URL, { withCredentials: true });
         userInfo = res.data || {};
 
-        // Mapping selon réponse /me (snake_case)
         emailEl.value = userInfo.email || "";
         firstEl.value = userInfo.first_name || userInfo.firstName || "";
         lastEl.value  = userInfo.last_name  || userInfo.lastName  || "";
 
         if (userInfo.id) formEl.setAttribute("data-user-id", userInfo.id);
-
       }catch(e){
         console.error("Erreur /api/auth/me:", e);
         showErr("Session expirée. Merci de te reconnecter.");
@@ -399,84 +502,195 @@
     }
 
     formEl.addEventListener("submit", async (e) => {
-        e.preventDefault();
+      e.preventDefault();
 
-        okBox.classList.add("d-none");
-        errBox.classList.add("d-none");
+      okBox.classList.add("d-none");
+      errBox.classList.add("d-none");
 
-        const userId = formEl.getAttribute("data-user-id");
-        if (!userId) return showErr("ID utilisateur introuvable.");
+      const userId = formEl.getAttribute("data-user-id");
+      if (!userId) return showErr("ID utilisateur introuvable.");
 
-        const password = pwdEl.value;
-        if (!password) return showErr("Merci de saisir ton mot de passe actuel.");
+      const password = pwdEl.value?.trim();
+      if (!password) return showErr("Merci de saisir ton mot de passe actuel.");
 
-        const payload = {
-            id: userId,
-            email: userInfo.email,
+      const newPassword = (newPwdEl.value || "").trim();
+      const confirmPassword = (confirmPwdEl.value || "").trim();
 
-            // compat ancien backend
-            firstName: firstEl.value.trim(),
-            lastName: lastEl.value.trim(),
-            first_name: firstEl.value.trim(),
-            last_name: lastEl.value.trim(),
+      if (newPassword || confirmPassword) {
+        if (newPassword.length < 8) return showErr("Le nouveau mot de passe doit faire au moins 8 caractères.");
+        if (newPassword !== confirmPassword) return showErr("Les mots de passe ne correspondent pas.");
+      }
 
-            password: password,
-            currentPassword: password
-        };
+      const payload = {
+        id: userId,
+        email: userInfo.email,
 
-        try {
-            setLoading(true);
+        // compat ancien backend / mapping
+        firstName: firstEl.value.trim(),
+        lastName:  lastEl.value.trim(),
+        first_name: firstEl.value.trim(),
+        last_name:  lastEl.value.trim(),
 
-            const jwt = await getJwtToken();
-            const headers = { "Content-Type": "application/json" };
-            if (jwt) headers["Authorization"] = `Bearer ${jwt}`;
+        // on envoie le mdp en clair -> le controller l'encode
+        password: password,
+        currentPassword: password,
 
-            await axios.put(`${USERS_URL}/${userId}`, payload, {
-            withCredentials: true,
-            headers
-            });
+        // MVP: seulement si l’utilisateur veut changer
+        newPassword: newPassword || null
+      };
 
-            // ✅ MESSAGE DE SUCCÈS
-            showOk("Profil mis à jour avec succès. Redirection…");
+      try {
+        setLoading(true);
 
-            pwdEl.value = "";
+        const jwt = await getJwtToken();
+        const headers = { "Content-Type": "application/json" };
+        if (jwt) headers["Authorization"] = `Bearer ${jwt}`;
 
-            // ✅ REDIRECTION APRÈS 1 SECONDE
-            setTimeout(() => {
-            window.location.href = "index.html";
-            }, 1000);
-
-        } catch (err) {
-            console.error("Erreur PUT:", err?.response?.data || err.message);
-
-            if (err?.response?.status === 401) {
-            showErr("Mot de passe incorrect ou session expirée.");
-            } else {
-            showErr(err?.response?.data?.message || "Erreur lors de l’enregistrement.");
-            }
-        } finally {
-            setLoading(false);
-        }
+        await axios.put(`${USERS_URL}/${userId}`, payload, {
+          withCredentials: true,
+          headers
         });
+
+        showOk("Profil mis à jour avec succès. Redirection…");
+        pwdEl.value = "";
+
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 1000);
+
+      } catch (err) {
+        console.error("Erreur PUT:", err?.response?.data || err.message);
+
+        if (err?.response?.status === 401) {
+          showErr("Mot de passe incorrect ou session expirée.");
+        } else {
+          showErr(err?.response?.data?.message || "Erreur lors de l’enregistrement.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    });
 
     document.addEventListener("DOMContentLoaded", loadUserProfile);
 
+    // toggle password
     (function(){
-        const input = document.getElementById("currentPassword");
-        const btn = document.getElementById("togglePassword");
-        if (!input || !btn) return;
+      const input = document.getElementById("currentPassword");
+      const btn = document.getElementById("togglePassword");
+      if (!input || !btn) return;
 
-        btn.addEventListener("click", () => {
-            const show = input.type === "password";
-            input.type = show ? "text" : "password";
-            btn.classList.toggle("is-on", show);
-        });
+      btn.addEventListener("click", () => {
+        const show = input.type === "password";
+        input.type = show ? "text" : "password";
+        btn.classList.toggle("is-on", show);
+      });
     })();
+
+    // ✅ Fix overlay + modal (évite impression "figé" si overlay reste actif)
+    (function fixOverlayWithModal(){
+      const overlay = document.getElementById("overlay");
+      const modalEl = document.getElementById("deleteModal");
+      if (!overlay || !modalEl) return;
+
+      modalEl.addEventListener("show.bs.modal", () => {
+        overlay.classList.remove("show");
+      });
+    })();
+
+    // --- Suppression de compte (RGPD) ---
+    (function setupDeleteAccount(){
+      const btnOpen = document.getElementById("btnDeleteAccount");
+      const modalEl = document.getElementById("deleteModal");
+      const pwd = document.getElementById("deletePassword");
+      const btnConfirm = document.getElementById("confirmDeleteBtn");
+
+      const delErrBox = document.getElementById("delErrBox");
+      const delErrText = document.getElementById("delErrText");
+
+      if (!btnOpen || !modalEl || !pwd || !btnConfirm) return;
+
+      const modal = new bootstrap.Modal(modalEl);
+
+      function showDelErr(msg){
+        delErrText.textContent = msg || "Erreur lors de la suppression.";
+        delErrBox.classList.remove("d-none");
+      }
+      function clearDelErr(){
+        delErrBox.classList.add("d-none");
+        delErrText.textContent = "";
+      }
+
+      btnOpen.addEventListener("click", () => {
+        clearDelErr();
+        pwd.value = "";
+        modal.show();
+        setTimeout(() => pwd.focus(), 250);
+      });
+
+      btnConfirm.addEventListener("click", async () => {
+        clearDelErr();
+
+        const currentPassword = pwd.value?.trim();
+        if (!currentPassword) return showDelErr("Merci de saisir ton mot de passe.");
+
+        btnConfirm.disabled = true;
+        btnConfirm.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Suppression...`;
+
+        try {
+          await axios.delete(DELETE_ME_URL, {
+            withCredentials: true,
+            headers: { "Content-Type": "application/json" },
+            data: { currentPassword }
+          });
+
+          // Tentative de logout (optionnel)
+          try { await axios.post(LOGOUT_URL, {}, { withCredentials: true }); } catch(e){}
+
+          // Nettoyage front
+          try { localStorage.removeItem("token"); } catch(e){}
+          try { sessionStorage.clear(); } catch(e){}
+
+          modal.hide();
+          showOk("Compte supprimé. Déconnexion…");
+
+          setTimeout(() => {
+            window.location.href = "login.html";
+          }, 900);
+
+        } catch (err) {
+          console.error("Erreur DELETE /me:", err?.response?.data || err.message);
+
+          if (err?.response?.status === 401) {
+            showDelErr("Session expirée. Merci de te reconnecter.");
+          } else if (err?.response?.status === 400) {
+            showDelErr("Mot de passe incorrect.");
+          } else {
+            showDelErr("Impossible de supprimer le compte. Réessaie.");
+          }
+        } finally {
+          btnConfirm.disabled = false;
+          btnConfirm.innerHTML = `Oui, supprimer`;
+        }
+      });
+    })();
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const note = document.getElementById("emailNote");
+      if (!note) return;
+
+      setTimeout(() => {
+        note.classList.add("fade-out");
+
+        // optionnel : retirer complètement du DOM après l’animation
+        setTimeout(() => {
+          note.remove();
+        }, 600);
+      }, 3000); // ⏱️ 3 secondes
+    });
 
   </script>
 
   <script src="cookies.js"></script>
-  <!-- IA (si tu l'utilises) -->
   <script src="ai-loader.js"></script>
 </body>
 </html>

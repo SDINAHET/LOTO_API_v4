@@ -14,6 +14,9 @@
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
+  <link rel="stylesheet" href="styles.css">
+
+
   <!-- Axios + Moment -->
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/moment/min/moment.min.js"></script>
@@ -776,6 +779,7 @@
           <div>
             <h1>Résultats du Loto</h1>
             <div class="muted" id="nextDrawInfo">Prochain tirage : —</div>
+            <!-- <div class="muted">Visites : <b id="visitCount">—</b></div> -->
           </div>
         </div>
 
@@ -1296,10 +1300,10 @@
 
         rows.push(`
           <tr>
-            <td>${rang}</td>
-            <td>${renderComboDots(rang)}</td>
-            <td>${(gagnants === null) ? "-" : Number(gagnants).toLocaleString("fr-FR")}</td>
-            <td>${formatMoney(gain)}</td>
+            <td data-label="Rang">${rang}</td>
+            <td data-label="Combinaisons">${renderComboDots(rang)}</td>
+            <td data-label="Gagnants">${(gagnants === null) ? "-" : Number(gagnants).toLocaleString("fr-FR")}</td>
+            <td data-label="Gain">${formatMoney(gain)}</td>
           </tr>
         `);
       }
@@ -1346,10 +1350,10 @@
 
         rows.push(`
           <tr>
-            <td>${rang}</td>
-            <td>${dots}</td>
-            <td>${(gagnants === null) ? "-" : Number(gagnants).toLocaleString("fr-FR")}</td>
-            <td>${formatMoney(gain)}</td>
+            <td data-label="Rang">${rang}</td>
+            <td data-label="Combinaisons">${dots}</td>
+            <td data-label="Gagnants">${(gagnants === null) ? "-" : Number(gagnants).toLocaleString("fr-FR")}</td>
+            <td data-label="Gain">${formatMoney(gain)}</td>
           </tr>
         `);
       }
@@ -1609,7 +1613,7 @@
     ========================== */
     let searchAllResults = [];
     let currentPage = 1;
-    const pageSize = 9;
+    const pageSize = 10;
 
     function clampToOneMonth(startISO, endISO){
       if(!startISO) return {startISO, endISO, wasClamped:false};
@@ -1983,6 +1987,45 @@
     e.preventDefault();
     openCookies();
   });
+
+
+  /* =========================
+      Visits counter
+    ========================= */
+    /*async function updateVisitCount() {
+      const el = document.getElementById("visitCount");
+      if (!el) return;
+
+      try {
+        // ✅ Option A: incrémente UNE fois par session (évite refresh = +1)
+        const key = "visitCountedThisSession";
+        const already = sessionStorage.getItem(key) === "1";
+
+        const url = already
+          ? `${API_BASE}/api/visits/total`   // juste lire
+          : `${API_BASE}/api/visits`;        // incrémenter
+
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error("Visits API error");
+
+        const data = await res.json();
+        const total = data.total ?? data.value ?? data.visits ?? null;
+
+        if (total !== null) {
+          el.textContent = Number(total).toLocaleString("fr-FR");
+          if (!already) sessionStorage.setItem(key, "1");
+        } else {
+          el.textContent = "—";
+        }
+      } catch (e) {
+        console.warn("Visites indisponibles", e);
+        el.textContent = "—";
+      }
+    }
+
+    // Lance au chargement
+    updateVisitCount();*/
+
 
 
 

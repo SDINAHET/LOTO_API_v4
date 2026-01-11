@@ -663,11 +663,24 @@
 
       tableBody.innerHTML += `
         <tr>
-          <td><b>${fmtLong(t.drawDate)}</b></td>
-          <td><span class="badge-soft ${st.cls}">${st.label}</span></td>
-          <td class="text-end"><b>${gain.toFixed(2)} €</b></td>
+          <td data-label="Date">
+            <div class="ticket-head">
+              <b class="ticket-date">${fmtLong(t.drawDate)}</b>
+              <span class="badge-soft ${st.cls} ticket-status">${st.label}</span>
+            </div>
+          </td>
+
+          <td data-label="Statut" class="cell-hide-mobile">
+            <span class="badge-soft ${st.cls}">${st.label}</span>
+          </td>
+
+          <td data-label="Gains" class="text-end">
+            <b>${gain.toFixed(2)} €</b>
+          </td>
         </tr>
       `;
+
+
     }
 
     const maxPage = Math.ceil(filteredTickets.length / size);

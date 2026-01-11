@@ -58,7 +58,7 @@ public class PredictionTirageService {
         logger.info("⏰ Exécution planifiée de la génération de prédiction...");
         PredictionTirageModel prediction = generatePrediction();
         if (prediction != null) {
-            logger.info("✅ Prédiction enregistrée avec succès : " + prediction);
+            logger.info("✅ Statistiques enregistrée avec succès : " + prediction);
         } else {
             logger.warn("❌ Aucune prédiction générée (probablement aucun tirage trouvé).");
         }
@@ -121,7 +121,7 @@ public class PredictionTirageService {
         prediction.setSortieRates(sortieRates);
 
         predictionRepository.save(prediction);
-        logger.info("✅ Nouvelle prédiction enregistrée avec succès !");
+        logger.info("✅ Nouvelle statistique enregistrée avec succès !");
         return prediction;
     }
 }

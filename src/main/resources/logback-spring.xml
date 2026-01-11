@@ -34,8 +34,8 @@
     <file>${LOG_PATH}/application.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <fileNamePattern>${LOG_PATH}/application.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
-      <maxHistory>30</maxHistory>
-      <totalSizeCap>300MB</totalSizeCap>
+      <maxHistory>90</maxHistory>
+      <totalSizeCap>1000MB</totalSizeCap>
     </rollingPolicy>
     <encoder>
       <pattern>${LOG_PATTERN}</pattern>
@@ -50,8 +50,8 @@
     <file>${LOG_PATH}/access.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <fileNamePattern>${LOG_PATH}/access.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
-      <maxHistory>30</maxHistory>
-      <totalSizeCap>200MB</totalSizeCap>
+      <maxHistory>90</maxHistory>
+      <totalSizeCap>1000MB</totalSizeCap>
     </rollingPolicy>
     <encoder>
       <pattern>${LOG_PATTERN}</pattern>
@@ -66,8 +66,8 @@
     <file>${LOG_PATH}/security.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <fileNamePattern>${LOG_PATH}/security.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
-      <maxHistory>30</maxHistory>
-      <totalSizeCap>150MB</totalSizeCap>
+      <maxHistory>90</maxHistory>
+      <totalSizeCap>1000MB</totalSizeCap>
     </rollingPolicy>
     <encoder>
       <pattern>${LOG_PATTERN}</pattern>
@@ -82,8 +82,8 @@
     <file>${LOG_PATH}/analytics.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <fileNamePattern>${LOG_PATH}/analytics.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
-      <maxHistory>30</maxHistory>
-      <totalSizeCap>200MB</totalSizeCap>
+      <maxHistory>90</maxHistory>
+      <totalSizeCap>1000MB</totalSizeCap>
     </rollingPolicy>
     <encoder>
       <pattern>${LOG_PATTERN}</pattern>
@@ -98,8 +98,8 @@
     <file>${LOG_PATH}/error.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <fileNamePattern>${LOG_PATH}/error.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
-      <maxHistory>30</maxHistory>
-      <totalSizeCap>100MB</totalSizeCap>
+      <maxHistory>90</maxHistory>
+      <totalSizeCap>1000MB</totalSizeCap>
     </rollingPolicy>
 
     <filter class="ch.qos.logback.classic.filter.LevelFilter">
@@ -121,9 +121,9 @@
     <appender-ref ref="ACCESS_FILE"/>
   </logger>
 
-  <logger name="SECURITY_LOG" level="WARN" additivity="false">
+  <!-- <logger name="SECURITY_LOG" level="WARN" additivity="false">
     <appender-ref ref="SECURITY_FILE"/>
-  </logger>
+  </logger> -->
 
   <logger name="ANALYTICS_LOG" level="INFO" additivity="false">
     <appender-ref ref="ANALYTICS_FILE"/>
@@ -155,6 +155,35 @@
   <logger name="org.springframework.security.web" level="INFO" additivity="false">
   <appender-ref ref="SECURITY_FILE"/>
   </logger>
+
+
+<!-- ===================================================== -->
+<!-- ✅ SESSION LOGS (login/logout/duration)                -->
+<!-- ===================================================== -->
+
+<property name="SESSION_PATTERN"
+          value="ts=%d{yyyy-MM-dd'T'HH:mm:ssXXX} level=%-5level event=%msg userId=%X{userId} sessionId=%X{sessionId} ip=%X{ipMasked}%n"/>
+
+<appender name="SESSION_FILE"
+          class="ch.qos.logback.core.rolling.RollingFileAppender">
+  <file>${LOG_PATH}/sessions.log</file>
+
+  <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+    <fileNamePattern>${LOG_PATH}/sessions.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+    <maxHistory>30</maxHistory>
+    <totalSizeCap>300MB</totalSizeCap>
+  </rollingPolicy>
+
+  <encoder>
+    <pattern>${SESSION_PATTERN}</pattern>
+  </encoder>
+</appender>
+
+<logger name="SESSION_LOG" level="INFO" additivity="false">
+  <appender-ref ref="SESSION_FILE"/>
+</logger>
+
+
 
 
 </configuration>

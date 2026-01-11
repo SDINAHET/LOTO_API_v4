@@ -34,6 +34,13 @@
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
 
+    /*html{
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(59,130,246,.22), transparent 60%),
+        radial-gradient(900px 500px at 90% 25%, rgba(239,68,68,.14), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+    }*/
+
     body{
       margin:0;
       min-height:100vh;
@@ -41,12 +48,21 @@
       color: var(--text);
 
       /* ✅ EXACT fond login */
+      background: transparent;
       background:
-        radial-gradient(1200px 600px at 20% 10%, rgba(59,130,246,.22), transparent 60%),
+        /*radial-gradient(1200px 600px at 20% 10%, rgba(59,130,246,.22), transparent 60%),
         radial-gradient(900px 500px at 90% 25%, rgba(239,68,68,.14), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));*/
+        radial-gradient(1600px 1000px at 20% 30%, rgba(59,130,246,.22), transparent 75%),
+        radial-gradient(1600px 1000px at 85% 40%, rgba(239,68,68,.14), transparent 75%),
         linear-gradient(180deg, var(--bg0), var(--bg1));
+        background-attachment: fixed;
 
-      overflow:hidden;
+
+      /*overflow:hidden;*/
+      overflow-x: hidden;
+      /*overflow-y: auto;*/
+      min-height: 100dvh;
     }
 
     .page{
