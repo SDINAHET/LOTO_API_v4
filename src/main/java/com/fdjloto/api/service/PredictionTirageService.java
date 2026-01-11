@@ -42,7 +42,7 @@ public class PredictionTirageService {
 
     @EventListener(ApplicationReadyEvent.class)
     public void scheduleInitialPrediction() {
-        logger.info("🕒 Génération de la première prédiction planifiée dans 1 minute...");
+        logger.info("🕒 Génération de la première statistiques planifiée dans 1 minute...");
 
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.schedule(this::generatePredictionScheduled, 40, TimeUnit.SECONDS);
@@ -55,12 +55,12 @@ public class PredictionTirageService {
 
 
     public void generatePredictionScheduled() {
-        logger.info("⏰ Exécution planifiée de la génération de prédiction...");
+        logger.info("⏰ Exécution planifiée de la génération des statistiques...");
         PredictionTirageModel prediction = generatePrediction();
         if (prediction != null) {
             logger.info("✅ Statistiques enregistrée avec succès : " + prediction);
         } else {
-            logger.warn("❌ Aucune prédiction générée (probablement aucun tirage trouvé).");
+            logger.warn("❌ Aucune statistiques générée (probablement aucun tirage trouvé).");
         }
     }
 

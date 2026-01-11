@@ -24,6 +24,8 @@ public class AdminDashboardController {
 <head>
     <meta charset="UTF-8">
     <title>Dashboard admin - Loto Tracker</title>
+    <link rel="icon" href="http://localhost:5500/favicon-admin.ico">
+    <link rel="icon" href="https://stephanedinahet.fr/favicon-admin.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         /* Style de base du menu */

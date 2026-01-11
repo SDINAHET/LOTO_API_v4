@@ -102,6 +102,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/visits/**").permitAll()
+                        // .requestMatchers(
+                        //     "/favicon.ico",
+                        //     "/favicon-admin.ico",
+                        //     "/admin-32.png",
+                        //     "/admin-180.png",
+                        //     "/admin.png"
+                        // ).permitAll()
+
 
                         // ✅ CORS preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()

@@ -704,6 +704,9 @@ public class AdminLoginController {
     <meta charset="UTF-8">
     <title>Login admin - Swagger</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="http://localhost:5500/favicon-admin.ico">
+    <link rel="icon" href="https://stephanedinahet.fr/favicon-admin.ico">
+
 <style>
   /* Base inputs (au cas où le navigateur force un style) */
   input {
