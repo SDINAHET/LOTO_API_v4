@@ -58,7 +58,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = getTokenFromHeader(request).orElseGet(() -> getTokenFromCookie(request).orElse(null));
 
         // 🔐 If a valid token is found, extract user details and set authentication
-        if (token != null && jwtUtils.validateJwtToken(token)) {
+        // if (token != null && jwtUtils.validateJwtToken(token)) {
+        if (token != null && jwtUtils.validateAccessToken(token)) {
+
             String username = jwtUtils.getUserFromJwtToken(token);
 
             // 🔥 Extract roles from the JWT token

@@ -379,6 +379,47 @@
     document.head.appendChild(style);
   }
 
+
+  /* =========================================================
+Refresh token helper (fetchWithRefresh)
+   ✅ gère automatiquement le refresh token si 401 reçu
+   ✅ utilise la bonne API active (PRIMARY ou FALLBACK)
+  ========================================================= */
+  const API = window.__API_BASE_ACTIVE__ || API_BASE_PRIMARY;
+
+  async function refreshAccessToken() {
+    const res = await fetch(`${API}/api/auth/refresh`, {
+      method: "POST",
+      credentials: "include",
+      cache: "no-store"
+    });
+    return res.ok;
+  }
+
+  async function fetchWithRefresh(url, options = {}) {
+    const res1 = await fetch(url, {
+      ...options,
+      credentials: "include",
+      cache: "no-store"
+    });
+
+    if (res1.status !== 401) return res1;
+
+    // 401 → on tente refresh
+    const ok = await refreshAccessToken();
+    if (!ok) return res1; // refresh impossible → on reste en 401
+
+    // refresh OK → retry 1 fois
+    return await fetch(url, {
+      ...options,
+      credentials: "include",
+      cache: "no-store"
+    });
+  }
+
+
+
+
   /* =========================================================
      Burger (menu) - delegation globale
      ✅ Fonctionne même si sidebar injectée après
@@ -509,16 +550,22 @@
   /* =========================================================
      Helpers fetch (userinfo) => AUTH UNIQUEMENT
   ========================================================= */
-  async function fetchUserInfo(baseUrl) {
-    const res = await fetch(`${baseUrl}${USERINFO_PATH}`, {
-      method: "GET",
-      credentials: "include",
-      cache: "no-store"
-    });
+  // async function fetchUserInfo(baseUrl) {
+  //   const res = await fetch(`${baseUrl}${USERINFO_PATH}`, {
+  //     method: "GET",
+  //     credentials: "include",
+  //     cache: "no-store"
+  //   });
 
+  //   if (!res.ok) throw new Error(`userinfo ${res.status}`);
+  //   return await res.json();
+  // }
+  async function fetchUserInfo(baseUrl) {
+    const res = await fetchWithRefresh(`${baseUrl}${USERINFO_PATH}`, { method: "GET" });
     if (!res.ok) throw new Error(`userinfo ${res.status}`);
     return await res.json();
   }
+
 
   function setAuthUI({ logged, label }) {
     const authBtn = document.getElementById("authActionBtn");     // Se connecter

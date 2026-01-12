@@ -27,6 +27,8 @@
       --shadow:0 16px 45px rgba(0,0,0,.35);
       --topbar-h:72px;
       --footer-h:56px;
+      --sidebar-w: 280px;
+
     }
 
     body{
@@ -140,6 +142,122 @@
       text-decoration:none;
     }
     a.link:hover{ text-decoration:underline; }
+
+
+    /* ===== Layout like index.html ===== */
+    .no-scroll { overflow: hidden; }
+
+    .shell{
+      display:grid;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      gap: 16px;
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 16px;
+      align-items: start;
+    }
+
+    .main{
+      min-width: 0;
+      display:flex;
+      flex-direction:column;
+      gap: 16px;
+    }
+
+    .panel{
+      border-radius: var(--radius);
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.05);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar{
+      position: sticky;
+      top: calc(var(--topbar-h) + 16px);
+      max-height: calc(100vh - var(--topbar-h) - 32px);
+      border-radius: var(--radius);
+      border: 1px solid var(--stroke);
+      background: rgba(10,16,28,.65);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+      padding: 12px;
+      overflow: auto;
+      align-self: start;
+    }
+
+    .nav-title{
+      font-size:.85rem;
+      color: var(--muted);
+      font-weight:800;
+      margin: 10px 10px 6px;
+      letter-spacing:.4px;
+      text-transform: uppercase;
+    }
+
+    .nav-item{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:12px 12px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      text-decoration:none;
+      background: transparent;
+      color: var(--text);
+      font-weight:750;
+    }
+    .nav-item i{ width:18px; text-align:center; opacity:.9; }
+
+    .nav-item:hover{
+      background: rgba(255,255,255,.06);
+      border-color: var(--stroke);
+    }
+
+    .nav-item.active{
+      background: rgba(59,130,246,.18);
+      border-color: rgba(59,130,246,.35);
+    }
+
+    .nav-sep{
+      height:1px;
+      background: var(--stroke);
+      margin: 10px 8px;
+    }
+
+    /* ===== Overlay ===== */
+    .overlay{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.55);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .22s ease;
+      z-index:60;
+    }
+    .overlay.show{ opacity:1; pointer-events:auto; }
+
+    /* ===== Mobile burger offcanvas ===== */
+    @media (max-width: 991px){
+      .shell{ grid-template-columns: 1fr; padding: 14px; }
+      .sidebar{
+        position:fixed;
+        top: var(--topbar-h);
+        left: 0;
+        height: calc(100vh - var(--topbar-h));
+        width: min(320px, 92vw);
+        transform: translateX(-110%);
+        transition: transform .22s ease;
+        z-index:70;
+        border-radius: 0 18px 18px 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .sidebar.open{ transform: translateX(0); }
+    }
+
+
+
   </style>
 </head>
 
@@ -147,6 +265,10 @@
 
   <!-- Header injecté -->
   <div id="appHeader"></div>
+  <div id="overlay" class="overlay"></div>
+  <div class="shell">
+    <div id="appSidebar"></div>
+
 
   <main>
     <section class="panel">
@@ -154,7 +276,7 @@
       <h1><i class="fa-solid fa-scale-balanced"></i> Conditions Générales d’Utilisation</h1>
       <p class="muted">
         Application web <b>Loto Tracker – Tracker du Loto Français</b><br>
-        Version conforme RNCP6 (niveau Licence/Bachelor) – Mise à jour 2025
+        Version conforme RNCP6 (niveau Licence/Bachelor) – Mise à jour 2026
       </p>
 
       <div class="actions">
@@ -272,6 +394,7 @@
 
     </section>
   </main>
+  <div id="appSidebar"></div>
 
   <!-- Footer injecté -->
   <div id="appFooter"></div>
@@ -281,5 +404,81 @@
   <script src="cookies.js"></script>
   <!-- IA (si tu l'utilises) -->
   <script src="ai-loader.js"></script>
+<script>
+  (function () {
+    const API_BASE =
+      (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+        ? "http://localhost:8082"
+        : "https://stephanedinahet.fr";
+
+    function renderSidebar() {
+      const path = (window.location.pathname || "").toLowerCase();
+      const active = (name) => path.endsWith(name) ? " active" : "";
+
+      return `
+        <aside class="sidebar" id="sidebar">
+          <div class="nav-title">Dashboard</div>
+
+          <a class="nav-item${active("index.html") || (path.endsWith("/") ? " active" : "")}" href="index.html">
+            <i class="fa-solid fa-chart-line"></i><span>Résultats</span>
+          </a>
+
+          <a class="nav-item auth-only${active("tickets.html")}" href="tickets.html" style="display:none;">
+            <i class="fa-solid fa-ticket"></i><span>Tickets</span>
+          </a>
+          <a class="nav-item auth-only${active("statistiques.html")}" href="statistiques.html" style="display:none;">
+            <i class="fa-solid fa-signal"></i><span>Statistiques</span>
+          </a>
+          <a class="nav-item auth-only${active("profil.html")}" href="profil.html" style="display:none;">
+            <i class="fa-solid fa-user-gear"></i><span>Compte</span>
+          </a>
+
+          <div class="nav-sep"></div>
+
+          <div class="nav-title">Pages</div>
+          <a class="nav-item${active("mentions_legales.html")}" href="mentions_legales.html">
+            <i class="fa-solid fa-file-signature"></i><span>Mentions légales</span>
+          </a>
+          <a class="nav-item${active("conditions_utilisation.html")}" href="conditions_utilisation.html">
+            <i class="fa-solid fa-scale-balanced"></i><span>Conditions</span>
+          </a>
+          <a class="nav-item${active("politique_confidentialite.html")}" href="politique_confidentialite.html">
+            <i class="fa-solid fa-user-shield"></i><span>Confidentialité</span>
+          </a>
+        </aside>
+      `;
+    }
+
+    async function fetchUserInfo() {
+      const res = await fetch(`${API_BASE}/api/protected/userinfo`, {
+        method: "GET",
+        credentials: "include",
+        cache: "no-store"
+      });
+      if (!res.ok) throw new Error("Not authenticated");
+      return await res.json();
+    }
+
+    async function applyAuthOnly() {
+      let logged = false;
+      try { await fetchUserInfo(); logged = true; } catch { logged = false; }
+      document.querySelectorAll(".auth-only").forEach((el) => {
+        el.style.display = logged ? "" : "none";
+      });
+    }
+
+    document.addEventListener("layout:ready", () => {
+      const mount = document.getElementById("appSidebar");
+      if (mount) mount.innerHTML = renderSidebar();
+
+      // le burger est déjà bind dans layout.js (bindBurgerGlobal) :contentReference[oaicite:3]{index=3}
+      // donc pas besoin de re-binder ici
+
+      setTimeout(applyAuthOnly, 80);
+      setTimeout(applyAuthOnly, 800);
+    });
+  })();
+</script>
+
 </body>
 </html>
