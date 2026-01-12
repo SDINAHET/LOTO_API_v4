@@ -495,7 +495,7 @@
         <a href="conditions_utilisation.html">Conditions</a>
         <a href="politique_confidentialite.html">Confidentialité</a>
         <a href="#" id="openCookiePrefs">🍪 Cookies</a>
-        <span>© 2025 SDINAHET</span>
+        <span>© 2026 SDINAHET</span>
 
         <span class="api-status" title="État de l'API">
           <span id="apiDot" class="api-dot api-offline"></span>
