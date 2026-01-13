@@ -145,35 +145,71 @@ public class UserController {
         @ApiResponse(responseCode = "403", description = "Forbidden - Admin/User access required"),
         @ApiResponse(responseCode = "404", description = "User not found")
     })
+    // @PutMapping("/{id}")
+    // @PreAuthorize("hasAnyRole('ADMIN', 'USER')") // Allows both Admins and Users
+    // public ResponseEntity<User> updateUser(@PathVariable UUID id, @Valid @RequestBody User user) {
+    //     user.setPassword(passwordEncoder.encode(user.getPassword())); // Encrypt password
+    //     return ResponseEntity.ok(userService.updateUser(id, user));
+    // }
+
+    // /**
+    //  *  Deletes a user (Admin only).
+    //  * - Admins can delete any user account.
+    //  * - Regular users **cannot** delete accounts.
+    //  *
+    //  * @param id The unique identifier of the user to be deleted.
+    //  * @return **204 NO CONTENT** - If the user is successfully deleted.
+    //  * @return **403 FORBIDDEN** - If a non-admin tries to delete a user.
+    //  * @return **404 NOT FOUND** - If the user does not exist.
+    //  */
+    // @Operation(summary = "Delete a user (Admin only)")
+    // @ApiResponses(value = {
+    //     @ApiResponse(responseCode = "204", description = "User deleted successfully"),
+    //     @ApiResponse(responseCode = "403", description = "Forbidden - Admin access required"),
+    //     @ApiResponse(responseCode = "404", description = "User not found")
+    // })
+    // @DeleteMapping("/{id}")
+    // @PreAuthorize("hasRole('ADMIN')") // Only Admins can delete users
+    // public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
+    //     userService.deleteUser(id);
+    //     return ResponseEntity.noContent().build();
+    // }
+
+
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')") // Allows both Admins and Users
-    public ResponseEntity<User> updateUser(@PathVariable UUID id, @Valid @RequestBody User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // Encrypt password
-        return ResponseEntity.ok(userService.updateUser(id, user));
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> updateUser(@PathVariable UUID id, @Valid @RequestBody User user) {
+
+        // 1) Charger l'utilisateur existant
+        User existing = userService.getUserById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 2) Sécurité: un USER ne peut modifier que son propre profil (ADMIN ok)
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin && (auth == null || !existing.getEmail().equals(auth.getName()))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Forbidden");
+        }
+
+        // 3) Vérifier le mot de passe actuel
+        // (dans ton front tu envoies "password", donc on l'utilise comme "currentPassword")
+        if (user.getPassword() == null || user.getPassword().isBlank()
+                || !passwordEncoder.matches(user.getPassword(), existing.getPassword())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong password");
+        }
+
+        // 4) Appliquer UNIQUEMENT prénom/nom (et conserver email + password existants)
+        User patch = new User();
+        patch.setFirstName(user.getFirstName());
+        patch.setLastName(user.getLastName());
+        patch.setEmail(existing.getEmail());        // email non modifiable
+        patch.setPassword(existing.getPassword());  // NE PAS changer le mot de passe
+
+        return ResponseEntity.ok(userService.updateUser(id, patch));
     }
 
-    /**
-     *  Deletes a user (Admin only).
-     * - Admins can delete any user account.
-     * - Regular users **cannot** delete accounts.
-     *
-     * @param id The unique identifier of the user to be deleted.
-     * @return **204 NO CONTENT** - If the user is successfully deleted.
-     * @return **403 FORBIDDEN** - If a non-admin tries to delete a user.
-     * @return **404 NOT FOUND** - If the user does not exist.
-     */
-    @Operation(summary = "Delete a user (Admin only)")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "User deleted successfully"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - Admin access required"),
-        @ApiResponse(responseCode = "404", description = "User not found")
-    })
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')") // Only Admins can delete users
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
-    }
 
 @Operation(summary = "Delete my account (RGPD) - User")
 @ApiResponses(value = {

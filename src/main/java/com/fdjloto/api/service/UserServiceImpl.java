@@ -70,35 +70,55 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     //     return null; // ou générer une exception pour un utilisateur introuvable
     // }
+    // @Override
+    // public User updateUser(UUID id, User user) {
+    //     Optional<User> existingUserOpt = userRepository.findById(id.toString());
+
+    //     if (existingUserOpt.isEmpty()) {
+    //         // À toi de voir : RuntimeException, custom exception, etc.
+    //         throw new RuntimeException("User not found with id: " + id);
+    //     }
+
+    //     User existingUser = existingUserOpt.get();
+
+    //     // ✅ On met à jour UNIQUEMENT les infos de profil
+    //     existingUser.setFirstName(user.getFirstName());
+    //     existingUser.setLastName(user.getLastName());
+    //     existingUser.setEmail(user.getEmail());
+
+    //     // Le mot de passe est déjà encodé dans le controller
+    //     if (user.getPassword() != null && !user.getPassword().isBlank()) {
+    //         existingUser.setPassword(user.getPassword());
+    //     }
+
+    //     // ❌ NE PAS TOUCHER À :
+    //     // - existingUser.setAdmin(...)
+    //     // - existingUser.setTickets(...)
+    //     // - existingUser.setId(...)
+    //     // L’admin reste donc tel qu’il est en base.
+
+    //     return userRepository.save(existingUser);  // @PreUpdate va gérer updatedAt
+    // }
     @Override
     public User updateUser(UUID id, User user) {
-        Optional<User> existingUserOpt = userRepository.findById(id.toString());
+        User existingUser = userRepository.findById(id.toString())
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
-        if (existingUserOpt.isEmpty()) {
-            // À toi de voir : RuntimeException, custom exception, etc.
-            throw new RuntimeException("User not found with id: " + id);
+        // ✅ Met à jour uniquement prénom/nom si fournis
+        if (user.getFirstName() != null) {
+            existingUser.setFirstName(user.getFirstName().trim());
+        }
+        if (user.getLastName() != null) {
+            existingUser.setLastName(user.getLastName().trim());
         }
 
-        User existingUser = existingUserOpt.get();
+        // ✅ On conserve le reste (email, password, role, tickets, etc.)
+        // (surtout: ne jamais sauver "user" directement)
 
-        // ✅ On met à jour UNIQUEMENT les infos de profil
-        existingUser.setFirstName(user.getFirstName());
-        existingUser.setLastName(user.getLastName());
-        existingUser.setEmail(user.getEmail());
-
-        // Le mot de passe est déjà encodé dans le controller
-        if (user.getPassword() != null && !user.getPassword().isBlank()) {
-            existingUser.setPassword(user.getPassword());
-        }
-
-        // ❌ NE PAS TOUCHER À :
-        // - existingUser.setAdmin(...)
-        // - existingUser.setTickets(...)
-        // - existingUser.setId(...)
-        // L’admin reste donc tel qu’il est en base.
-
-        return userRepository.save(existingUser);  // @PreUpdate va gérer updatedAt
+        return userRepository.save(existingUser);
     }
+
+
 
 
     @Override

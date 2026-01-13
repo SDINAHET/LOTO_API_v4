@@ -297,6 +297,10 @@
             <p class="muted mb-0">Modifie la date, les numéros ou la chance, puis sauvegarde les changements.</p>
           </div>
 
+          <!-- Retour avec confirmation si dirty -->
+          <!-- <button type="button" class="btn btn-soft px-3" id="backBtn">
+            <i class="fa-solid fa-arrow-left me-2"></i>Retour
+          </button> -->
           <a class="btn btn-soft px-3" href="tickets.html">
             <i class="fa-solid fa-arrow-left me-2"></i>Retour
           </a>
@@ -407,6 +411,7 @@
       const submitBtn = document.getElementById("submitBtn");
       const form = document.getElementById("ticketForm");
 
+      const backBtn = document.getElementById("backBtn");
       const dirtyWrap = document.getElementById("dirtyWrap");
       const diffBox = document.getElementById("diffBox");
       const beforeText = document.getElementById("beforeText");
@@ -420,30 +425,6 @@
       let original = { drawDate: "", numbers: "", chanceNumber: null };
       let isDirty = false;
       let pendingPayload = null;
-
-      // ===== Date helpers (ISO input / FR display)
-      function toISODate(value){
-        if (!value) return "";
-        const s = String(value).trim();
-
-        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-        if (/^\d{4}-\d{2}-\d{2}T/.test(s)) return s.slice(0, 10);
-
-        const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-        if (m) return `${m[3]}-${m[2]}-${m[1]}`;
-
-        const d = new Date(s);
-        if (!Number.isNaN(d.getTime())) return d.toISOString().slice(0, 10);
-
-        return "";
-      }
-
-      function isoToFR(iso){
-        const s = toISODate(iso);
-        if (!s) return "—";
-        const [y, m, d] = s.split("-");
-        return `${d}/${m}/${y}`;
-      }
 
       // ===== UI helpers
       function showOk(msg){
@@ -474,9 +455,8 @@
         return [...selectedNumbers].sort((a,b)=>a-b).join("-");
       }
 
-      // IMPORTANT: affichage FR dans diff + modal
       function formatTicketText(obj){
-        const dt = isoToFR(obj.drawDate);
+        const dt = obj.drawDate || "—";
         const nums = obj.numbers || "—";
         const ch = (obj.chanceNumber != null ? obj.chanceNumber : "—");
         return `${dt} | ${nums} | Chance ${ch}`;
@@ -497,8 +477,8 @@
         afterText.textContent = formatTicketText(cur);
 
         const changed =
-          (cur.drawDate || "") !== (original.drawDate || "") ||
-          (cur.numbers || "") !== (original.numbers || "") ||
+          cur.drawDate !== (original.drawDate || "") ||
+          cur.numbers !== (original.numbers || "") ||
           cur.chanceNumber !== original.chanceNumber;
 
         isDirty = changed;
@@ -590,8 +570,7 @@
           const res = await axios.get(`${API_TICKETS}/${ticketId}`, { withCredentials: true });
           const ticket = res.data || {};
 
-          // IMPORTANT: input date = ISO
-          ticketDate.value = toISODate(ticket.drawDate);
+          ticketDate.value = ticket.drawDate ? String(ticket.drawDate).slice(0,10) : "";
 
           selectedNumbers = new Set(
             (ticket.numbers ? String(ticket.numbers).split("-") : [])
@@ -606,13 +585,14 @@
           buildChanceButtons();
           updateHint();
 
-          // capture état original (référence) en ISO
+          // capture état original (référence)
           original = {
             drawDate: ticketDate.value || "",
             numbers: ticket.numbers ? String(ticket.numbers) : "",
             chanceNumber: selectedChance
           };
 
+          // UI diff + bouton
           updateDiffUI();
         }catch(e){
           console.error(e);
@@ -684,10 +664,27 @@
         updateHint();
         updateDiffUI();
 
+        // charge ticket puis fixe original
         await loadTicketDetails(id);
 
         // changement date => dirty
         ticketDate.addEventListener("change", markDirty);
+
+        // retour avec confirmation si dirty
+        //backBtn.addEventListener("click", () => {
+        //  if (isDirty && !confirm("Vous avez des modifications non enregistrées. Quitter quand même ?")){
+        //    return;
+        //  }
+        //  window.location.href = "tickets.html";
+        //});
+
+        // protection fermeture onglet si dirty
+        //window.addEventListener("beforeunload", (e) => {
+        //  if (isDirty){
+        //    e.preventDefault();
+        //    e.returnValue = "";
+        //  }
+        //});
       });
 
       // ===== Submit (PUT) -> confirmation modal
@@ -709,7 +706,7 @@
         }
 
         const payload = {
-          drawDate: dateVal,                 // ISO
+          drawDate: dateVal,
           numbers: normalizeNumbersString(),
           chanceNumber: selectedChance
         };
@@ -722,7 +719,6 @@
         const modalAfter = document.getElementById("modalAfter");
         const confirmBtn = document.getElementById("confirmBtn");
 
-        // IMPORTANT: affichage FR via formatTicketText
         modalBefore.textContent = formatTicketText(original);
         modalAfter.textContent = formatTicketText(payload);
 
@@ -751,8 +747,7 @@
             pendingPayload = null;
             updateDiffUI();
 
-            //showOk("Ticket mis à jour avec succès ✔ Redirection…");
-            showOk("Ticket mis à jour avec succès    Redirection…");
+            showOk("Ticket mis à jour avec succès ✔ Redirection…");
             setTimeout(() => window.location.href = "tickets.html", 1000);
           }catch(err){
             console.error(err);

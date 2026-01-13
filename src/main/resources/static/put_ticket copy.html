@@ -219,51 +219,6 @@
       border-color: rgba(239,68,68,.95);
       color:#fff;
     }
-
-    /* === HOVER = comme selected (PUT) === */
-    .pick-ball:hover:not(.selected){
-      background: rgba(59,130,246,.78);
-      border-color: rgba(59,130,246,.90);
-      color: #fff;
-      transform: translateY(-1px);
-    }
-    .pick-ball.chance:hover:not(.selected){
-      background: rgba(239,68,68,.86);
-      border-color: rgba(239,68,68,.95);
-      color: #fff;
-      transform: translateY(-1px);
-    }
-
-    /* === Dirty badge + diff box === */
-    .dirty-pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(250,204,21,.25);
-      background: rgba(250,204,21,.10);
-      color: rgba(255,255,255,.92);
-      font-weight: 900;
-      font-size: .9rem;
-    }
-
-    .diff-box{
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.04);
-      padding: 12px;
-    }
-    .diff-line{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
-      font-weight: 850;
-    }
-    .diff-label{ color: rgba(255,255,255,.65); font-weight: 800; }
-    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
   </style>
 </head>
 
@@ -294,9 +249,8 @@
         <div class="d-flex align-items-start justify-content-between flex-wrap gap-2">
           <div>
             <h1 class="panel-title">Modifier un ticket</h1>
-            <p class="muted mb-0">Modifie la date, les numéros ou la chance, puis sauvegarde les changements.</p>
+            <p class="muted mb-0">Sélectionne 5 numéros + 1 chance, puis enregistre.</p>
           </div>
-
           <a class="btn btn-soft px-3" href="tickets.html">
             <i class="fa-solid fa-arrow-left me-2"></i>Retour
           </a>
@@ -312,27 +266,6 @@
           <span id="errText">Erreur</span>
         </div>
 
-        <!-- Dirty state -->
-        <div class="d-none mt-3" id="dirtyWrap">
-          <span class="dirty-pill">
-            <i class="fa-solid fa-pen-to-square"></i>
-            Modifications non enregistrées
-          </span>
-        </div>
-
-        <!-- Résumé avant/après -->
-        <div class="diff-box mt-3 d-none" id="diffBox">
-          <div class="diff-line">
-            <span class="diff-label">Avant</span>
-            <span class="mono" id="beforeText">—</span>
-          </div>
-          <hr style="border-color: rgba(255,255,255,.10); margin: 10px 0;">
-          <div class="diff-line">
-            <span class="diff-label">Après</span>
-            <span class="mono" id="afterText">—</span>
-          </div>
-        </div>
-
         <div class="sub-card mt-3">
           <form id="ticketForm">
             <input type="hidden" id="ticketId" />
@@ -346,7 +279,7 @@
                 </div>
               </div>
               <div class="col-md-6 text-md-end">
-                <button type="submit" class="btn btn-primary px-4" id="submitBtn" disabled>
+                <button type="submit" class="btn btn-primary px-4" id="submitBtn">
                   <i class="fa-solid fa-floppy-disk me-2"></i>Mettre à jour
                 </button>
               </div>
@@ -407,43 +340,9 @@
       const submitBtn = document.getElementById("submitBtn");
       const form = document.getElementById("ticketForm");
 
-      const dirtyWrap = document.getElementById("dirtyWrap");
-      const diffBox = document.getElementById("diffBox");
-      const beforeText = document.getElementById("beforeText");
-      const afterText = document.getElementById("afterText");
-
       // ===== State
       let selectedNumbers = new Set(); // 5 numbers
       let selectedChance = null;       // 1..10
-
-      // Dirty/original
-      let original = { drawDate: "", numbers: "", chanceNumber: null };
-      let isDirty = false;
-      let pendingPayload = null;
-
-      // ===== Date helpers (ISO input / FR display)
-      function toISODate(value){
-        if (!value) return "";
-        const s = String(value).trim();
-
-        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-        if (/^\d{4}-\d{2}-\d{2}T/.test(s)) return s.slice(0, 10);
-
-        const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-        if (m) return `${m[3]}-${m[2]}-${m[1]}`;
-
-        const d = new Date(s);
-        if (!Number.isNaN(d.getTime())) return d.toISOString().slice(0, 10);
-
-        return "";
-      }
-
-      function isoToFR(iso){
-        const s = toISODate(iso);
-        if (!s) return "—";
-        const [y, m, d] = s.split("-");
-        return `${d}/${m}/${y}`;
-      }
 
       // ===== UI helpers
       function showOk(msg){
@@ -459,7 +358,7 @@
       }
 
       function setLoading(isLoading){
-        submitBtn.disabled = isLoading || !isDirty;
+        submitBtn.disabled = isLoading;
         submitBtn.innerHTML = isLoading
           ? `<span class="spinner-border spinner-border-sm me-2"></span>Enregistrement…`
           : `<i class="fa-solid fa-floppy-disk me-2"></i>Mettre à jour`;
@@ -468,48 +367,6 @@
       function updateHint(){
         pickedCount.textContent = String(selectedNumbers.size);
         pickedChance.textContent = selectedChance != null ? String(selectedChance) : "—";
-      }
-
-      function normalizeNumbersString(){
-        return [...selectedNumbers].sort((a,b)=>a-b).join("-");
-      }
-
-      // IMPORTANT: affichage FR dans diff + modal
-      function formatTicketText(obj){
-        const dt = isoToFR(obj.drawDate);
-        const nums = obj.numbers || "—";
-        const ch = (obj.chanceNumber != null ? obj.chanceNumber : "—");
-        return `${dt} | ${nums} | Chance ${ch}`;
-      }
-
-      function computeCurrent(){
-        return {
-          drawDate: ticketDate.value || "",
-          numbers: normalizeNumbersString(),
-          chanceNumber: selectedChance
-        };
-      }
-
-      function updateDiffUI(){
-        const cur = computeCurrent();
-
-        beforeText.textContent = formatTicketText(original);
-        afterText.textContent = formatTicketText(cur);
-
-        const changed =
-          (cur.drawDate || "") !== (original.drawDate || "") ||
-          (cur.numbers || "") !== (original.numbers || "") ||
-          cur.chanceNumber !== original.chanceNumber;
-
-        isDirty = changed;
-
-        dirtyWrap.classList.toggle("d-none", !isDirty);
-        diffBox.classList.toggle("d-none", !isDirty);
-        submitBtn.disabled = !isDirty;
-      }
-
-      function markDirty(){
-        updateDiffUI();
       }
 
       // ===== Auth
@@ -539,16 +396,15 @@
               selectedNumbers.delete(i);
               el.classList.remove("selected");
               updateHint();
-              markDirty();
               return;
             }
             if (selectedNumbers.size >= 5){
+              // showErr("Maximum 5 numéros."); // optionnel
               return;
             }
             selectedNumbers.add(i);
             el.classList.add("selected");
             updateHint();
-            markDirty();
           });
 
           numberSelection.appendChild(el);
@@ -564,7 +420,9 @@
 
           if (selectedChance === i) el.classList.add("selected");
 
-          el.addEventListener("click", () => setChance(i));
+          el.addEventListener("click", () => {
+            setChance(i);
+          });
 
           chanceSelection.appendChild(el);
         }
@@ -581,7 +439,6 @@
 
         if (match) match.classList.add("selected");
         updateHint();
-        markDirty();
       }
 
       // ===== Load ticket
@@ -590,8 +447,8 @@
           const res = await axios.get(`${API_TICKETS}/${ticketId}`, { withCredentials: true });
           const ticket = res.data || {};
 
-          // IMPORTANT: input date = ISO
-          ticketDate.value = toISODate(ticket.drawDate);
+          // drawDate peut être "YYYY-MM-DD" ou ISO -> on prend les 10 premiers chars
+          ticketDate.value = ticket.drawDate ? String(ticket.drawDate).slice(0,10) : "";
 
           selectedNumbers = new Set(
             (ticket.numbers ? String(ticket.numbers).split("-") : [])
@@ -605,15 +462,6 @@
           buildNumberButtons();
           buildChanceButtons();
           updateHint();
-
-          // capture état original (référence) en ISO
-          original = {
-            drawDate: ticketDate.value || "",
-            numbers: ticket.numbers ? String(ticket.numbers) : "",
-            chanceNumber: selectedChance
-          };
-
-          updateDiffUI();
         }catch(e){
           console.error(e);
           showErr("Impossible de charger ce ticket. Retour à la liste…");
@@ -621,49 +469,8 @@
         }
       }
 
-      // ===== Confirm modal (Bootstrap)
-      function ensureConfirmModal(){
-        if (document.getElementById("confirmModal")) return;
-
-        const modalHtml = `
-          <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content" style="background: rgba(15,23,42,.95); border: 1px solid rgba(255,255,255,.12); border-radius: 16px;">
-                <div class="modal-header" style="border-color: rgba(255,255,255,.10);">
-                  <h5 class="modal-title fw-bold">Confirmer la mise à jour</h5>
-                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
-                </div>
-                <div class="modal-body">
-                  <div class="muted mb-2">Vérifie les changements avant de valider :</div>
-                  <div class="diff-box">
-                    <div class="diff-line">
-                      <span class="diff-label">Avant</span>
-                      <span class="mono" id="modalBefore">—</span>
-                    </div>
-                    <hr style="border-color: rgba(255,255,255,.10); margin: 10px 0;">
-                    <div class="diff-line">
-                      <span class="diff-label">Après</span>
-                      <span class="mono" id="modalAfter">—</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="modal-footer" style="border-color: rgba(255,255,255,.10);">
-                  <button type="button" class="btn btn-soft" data-bs-dismiss="modal">Annuler</button>
-                  <button type="button" class="btn btn-primary" id="confirmBtn">
-                    <i class="fa-solid fa-floppy-disk me-2"></i>Valider
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-        document.body.insertAdjacentHTML("beforeend", modalHtml);
-      }
-
       // ===== Init
       document.addEventListener("DOMContentLoaded", async () => {
-        ensureConfirmModal();
-
         const auth = await ensureAuth();
         if (!auth) return;
 
@@ -678,19 +485,15 @@
 
         ticketIdEl.value = id;
 
-        // UI de base (avant chargement)
+        // UI de base
         buildNumberButtons();
         buildChanceButtons();
         updateHint();
-        updateDiffUI();
 
         await loadTicketDetails(id);
-
-        // changement date => dirty
-        ticketDate.addEventListener("change", markDirty);
       });
 
-      // ===== Submit (PUT) -> confirmation modal
+      // ===== Submit (PUT)
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         errBox.classList.add("d-none");
@@ -708,64 +511,38 @@
           return;
         }
 
+        const numbersSorted = [...selectedNumbers].sort((a,b) => a-b);
+
         const payload = {
-          drawDate: dateVal,                 // ISO
-          numbers: normalizeNumbersString(),
+          drawDate: dateVal,
+          numbers: numbersSorted.join("-"),
           chanceNumber: selectedChance
         };
 
-        pendingPayload = { ticketId, payload };
+        try{
+          setLoading(true);
 
-        // modal
-        const modalEl = document.getElementById("confirmModal");
-        const modalBefore = document.getElementById("modalBefore");
-        const modalAfter = document.getElementById("modalAfter");
-        const confirmBtn = document.getElementById("confirmBtn");
+          await axios.put(`${API_TICKETS}/${ticketId}`, payload, {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            }
+          });
 
-        // IMPORTANT: affichage FR via formatTicketText
-        modalBefore.textContent = formatTicketText(original);
-        modalAfter.textContent = formatTicketText(payload);
-
-        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-        modal.show();
-
-        // éviter multi-bind : reset puis bind
-        confirmBtn.onclick = async () => {
-          if (!pendingPayload) return;
-
-          try{
-            setLoading(true);
-
-            await axios.put(`${API_TICKETS}/${pendingPayload.ticketId}`, pendingPayload.payload, {
-              withCredentials: true,
-              headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-              }
-            });
-
-            modal.hide();
-
-            // reset original => plus dirty
-            original = { ...pendingPayload.payload };
-            pendingPayload = null;
-            updateDiffUI();
-
-            //showOk("Ticket mis à jour avec succès ✔ Redirection…");
-            showOk("Ticket mis à jour avec succès    Redirection…");
-            setTimeout(() => window.location.href = "tickets.html", 1000);
-          }catch(err){
-            console.error(err);
-            const msg =
-              err?.response?.data?.message ||
-              err?.response?.data?.error ||
-              err?.message ||
-              "Erreur lors de la mise à jour du ticket.";
-            showErr(msg);
-          }finally{
-            setLoading(false);
-          }
-        };
+          showOk("Ticket mis à jour avec succès. Redirection…");
+          setTimeout(() => window.location.href = "tickets.html", 900);
+        }catch(err){
+          console.error(err);
+          const msg =
+            err?.response?.data?.message ||
+            err?.response?.data?.error ||
+            err?.message ||
+            "Erreur lors de la mise à jour du ticket.";
+          showErr(msg);
+        }finally{
+          setLoading(false);
+        }
       });
     })();
   </script>
