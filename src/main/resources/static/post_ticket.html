@@ -219,6 +219,42 @@
       border-color: rgba(239,68,68,.95);
       color:#fff;
     }
+
+
+    /* === HOVER = comme "selected" (uniquement si pas disabled) === */
+    .pick-ball:hover:not(.selected):not(.disabled){
+      background: rgba(59,130,246,.78);
+      border-color: rgba(59,130,246,.90);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    /* Hover rouge "comme selected" pour Chance */
+    .pick-ball.chance:hover:not(.selected):not(.disabled){
+      background: rgba(239,68,68,.86);
+      border-color: rgba(239,68,68,.95);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    /* === Etat désactivé (quand 5 numéros déjà choisis) === */
+    .pick-ball.disabled{
+      opacity: .35;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* Empêche le hover d'ajouter un effet quand disabled */
+    .pick-ball.disabled:hover{
+      background: rgba(59,130,246,.16);
+      border-color: rgba(255,255,255,.12);
+      color: rgba(255,255,255,.92);
+    }
+    .pick-ball.chance.disabled:hover{
+      background: rgba(239,68,68,.14);
+      border-color: rgba(239,68,68,.20);
+    }
+
   </style>
 </head>
 
@@ -381,6 +417,20 @@
         }
       }
 
+      function updateDisabledNumbers(){
+        const maxReached = selectedNumbers.size >= 5;
+
+        numberSelection.querySelectorAll(".pick-ball").forEach(el => {
+          const n = Number(el.textContent);
+          const isSelected = selectedNumbers.has(n);
+
+          // Si 5 atteints : on disable tous les non-sélectionnés
+          if (maxReached && !isSelected) el.classList.add("disabled");
+          else el.classList.remove("disabled");
+        });
+      }
+
+
       // ===== Build pickers
       function buildNumberButtons(){
         numberSelection.innerHTML = "";
@@ -391,21 +441,43 @@
 
           if (selectedNumbers.has(i)) el.classList.add("selected");
 
+          //el.addEventListener("click", () => {
+          //  if (selectedNumbers.has(i)){
+          //    selectedNumbers.delete(i);
+          //    el.classList.remove("selected");
+          //    updateHint();
+          //    return;
+          //  }
+          //  if (selectedNumbers.size >= 5){
+              // showErr("Maximum 5 numéros."); // optionnel
+          //    return;
+          //  }
+          //  selectedNumbers.add(i);
+          //  el.classList.add("selected");
+          //  updateHint();
+          //});
+
           el.addEventListener("click", () => {
+            if (el.classList.contains("disabled")) return;
+
             if (selectedNumbers.has(i)){
               selectedNumbers.delete(i);
               el.classList.remove("selected");
               updateHint();
+              updateDisabledNumbers();
               return;
             }
+
             if (selectedNumbers.size >= 5){
-              // showErr("Maximum 5 numéros."); // optionnel
               return;
             }
+
             selectedNumbers.add(i);
             el.classList.add("selected");
             updateHint();
+            updateDisabledNumbers();
           });
+
 
           numberSelection.appendChild(el);
         }
@@ -428,6 +500,9 @@
         }
       }
 
+      updateDisabledNumbers();
+
+
       function setChance(i){
         selectedChance = i;
 
@@ -448,6 +523,9 @@
         buildChanceButtons();
         updateHint();
       }
+
+      updateDisabledNumbers();
+
 
       // ===== Init
       document.addEventListener("DOMContentLoaded", async () => {

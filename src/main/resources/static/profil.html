@@ -445,8 +445,8 @@
     const firstEl = document.getElementById("firstName");
     const lastEl  = document.getElementById("lastName");
     const pwdEl   = document.getElementById("currentPassword");
-    const confirmPwdEl = document.getElementById("confirmPassword");
-    const newPwdEl = document.getElementById("newPassword");
+    //const confirmPwdEl = document.getElementById("confirmPassword");
+    //const newPwdEl = document.getElementById("newPassword");
     const formEl  = document.getElementById("profileForm");
     const btnEl   = document.getElementById("saveChanges");
 
@@ -513,31 +513,17 @@
       const password = pwdEl.value?.trim();
       if (!password) return showErr("Merci de saisir ton mot de passe actuel.");
 
-      const newPassword = (newPwdEl.value || "").trim();
-      const confirmPassword = (confirmPwdEl.value || "").trim();
+    const payload = {
+      id: userId,
+      email: userInfo.email,                 // ⚠️ obligatoire sinon setEmail(null)
+      firstName: firstEl.value.trim(),
+      lastName:  lastEl.value.trim(),
 
-      if (newPassword || confirmPassword) {
-        if (newPassword.length < 8) return showErr("Le nouveau mot de passe doit faire au moins 8 caractères.");
-        if (newPassword !== confirmPassword) return showErr("Les mots de passe ne correspondent pas.");
-      }
 
-      const payload = {
-        id: userId,
-        email: userInfo.email,
+      // ⚠️ TON controller encode user.password -> donc il faut l’envoyer
+      password: password
+    };
 
-        // compat ancien backend / mapping
-        firstName: firstEl.value.trim(),
-        lastName:  lastEl.value.trim(),
-        first_name: firstEl.value.trim(),
-        last_name:  lastEl.value.trim(),
-
-        // on envoie le mdp en clair -> le controller l'encode
-        password: password,
-        currentPassword: password,
-
-        // MVP: seulement si l’utilisateur veut changer
-        newPassword: newPassword || null
-      };
 
       try {
         setLoading(true);
@@ -562,7 +548,9 @@
         console.error("Erreur PUT:", err?.response?.data || err.message);
 
         if (err?.response?.status === 401) {
-          showErr("Mot de passe incorrect ou session expirée.");
+          showErr("Session expirée. Merci de te reconnecter.");
+        } else if (err?.response?.status === 400) {
+          showErr("Mot de passe actuel incorrect.");
         } else {
           showErr(err?.response?.data?.message || "Erreur lors de l’enregistrement.");
         }
@@ -570,6 +558,7 @@
         setLoading(false);
       }
     });
+
 
     document.addEventListener("DOMContentLoaded", loadUserProfile);
 
