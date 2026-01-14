@@ -176,15 +176,48 @@ public class UserController {
     // }
 
 
+    // @PutMapping("/{id}")
+    // @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    // public ResponseEntity<?> updateUser(@PathVariable UUID id, @Valid @RequestBody User user) {
+
+    //     // 1) Charger l'utilisateur existant
+    //     User existing = userService.getUserById(id)
+    //             .orElseThrow(() -> new RuntimeException("User not found"));
+
+    //     // 2) Sécurité: un USER ne peut modifier que son propre profil (ADMIN ok)
+    //     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    //     boolean isAdmin = auth.getAuthorities().stream()
+    //             .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+    //     if (!isAdmin && (auth == null || !existing.getEmail().equals(auth.getName()))) {
+    //         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Forbidden");
+    //     }
+
+    //     // 3) Vérifier le mot de passe actuel
+    //     // (dans ton front tu envoies "password", donc on l'utilise comme "currentPassword")
+    //     if (user.getPassword() == null || user.getPassword().isBlank()
+    //             || !passwordEncoder.matches(user.getPassword(), existing.getPassword())) {
+    //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong password");
+    //     }
+
+    //     // 4) Appliquer UNIQUEMENT prénom/nom (et conserver email + password existants)
+    //     User patch = new User();
+    //     patch.setFirstName(user.getFirstName());
+    //     patch.setLastName(user.getLastName());
+    //     patch.setEmail(existing.getEmail());        // email non modifiable
+    //     patch.setPassword(existing.getPassword());  // NE PAS changer le mot de passe
+
+    //     return ResponseEntity.ok(userService.updateUser(id, patch));
+    // }
+
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<?> updateUser(@PathVariable UUID id, @Valid @RequestBody User user) {
+    public ResponseEntity<?> updateUser(@PathVariable UUID id,
+                                        @Valid @RequestBody com.fdjloto.api.payload.UpdateProfileRequest req) {
 
-        // 1) Charger l'utilisateur existant
         User existing = userService.getUserById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // 2) Sécurité: un USER ne peut modifier que son propre profil (ADMIN ok)
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdmin = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
@@ -193,22 +226,21 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Forbidden");
         }
 
-        // 3) Vérifier le mot de passe actuel
-        // (dans ton front tu envoies "password", donc on l'utilise comme "currentPassword")
-        if (user.getPassword() == null || user.getPassword().isBlank()
-                || !passwordEncoder.matches(user.getPassword(), existing.getPassword())) {
+        if (req.getCurrentPassword() == null || req.getCurrentPassword().isBlank()
+                || !passwordEncoder.matches(req.getCurrentPassword(), existing.getPassword())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong password");
         }
 
-        // 4) Appliquer UNIQUEMENT prénom/nom (et conserver email + password existants)
-        User patch = new User();
-        patch.setFirstName(user.getFirstName());
-        patch.setLastName(user.getLastName());
-        patch.setEmail(existing.getEmail());        // email non modifiable
-        patch.setPassword(existing.getPassword());  // NE PAS changer le mot de passe
+        // ✅ Update uniquement des champs autorisés
+        if (req.getFirstName() != null) existing.setFirstName(req.getFirstName().trim());
+        if (req.getLastName() != null) existing.setLastName(req.getLastName().trim());
 
-        return ResponseEntity.ok(userService.updateUser(id, patch));
+        // ✅ Admin conservé (même pas touché), email conservé, password conservé
+        User saved = userService.createUser(existing); // ou userRepository.save(existing) si tu préfères
+
+        return ResponseEntity.ok(saved);
     }
+
 
 
 @Operation(summary = "Delete my account (RGPD) - User")

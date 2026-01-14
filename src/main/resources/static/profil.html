@@ -513,16 +513,22 @@
       const password = pwdEl.value?.trim();
       if (!password) return showErr("Merci de saisir ton mot de passe actuel.");
 
-    const payload = {
-      id: userId,
-      email: userInfo.email,                 // ⚠️ obligatoire sinon setEmail(null)
-      firstName: firstEl.value.trim(),
-      lastName:  lastEl.value.trim(),
+    //const payload = {
+    //  id: userId,
+    //  email: userInfo.email,                 // ⚠️ obligatoire sinon setEmail(null)
+    //  firstName: firstEl.value.trim(),
+    //  lastName:  lastEl.value.trim(),
 
 
       // ⚠️ TON controller encode user.password -> donc il faut l’envoyer
-      password: password
+    //  password: password
+    //};
+    const payload = {
+      firstName: firstEl.value.trim(),
+      lastName: lastEl.value.trim(),
+      currentPassword: password
     };
+
 
 
       try {
