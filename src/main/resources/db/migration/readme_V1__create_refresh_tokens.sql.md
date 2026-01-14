@@ -218,3 +218,51 @@ ON DELETE CASCADE;
 
 COMMIT;
 
+
+
+
+
+ALTER TABLE public.tickets
+ADD CONSTRAINT tickets_user_id_fkey
+FOREIGN KEY (user_id)
+REFERENCES public.users(id)
+ON UPDATE CASCADE
+ON DELETE CASCADE;
+
+
+ALTER TABLE public.tickets
+ADD CONSTRAINT tickets_user_id_fkey
+FOREIGN KEY (user_id)
+REFERENCES public.users(id)
+ON UPDATE CASCADE
+ON DELETE CASCADE;
+
+
+
+lotodb=# ALTER TABLE public.tickets
+ADD CONSTRAINT tickets_user_id_fkey
+FOREIGN KEY (user_id)
+REFERENCES public.users(id)
+ON UPDATE CASCADE
+ON DELETE CASCADE;
+ALTER TABLE
+lotodb=# \d public.tickets
+                 Table "public.tickets"
+    Column    |  Type   | Collation | Nullable | Default
+--------------+---------+-----------+----------+---------
+ id           | text    |           | not null |
+ numbers      | text    |           | not null |
+ lucky_number | integer |           | not null |
+ draw_date    | text    |           | not null |
+ draw_day     | text    |           |          |
+ created_at   | text    |           | not null |
+ updated_at   | text    |           |          |
+ user_id      | text    |           | not null |
+Indexes:
+    "tickets_pkey" PRIMARY KEY, btree (id)
+Foreign-key constraints:
+    "tickets_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE
+Referenced by:
+    TABLE "ticket_gains" CONSTRAINT "ticket_gains_ticket_id_fkey" FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON UPDATE CASCADE ON DELETE CASCADE
+
+lotodb=#
