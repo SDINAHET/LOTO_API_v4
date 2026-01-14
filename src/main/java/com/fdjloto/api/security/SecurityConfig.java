@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer; // si tu utilises Customizer.withDefaults()
@@ -64,7 +65,13 @@ public class SecurityConfig {
                 //     .frameOptions(frame -> frame.sameOrigin()) // ✅ Autoriser les iframes depuis la même origine
                 //     .xssProtection(xss -> xss.disable()) // ✅ Désactiver la protection XSS si nécessaire
                 // )
-                .csrf(csrf -> csrf.disable()) // 🔴 Désactive CSRF pour les APIs REST stateless
+                // .csrf(csrf -> csrf.disable()) // 🔴 Désactive CSRF pour les APIs REST stateless
+                .csrf(csrf -> csrf
+                    .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                    .ignoringRequestMatchers("/api/auth/login3", "/api/auth/register")
+                )
+                // ✅ CSRF activé : JWT stocké en cookie, protection contre les attaques CSRF
+
                 // .csrf(AbstractHttpConfigurer::disable) // ✅ Version optimisée
                 // .anonymous(anonymous -> anonymous.disable()) // Supprime l'authentification anonyme
                 // .cors(cors -> cors.disable()) // 🔴 Désactive CORS (ajoute une config si nécessaire)
@@ -100,7 +107,7 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/csrf").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/visits/**").permitAll()
                         // .requestMatchers(
                         //     "/favicon.ico",

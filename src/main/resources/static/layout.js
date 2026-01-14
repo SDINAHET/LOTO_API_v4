@@ -885,3 +885,26 @@ function syncFooterHeight(){
 
 syncFooterHeight();
 window.addEventListener("resize", syncFooterHeight);
+
+
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(";").shift();
+  return null;
+}
+
+async function fetchWithCsrf(url, options = {}) {
+  const csrf = getCookie("XSRF-TOKEN");
+
+  return fetch(url, {
+    ...options,
+    credentials: "include",
+    headers: {
+      ...(options.headers || {}),
+      "X-XSRF-TOKEN": csrf,
+      "Content-Type": "application/json"
+    }
+  });
+}
+

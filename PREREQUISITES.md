@@ -26,14 +26,16 @@
 - macOS 12 ou supérieur
 
 ### Ressources minimales
-- CPU : 2 cœurs
-- RAM : 4 GB minimum
-- Espace disque : 10 GB minimum
+- CPU : i5
+- RAM : 32 GB minimum
+- Espace disque : 20 GB minimum
 
 ### Ports requis
 - 8082 : API
 - 5432 : PostgreSQL
 - 27017 : MongoDB
+- 5500: front
+- 8091 service ai
 
 ## Installation des dépendances
 

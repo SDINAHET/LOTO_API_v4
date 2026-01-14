@@ -345,16 +345,23 @@
   <div id="appFooter"></div>
 
   <!-- Layout global -->
+  <script src="csrf.js"></script>
   <script src="layout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
     (function(){
       // ===== API
+      //const API_BASE =
+      //  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+      //    ? "http://localhost:8082"
+      //    : "https://stephanedinahet.fr";
+
       const API_BASE =
         (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-          ? "http://localhost:8082"
+          ? `${window.location.protocol}//${window.location.hostname}:8082`
           : "https://stephanedinahet.fr";
+
 
       const ME_URL      = `${API_BASE}/api/auth/me`;
       const API_TICKETS = `${API_BASE}/api/tickets`;
@@ -377,6 +384,40 @@
       let selectedNumbers = new Set(); // 5 numbers
       let selectedChance = null;       // 1..10
       let userId = null;
+
+      // ===== CSRF (Spring CookieCsrfTokenRepository)
+      function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(";").shift();
+        return null;
+      }
+
+      // Force la création du cookie XSRF-TOKEN si absent (nécessite GET /api/csrf côté backend)
+      async function ensureCsrfCookie() {
+        if (getCookie("XSRF-TOKEN")) return;
+        await axios.get(`${API_BASE}/api/csrf`, { withCredentials: true });
+      }
+
+      axios.defaults.withCredentials = true;
+
+      axios.interceptors.request.use(async (config) => {
+        const method = (config.method || "get").toLowerCase();
+
+        // Pour les requêtes mutatives, on ajoute le token CSRF
+        if (["post", "put", "patch", "delete"].includes(method)) {
+          await ensureCsrfCookie();
+          const csrf = getCookie("XSRF-TOKEN");
+          if (csrf) {
+            config.headers = config.headers || {};
+            config.headers["X-XSRF-TOKEN"] = csrf;
+          }
+        }
+
+        return config;
+      });
+
+
 
       // ===== UI helpers
       function showOk(msg){
@@ -416,6 +457,7 @@
           return false;
         }
       }
+
 
       function updateDisabledNumbers(){
         const maxReached = selectedNumbers.size >= 5;
@@ -531,6 +573,8 @@
       document.addEventListener("DOMContentLoaded", async () => {
         const auth = await ensureAuth();
         if (!auth) return;
+
+        await ensureCsrfCookie();
 
         buildNumberButtons();
         buildChanceButtons();
