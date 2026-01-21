@@ -54,3 +54,5 @@ build/
 /docker
 /data
 /ai-service/data
+lotodb_backup.sql
+lotodb_data.sql

@@ -173,27 +173,36 @@
       border-radius: 14px;
       overflow: hidden;
       border: 1px solid rgba(255,255,255,.14);
-      background: rgba(2,6,23,.30);
+      background: rgba(2,6,23,.30) !important;
     }
+
+    /* ✅ Fix Bootstrap fond blanc (cells) */
     .table{
       margin: 0;
-      color: rgba(255,255,255,.92);
-      background: rgba(255,255,255,.02);
+      background: transparent !important;
+      color: rgba(255,255,255,.92) !important;
+      --bs-table-bg: transparent !important;
+      --bs-table-accent-bg: transparent !important;
+      --bs-table-striped-bg: transparent !important;
+      --bs-table-active-bg: transparent !important;
+      --bs-table-hover-bg: transparent !important;
+      --bs-table-color: rgba(255,255,255,.92) !important;
     }
+    .table > :not(caption) > * > *{
+      background-color: transparent !important;
+      color: rgba(255,255,255,.92) !important;
+      border-color: rgba(255,255,255,.12) !important;
+    }
+
     .table thead th{
       background: rgba(255,255,255,.10) !important;
       color: rgba(255,255,255,.96) !important;
       border-bottom: 1px solid rgba(255,255,255,.18) !important;
       font-weight: 950;
     }
-    .table tbody tr{ background: rgba(255,255,255,.03); }
-    .table tbody tr:nth-child(even){ background: rgba(255,255,255,.05); }
-    .table tbody tr:hover{ background: rgba(59,130,246,.12); }
-    .table td, .table th{
-      border-color: rgba(255,255,255,.12) !important;
-      vertical-align: middle;
-      color: rgba(255,255,255,.92) !important;
-    }
+    .table tbody tr{ background: rgba(255,255,255,.03) !important; }
+    .table tbody tr:nth-child(even){ background: rgba(255,255,255,.05) !important; }
+    .table tbody tr:hover{ background: rgba(59,130,246,.12) !important; }
 
     .pagination .page-link{
       border-radius: 10px;
@@ -237,7 +246,8 @@
       color:#fff;
       font-weight:800;
       font-size:.9rem;
-      border: 1px solid rgba(59,130,246,.35);
+      /*border: 1px solid rgba(59,130,246,.35);*/
+      border: 1px solid rgba(65 114 196 /.35);
     }
     .num-main-win{
       background-color: rgba(59,130,246,.85);
@@ -261,50 +271,52 @@
       border-color: rgba(239,68,68,.90);
     }
 
-    /* ✅ Grille des numéros (tickets) */
+    /* ✅ Grille numéros */
     .ticket-numbers-grid{
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr)); /* 5 boules */
+      grid-template-columns: repeat(5, 34px);
       gap: 6px;
       align-items: center;
-      justify-items: center;
+      justify-content: center;
     }
-
-    /* ✅ Taille cohérente des boules dans la grille */
     .ticket-numbers-grid .num-main{
       width: 34px;
       height: 34px;
       min-width: 34px;
       padding: 0;
+      margin: 0;
       display: grid;
       place-items: center;
       border-radius: 999px;
-      margin: 0; /* important : sinon ça casse l’alignement */
     }
 
-    /* Chance centrée */
     .ticket-chance-wrap{
-      display: flex;
-      justify-content: center;
+      display:flex;
+      justify-content:center;
     }
     .ticket-chance-wrap .num-chance{
       width: 34px;
       height: 34px;
       min-width: 34px;
       padding: 0;
+      margin: 0;
       display: grid;
       place-items: center;
       border-radius: 999px;
-      margin: 0;
     }
 
-    /* ✅ Mobile : grille plus compacte et stable */
-    @media (max-width: 575px){
+    @media (max-width: 991px){
       .ticket-numbers-grid{
-        grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 colonnes, ça respire */
+        grid-template-columns: repeat(5, 32px);
         gap: 6px;
+        justify-content: end;
       }
-      .ticket-numbers-grid .num-main,
+      .ticket-numbers-grid .num-main{
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        font-size: .85rem;
+      }
       .ticket-chance-wrap .num-chance{
         width: 32px;
         height: 32px;
@@ -312,7 +324,6 @@
         font-size: .85rem;
       }
     }
-
 
     /* ===== Modal dark glass ===== */
     .modal-content{
@@ -322,9 +333,7 @@
       backdrop-filter: blur(12px);
       color: rgba(255,255,255,.92);
     }
-    .modal-header, .modal-footer{
-      border-color: rgba(255,255,255,.10);
-    }
+    .modal-header, .modal-footer{ border-color: rgba(255,255,255,.10); }
     .btn-close{ filter: invert(1); opacity: .8; }
 
     .lottery-ball{
@@ -362,43 +371,6 @@
     .badge.bg-secondary{ background-color: rgba(148,163,184,.35) !important; }
     .badge.bg-danger{ background-color: rgba(239,68,68,.90) !important; }
 
-    .table-responsive{ scrollbar-color: rgba(255,255,255,.22) transparent; }
-    .table-responsive::-webkit-scrollbar{ height: 10px; }
-    .table-responsive::-webkit-scrollbar-thumb{
-      background: rgba(255,255,255,.18);
-      border-radius: 10px;
-    }
-    .table-responsive::-webkit-scrollbar-track{ background: transparent; }
-
-    /* ===== Fix: tableau qui devient blanc (Bootstrap) ===== */
-    .table-wrap{
-      background: rgba(2,6,23,.30) !important;
-    }
-
-    .table{
-      background: transparent !important;
-      color: rgba(255,255,255,.92) !important;
-    }
-
-    .table thead th{
-      background: rgba(255,255,255,.10) !important;
-      color: rgba(255,255,255,.96) !important;
-    }
-
-    .table tbody tr{
-      background: rgba(255,255,255,.03) !important;
-    }
-
-    .table tbody tr:nth-child(even){
-      background: rgba(255,255,255,.05) !important;
-    }
-
-    .table tbody td{
-      background: transparent !important;
-      color: rgba(255,255,255,.92) !important;
-      border-color: rgba(255,255,255,.12) !important;
-    }
-
     .combo-dot{
       width:16px; height:16px;
       border-radius:999px;
@@ -407,54 +379,32 @@
       background: rgba(59,130,246,.95);
       box-shadow: 0 0 0 1px rgba(0,0,0,.25) inset;
     }
-    .combo-dot.chance{
-      background: rgba(239,68,68,.95);
+    .combo-dot.chance{ background: rgba(239,68,68,.95); }
+
+    /* Ligne gain + statut */
+    .gain-status-line{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:8px;
+      flex-wrap:nowrap;
     }
-
-    /* ✅ Grille des numéros (tickets) */
-    .ticket-numbers-grid{
-      display: grid;
-      grid-template-columns: repeat(5, 34px); /* colonnes FIXES = pas de chevauchement */
-      gap: 6px;
-      align-items: center;
-      justify-content: center; /* center ou start */
+    .badge-inline-mobile{
+      padding: .35rem .55rem;
+      border-radius: 10px;
+      font-weight: 900;
+      white-space: nowrap;
     }
+    #ticketsTable .badge-inline-mobile{ display:none; }
 
-    /* ✅ Taille cohérente des boules dans la grille */
-    .ticket-numbers-grid .num-main{
-      width: 34px;
-      height: 34px;
-      min-width: 34px;
-      padding: 0;
-      margin: 0;
-      display: grid;
-      place-items: center;
-      border-radius: 999px;
-    }
-
-    /* ✅ Mobile/tablette : 3 colonnes (meilleure lisibilité) */
-      @media (max-width: 991px){
-        .ticket-numbers-grid{
-          grid-template-columns: repeat(5, 32px); /* ✅ 5 numéros sur 1 ligne */
-          gap: 6px;
-          justify-content: end; /* aligné à droite */
-        }
-
-      .ticket-numbers-grid .num-main{
-        width: 32px;
-        height: 32px;
-        min-width: 32px;
-        font-size: .85rem;
+    @media (max-width: 991px){
+      td.td-status{ display:none !important; }
+      #ticketsTable .badge-inline-mobile{
+        display:inline-flex !important;
+        align-items:center;
       }
+      .gain-status-line{ gap:10px; }
     }
-    /*@media (max-width: 991px){
-      .table{ min-width: 100px; }
-    }*/
-
-
-
-
-
   </style>
 </head>
 
@@ -575,7 +525,7 @@
     </div>
   </div>
 
-  <!-- Modal confirmation suppression (Windows-like) -->
+  <!-- Modal confirmation suppression -->
   <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -637,11 +587,16 @@
 
       // ===== State
       let allTickets = [];
-      let gainsMap = new Map();   // ticketId -> gainAmount
+      let gainsMap = new Map();   // String(ticketId) -> gainAmount
       let currentPage = 1;
       let pageSize = 10;
 
       const tirageCache = {};     // YYYY-MM-DD -> tirage|null
+
+      //localStorage.setItem("tickets.page", String(currentPage));
+      //localStorage.setItem("tickets.size", String(pageSize));
+
+
 
       // ===== UI helpers
       function showOk(msg){
@@ -686,15 +641,6 @@
         return `${n.toFixed(2)} €`;
       }
 
-      //function formatNumbers(numbersStr){
-      //  if (!numbersStr) return "N/A";
-      //  return numbersStr.split("-").map(num => `
-//<span class="num-main ticket-main-number" data-value="${String(parseInt(num,10))}"> <!--  -->
-//            ${String(parseInt(num,10))}
-//</span> <!--  -->
-//        `).join(" ");
-//      }
-
       function formatNumbers(numbersStr){
         if (!numbersStr) return "N/A";
 
@@ -709,18 +655,6 @@
 
         return `<div class="ticket-numbers-grid">${balls}</div>`;
       }
-
-      //function formatChance(num){
-      //  if (num === null || num === undefined || num === "") return "N/A";
-      //  const v = String(parseInt(num,10));
-      //  return `
-//<div class="ticket-chance-wrap"> <!--  -->
-//            <span class="num-chance ticket-chance-number" data-value="${v}">${v}</span>
-//</div> <!--  -->
-//        `;
-//      }
-
-
 
       function formatChance(num){
         if (num === null || num === undefined || num === "") return "N/A";
@@ -822,6 +756,102 @@
         return parseMoneyLike(tirage[field]);
       }
 
+      // ===== Gain provisoire JS (tirage principal + second tirage)
+  function computeMainDrawGain(ticket, tirage){
+    if (!tirage) return 0;
+
+    const winningNumbers = [
+      tirage.boule1, tirage.boule2, tirage.boule3, tirage.boule4, tirage.boule5
+    ].filter(v => v !== null && v !== undefined && v !== "")
+    .map(v => parseInt(v, 10))
+    .filter(v => !Number.isNaN(v));
+
+    const winningChance = (tirage.numeroChance !== null && tirage.numeroChance !== undefined && tirage.numeroChance !== "")
+      ? parseInt(tirage.numeroChance, 10)
+      : null;
+
+    if (winningNumbers.length !== 5 || winningChance === null || Number.isNaN(winningChance)) return 0;
+
+    const ticketNumbers = (ticket.numbers || "")
+      .split("-")
+      .map(n => parseInt(n,10))
+      .filter(n => !Number.isNaN(n));
+
+    const ticketChance = parseInt(ticket.chanceNumber, 10);
+    if (ticketNumbers.length !== 5 || Number.isNaN(ticketChance)) return 0;
+
+    // matches boules
+    let matches = 0;
+    for (const n of ticketNumbers) if (winningNumbers.includes(n)) matches++;
+
+    // matches chance
+    const chanceMatch = (ticketChance === winningChance);
+
+    // mapping rang principal (FDJ)
+    // 5+chance:1, 5:2, 4+chance:3, 4:4, 3+chance:5, 3:6, 2+chance:7, 2:8, chance:9
+    let rang = null;
+    if (matches === 5 && chanceMatch) rang = 1;
+    else if (matches === 5) rang = 2;
+    else if (matches === 4 && chanceMatch) rang = 3;
+    else if (matches === 4) rang = 4;
+    else if (matches === 3 && chanceMatch) rang = 5;
+    else if (matches === 3) rang = 6;
+    else if (matches === 2 && chanceMatch) rang = 7;
+    else if (matches === 2) rang = 8;
+    else if (matches === 0 && chanceMatch) rang = 9;
+    else return 0;
+
+    const field = `rapportDuRang${rang}`;
+    return parseMoneyLike(tirage[field]);
+  }
+
+  // total provisoire = main + second
+  function computeProvisionalGain(ticket, tirage){
+    const main = computeMainDrawGain(ticket, tirage);
+    const second = computeSecondDrawGain(ticket, tirage);
+    return {
+      total: (main || 0) + (second || 0),
+      main: main || 0,
+      second: second || 0
+    };
+  }
+
+  // rendu gain (backend OU provisoire)
+  function renderGainHtml({backendGain, provisional}){
+    // backend prioritaire si dispo
+    if (backendGain !== null && backendGain !== undefined && !Number.isNaN(Number(backendGain))){
+      return formatGain(backendGain);
+    }
+
+
+  // sinon provisoire
+  if (!provisional || provisional.total <= 0) return "-";
+
+  const total = provisional.total;
+  const main = provisional.main;
+  const second = provisional.second;
+
+  const lines = [];
+
+  if (main > 0 && second > 0){
+    lines.push(`<div>~ <b>${formatGain(main)}</b> <span class="muted">(principal)</span></div>`);
+    lines.push(`<div>+ <b>${formatGain(second)}</b> <span class="muted">(2nd tirage)</span></div>`);
+    lines.push(`<div class="muted" style="font-size:.85rem;">Total provisoire ~ <b>${formatGain(total)}</b></div>`);
+  } else {
+    lines.push(`<div>~ <b>${formatGain(total)}</b> <span class="muted">(provisoire)</span></div>`);
+  }
+
+  return lines.join("");
+}
+
+
+      function setBadge(el, label, cls){
+        if (!el) return;
+        el.textContent = label;
+        const keepInline = el.classList.contains("badge-inline-mobile");
+        el.className = `badge ${cls}` + (keepInline ? " badge-inline-mobile" : "");
+      }
+
       // ===== Render
       function totalPages(){
         return Math.max(1, Math.ceil(allTickets.length / pageSize));
@@ -831,12 +861,12 @@
         const tp = totalPages();
         if (currentPage > tp) currentPage = tp;
 
-        //pageInfo.textContent = `Page ${currentPage} / ${tp}`;
         pageInfo.textContent =
           window.innerWidth <= 575
             ? `${currentPage}/${tp}`
             : `Page ${currentPage} / ${tp}`;
-              pagination.innerHTML = "";
+
+        pagination.innerHTML = "";
 
         const mkBtn = (label, page, disabled=false, active=false) => {
           const li = document.createElement("li");
@@ -852,21 +882,13 @@
 
         pagination.appendChild(mkBtn("&laquo;", currentPage-1, currentPage===1));
 
-        // const max = 7;
         const max = window.innerWidth <= 575 ? 3 : 7;
-        //let start = Math.max(1, currentPage - 2);
-        //let end = Math.min(tp, start + (max - 1));
-        //start = Math.max(1, end - (max - 1));
 
-
-        // ✅ fenêtre centrée sur currentPage (ex: 2 3 4 quand currentPage=3)
         let start = currentPage - Math.floor(max / 2);
         let end   = start + max - 1;
 
-        // clamp dans [1..tp]
         if (start < 1) { start = 1; end = Math.min(tp, start + max - 1); }
         if (end > tp)  { end = tp; start = Math.max(1, end - max + 1); }
-
 
         for (let p = start; p <= end; p++){
           pagination.appendChild(mkBtn(String(p), p, false, p===currentPage));
@@ -879,6 +901,11 @@
         const tp = totalPages();
         if (p < 1 || p > tp) return;
         currentPage = p;
+
+          // ✅ save
+        localStorage.setItem("tickets.page", String(currentPage));
+        localStorage.setItem("tickets.size", String(pageSize));
+
         renderTicketsPage();
       }
 
@@ -901,67 +928,67 @@
         }
 
         for (const ticket of pageTickets){
-          const gain = gainsMap.has(ticket.id) ? Number(gainsMap.get(ticket.id)) : undefined;
+          const tid = String(ticket.id);
+          const gain = gainsMap.has(tid) ? Number(gainsMap.get(tid)) : undefined;
           const st = getStatus(ticket.drawDate, gain);
 
-          const eyeBtnClass = st.eyeEnabled ? "btn-soft" : "btn-soft opacity-50";
           const eyeDisabled = st.eyeEnabled ? "" : "disabled";
 
+          const rowHtml = `
+            <tr id="ticket-${tid}">
+              <td data-label="Date"><b>${formatDate(ticket.drawDate)}</b></td>
 
-        const rowHtml = `
-          <tr id="ticket-${ticket.id}">
-            <td data-label="Date"><b>${formatDate(ticket.drawDate)}</b></td>
+              <td data-label="Numéros">${formatNumbers(ticket.numbers)}</td>
 
-            <td data-label="Numéros">${formatNumbers(ticket.numbers)}</td>
+              <td data-label="Chance">
+                <div class="ticket-chance-wrap">
+                  ${formatChance(ticket.chanceNumber)}
+                </div>
+              </td>
 
-            <td data-label="Chance">
-              <div class="ticket-chance-wrap">
-                ${formatChance(ticket.chanceNumber)}
-              </div>
-            </td>
+              <td data-label="Statut" class="td-status">
+                <span id="status-${tid}" class="badge ${st.cls}">${st.label}</span>
+              </td>
 
-            <td data-label="Statut">
-              <span id="status-${ticket.id}" class="badge ${st.cls}">${st.label}</span>
-            </td>
+              <td data-label="Gains" class="text-end td-gain">
+                <div class="gain-status-line">
+                  <b id="gain-cell-${tid}">${gain !== undefined ? formatGain(gain) : "-"}</b>
+                  <span class="badge ${st.cls} badge-inline-mobile" id="status-inline-${tid}">
+                    ${st.label}
+                  </span>
+                </div>
+              </td>
 
-            <td data-label="Gains" class="text-end">
-              <b id="gain-cell-${ticket.id}">${gain !== undefined ? formatGain(gain) : "-"}</b>
-            </td>
+              <td data-label="Actions" class="text-end">
+                <button class="btn-action view ${st.eyeEnabled ? '' : 'opacity-50'}"
+                        ${eyeDisabled}
+                        onclick="window.__showTirageDetails && window.__showTirageDetails('${ticket.drawDate}')">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
 
-            <td data-label="Actions" class="text-end">
-              <button class="btn-action view ${st.eyeEnabled ? '' : 'opacity-50'}"
-                      ${eyeDisabled}
-                      onclick="window.__showTirageDetails && window.__showTirageDetails('${ticket.drawDate}')">
-                <i class="fa-solid fa-eye"></i>
-              </button>
+                <a class="btn-action edit ms-1" href="put_ticket.html?id=${tid}">
+                  <i class="fa-solid fa-pen"></i>
+                </a>
 
-              <a class="btn-action edit ms-1"
-                href="put_ticket.html?id=${ticket.id}">
-                <i class="fa-solid fa-pen"></i>
-              </a>
-
-              <button class="btn-action delete ms-1"
-                      onclick="window.__deleteTicket && window.__deleteTicket('${ticket.id}')">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </td>
-          </tr>
-        `;
+                <button class="btn-action delete ms-1"
+                        onclick="window.__deleteTicket && window.__deleteTicket('${tid}')">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          `;
           tableBody.insertAdjacentHTML("beforeend", rowHtml);
         }
 
-
+        // Highlight + second draw (visible page)
         const uniqueDates = [...new Set(pageTickets.map(t => ymd(t.drawDate)))];
         const tirages = await Promise.all(uniqueDates.map(d => getTirageByYMD(d)));
         const tirageByDate = new Map(uniqueDates.map((d,i) => [d, tirages[i]]));
 
         for (const ticket of pageTickets){
+          const tid = String(ticket.id);
           const tYMD = ymd(ticket.drawDate);
           const tirage = tirageByDate.get(tYMD);
-
-          /*console.log("TIRAGE", tYMD, tirage?.boule1SecondTirage, tirage);*/
-
-
           if (!tirage) continue;
 
           const winningNumbers = [
@@ -974,104 +1001,63 @@
             ? String(parseInt(tirage.numeroChance,10))
             : null;
 
-          highlightTicketNumbers(ticket.id, winningNumbers, winningChance);
+          highlightTicketNumbers(tid, winningNumbers, winningChance);
+
+          // ----- Provisoire (si burst actif) -----
+          const now = Date.now();
+          if (window.__provisionalUntil && now < window.__provisionalUntil) {
+            const backendGain = gainsMap.has(tid) ? Number(gainsMap.get(tid)) : null;
+
+            if (backendGain === null || backendGain === undefined || Number.isNaN(backendGain)) {
+              const prov = computeProvisionalGain(ticket, tirage);
+
+              // si provisoire > 0 => afficher gagné provisoire
+              if (prov.total > 0) {
+                const gainCell = document.getElementById(`gain-cell-${tid}`);
+                if (gainCell) gainCell.innerHTML = renderGainHtml({ backendGain: null, provisional: prov });
+
+                setBadge(document.getElementById(`status-${tid}`), "Gagné (provisoire)", "bg-success text-white");
+                setBadge(document.getElementById(`status-inline-${tid}`), "Gagné (provisoire)", "bg-success text-white");
+              }
+            }
+          }
+
 
           const secondGain = computeSecondDrawGain(ticket, tirage);
-
-          const secondDrawNumbers = [
-            tirage?.boule1SecondTirage,
-            tirage?.boule2SecondTirage,
-            tirage?.boule3SecondTirage,
-            tirage?.boule4SecondTirage,
-            tirage?.boule5SecondTirage
-          ].filter(v => v !== null && v !== undefined && v !== "")
-          .map(v => parseInt(v, 10))
-          .filter(v => !Number.isNaN(v));
-
-          const ticketNumbers = (ticket.numbers || "")
-            .split("-")
-            .map(n => parseInt(n,10))
-            .filter(n => !Number.isNaN(n));
-
-          const matches = ticketNumbers.filter(n => secondDrawNumbers.includes(n)).length;
-
-          let field = null;
-          if (matches === 5) field = "rapportDuRang1SecondTirage";
-          else if (matches === 4) field = "rapportDuRang2SecondTirage";
-          else if (matches === 3) field = "rapportDuRang3SecondTirage";
-          else if (matches === 2) field = "rapportDuRang4SecondTirage";
-
-          console.log("[2ND TIRAGE DEBUG]", {
-            ticketId: ticket.id,
-            drawDate: tYMD,
-            ticketNumbers,
-            secondDrawNumbers,
-            matches,
-            field,
-            rawValue: field ? tirage?.[field] : null,
-            secondGain
-          });
-
-
-
           if (secondGain > 0){
-            const gainCell = document.getElementById(`gain-cell-${ticket.id}`);
-            const statusSpan = document.getElementById(`status-${ticket.id}`);
-            const baseGain = gainsMap.has(ticket.id) ? Number(gainsMap.get(ticket.id)) : 0;
+            const gainCell = document.getElementById(`gain-cell-${tid}`);
+            const statusSpan = document.getElementById(`status-${tid}`);
+            const statusInline = document.getElementById(`status-inline-${tid}`);
 
-            if (baseGain > 0){
-              gainCell.innerHTML = `
-                ${formatGain(baseGain)}
-                <div class="muted" style="font-size:.85rem;">
-                  + ${formatGain(secondGain)} <span class="muted">(2nd tirage)</span>
-                </div>
-              `;
-            } else {
-              gainCell.innerHTML = `
-                ${formatGain(secondGain)}
-                <div class="muted" style="font-size:.85rem;">
-                  (2nd tirage)
-                </div>
-              `;
+            const baseGain = gainsMap.has(tid) ? Number(gainsMap.get(tid)) : 0;
+
+            if (gainCell){
+              if (baseGain > 0){
+                gainCell.innerHTML = `
+                  ${formatGain(baseGain)}
+                  <div class="muted" style="font-size:.85rem;">
+                    + ${formatGain(secondGain)} <span class="muted">(2nd tirage)</span>
+                  </div>
+                `;
+              } else {
+                gainCell.innerHTML = `
+                  ${formatGain(secondGain)}
+                  <div class="muted" style="font-size:.85rem;">
+                    (2nd tirage)
+                  </div>
+                `;
+              }
             }
 
-            if (statusSpan && statusSpan.textContent.trim() !== "Gagné"){
-              statusSpan.textContent = "Gagné";
-              statusSpan.className = "badge bg-success text-white";
-            }
+            if (statusSpan) setBadge(statusSpan, "Gagné", "bg-success text-white");
+            if (statusInline) setBadge(statusInline, "Gagné", "bg-success text-white");
           }
         }
 
         renderPagination();
       }
 
-      function renderComboDotsMain(rang){
-        const rules = {
-          1: { blue: 5, red: 1 },
-          2: { blue: 5, red: 0 },
-          3: { blue: 4, red: 1 },
-          4: { blue: 4, red: 0 },
-          5: { blue: 3, red: 1 },
-          6: { blue: 3, red: 0 },
-          7: { blue: 2, red: 1 },
-          8: { blue: 2, red: 0 },
-          9: { blue: 0, red: 1 },
-        };
-        const r = rules[rang] || {blue:0, red:0};
-        return [
-          ...Array.from({length:r.blue}, () => `<span class="combo-dot" title="Boule"></span>`),
-          ...Array.from({length:r.red},  () => `<span class="combo-dot chance" title="Chance"></span>`)
-        ].join("");
-      }
-
-      function renderComboDotsSecond(rang){
-        const blueByRang = {1:5, 2:4, 3:3, 4:2};
-        const n = blueByRang[rang] || 0;
-        return Array.from({length:n}, () => `<span class="combo-dot" title="Boule"></span>`).join("");
-      }
-
-
-      // ===== Modal détails tirage (ta fonction existante, inchangée)
+      // ===== Modal détails tirage (inchangé)
       async function showTirageDetails(dateStr){
         const modalEl   = document.getElementById("tirageModal");
         const modalBody = document.getElementById("modalTirageBody");
@@ -1092,32 +1078,21 @@
           return null;
         };
 
-        //const formatDateForDisplay = (v) => {
-        //  if (!v) return key;
-        //  const d = new Date(v);
-        //  return Number.isNaN(d.getTime()) ? String(v) : d.toLocaleDateString("fr-FR");
-        //};
-
         const formatDateForDisplay = (v) => {
           const s = (v ? String(v).trim() : key);
 
-          // si "DD/MM/YYYY"
           if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)){
             const m = moment.tz(s, "DD/MM/YYYY", true, "Europe/Paris");
             return m.isValid() ? m.format("DD/MM/YYYY") : s;
           }
-
-          // si "YYYY-MM-DD" ou ISO
           if (/^\d{4}-\d{2}-\d{2}/.test(s)){
             const m = moment.tz(s, "Europe/Paris");
             return m.isValid() ? m.format("DD/MM/YYYY") : s;
           }
 
-          // fallback
           const m = moment.tz(s, "Europe/Paris");
           return m.isValid() ? m.format("DD/MM/YYYY") : s;
         };
-
 
         const moneyLike = (v) => {
           if (v === null || v === undefined || v === "") return null;
@@ -1172,6 +1147,31 @@
           `;
         };
 
+        const renderComboDotsMain = (rang) => {
+          const rules = {
+            1: { blue: 5, red: 1 },
+            2: { blue: 5, red: 0 },
+            3: { blue: 4, red: 1 },
+            4: { blue: 4, red: 0 },
+            5: { blue: 3, red: 1 },
+            6: { blue: 3, red: 0 },
+            7: { blue: 2, red: 1 },
+            8: { blue: 2, red: 0 },
+            9: { blue: 0, red: 1 },
+          };
+          const r = rules[rang] || {blue:0, red:0};
+          return [
+            ...Array.from({length:r.blue}, () => `<span class="combo-dot" title="Boule"></span>`),
+            ...Array.from({length:r.red},  () => `<span class="combo-dot chance" title="Chance"></span>`)
+          ].join("");
+        };
+
+        const renderComboDotsSecond = (rang) => {
+          const blueByRang = {1:5, 2:4, 3:3, 4:2};
+          const n = blueByRang[rang] || 0;
+          return Array.from({length:n}, () => `<span class="combo-dot" title="Boule"></span>`).join("");
+        };
+
         try{
           const data = await getTirageByYMD(key);
 
@@ -1200,17 +1200,6 @@
 
           const joker = pickField(data, ["numeroJokerplus", "jokerPlus", "numeroJokerPlus"]);
 
-          //const mainRows = [1,2,3,4,5,6,7,8,9].map(rang => {
-          //  const winners = data[`nombreDeGagnantAuRang${rang}`];
-          //  const payout  = data[`rapportDuRang${rang}`];
-          //  return `
-          //    <tr> <!--  -->
-          //      <td>${rang}</td>
-          //      <td><b>${winners ?? "-"}</b></td>
-          //      <td><b>${payout != null ? formatMoney(payout) : "-"}</b></td>
-          //    </tr>`;
-          //}).join("");
-
           const mainRows = [1,2,3,4,5,6,7,8,9].map(rang => {
             const winners = data[`nombreDeGagnantAuRang${rang}`];
             const payout  = data[`rapportDuRang${rang}`];
@@ -1224,8 +1213,6 @@
             `;
           }).join("");
 
-
-
           const hasSecond = [1,2,3,4].some(r =>
             data[`nombreDeGagnantAuRang${r}SecondTirage`] != null ||
             data[`rapportDuRang${r}SecondTirage`] != null
@@ -1233,17 +1220,6 @@
 
           let secondBlock = "";
           if (hasSecond){
-            //const secondRows = [1,2,3,4].map(rang => {
-            //  const winners = data[`nombreDeGagnantAuRang${rang}SecondTirage`];
-            //  const payout  = data[`rapportDuRang${rang}SecondTirage`];
-            //  return `
-//<tr> <!--  -->
-            //      <td>${rang}</td>
-            //      <td><b>${winners ?? "-"}</b></td>
-            //      <td><b>${payout != null ? formatMoney(payout) : "-"}</b></td>
-            //    </tr>`;
-            //}).join("");
-
             const secondRows = [1,2,3,4].map(rang => {
               const winners = data[`nombreDeGagnantAuRang${rang}SecondTirage`];
               const payout  = data[`rapportDuRang${rang}SecondTirage`];
@@ -1256,8 +1232,6 @@
                 </tr>
               `;
             }).join("");
-
-
 
             secondBlock = `
               <hr class="my-4" style="border-color: rgba(255,255,255,.10);">
@@ -1282,8 +1256,6 @@
 
           modalBody.innerHTML = `
             <div>
-              <!-- <h4 class="fw-bold mb-2">Résultat Loto — ${esc(jour)} ${esc(dtAff)}</h4> -->
-
               <div class="row g-3 mt-1">
                 <div class="col-md-6">
                   <div class="muted fw-bold mb-2">Tirage principal</div>
@@ -1339,13 +1311,12 @@
         }
       }
 
-      // ===== Delete ticket (confirmation Windows-like modal)
+      // ===== Delete ticket
       let pendingDeleteTicketId = null;
       let confirmModalInstance = null;
 
       function openDeleteConfirm(ticketId){
-        pendingDeleteTicketId = ticketId;
-
+        pendingDeleteTicketId = String(ticketId);
         const modalEl = document.getElementById("confirmDeleteModal");
         confirmModalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
         confirmModalInstance.show();
@@ -1365,7 +1336,9 @@
         try{
           await axios.delete(`${API_TICKETS}/${ticketId}`, { withCredentials: true });
 
-          allTickets = allTickets.filter(t => t.id !== ticketId);
+          allTickets = allTickets.filter(t => String(t.id) !== String(ticketId));
+          gainsMap.delete(String(ticketId));
+
           showOk("Ticket supprimé.");
           renderTicketsPage();
 
@@ -1377,6 +1350,154 @@
           btn.disabled = false;
           btn.innerHTML = oldHtml;
         }
+      }
+
+    // ===== Gain refresh (backend result) + provisoire 60s (PROPRE)
+    async function refreshGainsOnly(){
+      try{
+        const gainsRes = await axios.get(API_GAINS, { withCredentials: true });
+        const gains = Array.isArray(gainsRes.data) ? gainsRes.data : [];
+        const newMap = new Map(gains.map(g => [String(g.ticketId), g.gainAmount]));
+
+        const rows = document.querySelectorAll('tbody#ticketsTable tr[id^="ticket-"]');
+
+        // tickets visibles
+        const visibleTickets = [];
+        rows.forEach(row => {
+          const ticketId = row.id.replace("ticket-","");
+          const ticket = allTickets.find(t => String(t.id) === String(ticketId));
+          if (ticket) visibleTickets.push(ticket);
+        });
+
+        // tirages nécessaires (cache)
+        const uniqueDates = [...new Set(visibleTickets.map(t => ymd(t.drawDate)))];
+        const tirages = await Promise.all(uniqueDates.map(d => getTirageByYMD(d)));
+        const tirageByDate = new Map(uniqueDates.map((d,i) => [d, tirages[i]]));
+
+        rows.forEach(row => {
+          const ticketId = row.id.replace("ticket-","");
+          const ticket = allTickets.find(t => String(t.id) === String(ticketId));
+          if (!ticket) return;
+
+          const backendValRaw = newMap.has(String(ticketId)) ? newMap.get(String(ticketId)) : null;
+          const backendVal = (backendValRaw === null || backendValRaw === undefined) ? null : Number(backendValRaw);
+          const backendReady = (backendVal !== null && !Number.isNaN(backendVal));
+
+          const gainCell = document.getElementById(`gain-cell-${ticketId}`);
+          const tirage = tirageByDate.get(ymd(ticket.drawDate));
+
+          // 1) Affichage gain : backend prioritaire
+          if (backendReady){
+            if (gainCell) gainCell.innerHTML = formatGain(backendVal);
+          } else {
+            // backend pas prêt => provisoire uniquement si fenêtre active
+            let usedProvisional = false;
+
+            if (window.__provisionalUntil && Date.now() < window.__provisionalUntil && tirage){
+              const prov = computeProvisionalGain(ticket, tirage);
+              if (prov && prov.total > 0){
+                usedProvisional = true;
+                if (gainCell) gainCell.innerHTML = renderGainHtml({ backendGain: null, provisional: prov });
+                setBadge(document.getElementById(`status-${ticketId}`), "Gagné (provisoire)", "bg-success text-white");
+                setBadge(document.getElementById(`status-inline-${ticketId}`), "Gagné (provisoire)", "bg-success text-white");
+              }
+            }
+
+            if (!usedProvisional){
+              if (gainCell) gainCell.innerHTML = "-";
+            }
+          }
+
+          // 2) Statut normal (si pas déjà mis en "provisoire gagné")
+          // (si on est en provisoire mais total = 0, on retombe ici)
+          let stObj = getStatus(ticket.drawDate, backendReady ? backendVal : null);
+
+          // si provisoire actif et gagnant provisoire déjà affiché, on ne redescend pas en "Perdu"
+          if (window.__provisionalUntil && Date.now() < window.__provisionalUntil && !backendReady && tirage){
+            const prov = computeProvisionalGain(ticket, tirage);
+            if (prov && prov.total > 0){
+              stObj = { label: "Gagné (provisoire)", cls: "bg-success text-white", eyeEnabled: true };
+            }
+          }
+
+          setBadge(document.getElementById(`status-${ticketId}`), stObj.label, stObj.cls);
+          setBadge(document.getElementById(`status-inline-${ticketId}`), stObj.label, stObj.cls);
+
+          // 3) Ré-appliquer second tirage (si présent) sur l’affichage actuel
+          if (tirage && gainCell){
+            const secondGain = computeSecondDrawGain(ticket, tirage);
+            if (secondGain > 0){
+              // base = backend si prêt, sinon 0 (ou provisoire main déjà inclus dans prov, donc on ne double pas)
+              // Ici on ne rajoute le second tirage QUE si backend prêt.
+              // Si backend pas prêt, computeProvisionalGain gère déjà main+second.
+              if (backendReady){
+                const baseGain = backendVal > 0 ? backendVal : 0;
+
+                if (baseGain > 0){
+                  gainCell.innerHTML = `
+                    ${formatGain(baseGain)}
+                    <div class="muted" style="font-size:.85rem;">
+                      + ${formatGain(secondGain)} <span class="muted">(2nd tirage)</span>
+                    </div>
+                  `;
+                } else {
+                  gainCell.innerHTML = `
+                    ${formatGain(secondGain)}
+                    <div class="muted" style="font-size:.85rem;">
+                      (2nd tirage)
+                    </div>
+                  `;
+                }
+
+                setBadge(document.getElementById(`status-${ticketId}`), "Gagné", "bg-success text-white");
+                setBadge(document.getElementById(`status-inline-${ticketId}`), "Gagné", "bg-success text-white");
+              }
+            }
+          }
+        });
+
+        // IMPORTANT : on termine en remplaçant gainsMap par la nouvelle map
+        gainsMap = newMap;
+
+      }catch(e){
+        console.error("refreshGainsOnly error:", e);
+      }
+    }
+
+
+      // ===== Polling (normal + burst 1 minute)
+      let gainsIntervalId = null;
+      let isRefreshing = false;
+
+      function stopGainsPolling(){
+        if (!gainsIntervalId) return;
+        clearInterval(gainsIntervalId);
+        gainsIntervalId = null;
+      }
+
+      function startGainsPolling(intervalMs = 30000){
+        stopGainsPolling();
+
+        // refresh immédiat
+        refreshGainsOnly();
+
+        gainsIntervalId = setInterval(async () => {
+          if (isRefreshing) return;
+          isRefreshing = true;
+          try{
+            await refreshGainsOnly();
+          } finally {
+            isRefreshing = false;
+          }
+        }, intervalMs);
+      }
+
+      function startBurstPolling(durationMs = 60000, intervalMs = 5000){
+        startGainsPolling(intervalMs);
+        setTimeout(() => {
+          // repasse en polling normal après 60s
+          startGainsPolling(30000);
+        }, durationMs);
       }
 
       // ===== Load
@@ -1393,15 +1514,14 @@
           const tickets = Array.isArray(ticketsRes.data) ? ticketsRes.data : [];
           const gains   = Array.isArray(gainsRes.data) ? gainsRes.data : [];
 
-          gainsMap = new Map(gains.map(g => [g.ticketId, g.gainAmount]));
+          gainsMap = new Map(gains.map(g => [String(g.ticketId), g.gainAmount]));
 
           allTickets = tickets
             .filter(t => t && t.drawDate)
             .sort((a,b) => new Date(b.drawDate) - new Date(a.drawDate));
 
-          currentPage = 1;
+          //currentPage = 1;
           await renderTicketsPage();
-          showOk("Tickets chargés.");
         }catch(e){
           console.error(e);
           showErr("Impossible de charger les tickets (tickets/gains).");
@@ -1415,22 +1535,71 @@
       pageSizeSelect.addEventListener("change", () => {
         pageSize = parseInt(pageSizeSelect.value, 10);
         currentPage = 1;
+
+        // ✅ save
+        localStorage.setItem("tickets.page", String(currentPage));
+        localStorage.setItem("tickets.size", String(pageSize));
+
         renderTicketsPage();
       });
 
-      // Modal confirm delete
+      const savedPage = parseInt(localStorage.getItem("tickets.page"), 10);
+      if (!Number.isNaN(savedPage) && savedPage > 0) currentPage = savedPage;
+
+      const savedSize = parseInt(localStorage.getItem("tickets.size"), 10);
+      if (!Number.isNaN(savedSize) && [10,25,50].includes(savedSize)) {
+        pageSize = savedSize;
+        pageSizeSelect.value = String(pageSize);
+      }
+
       document.getElementById("confirmDeleteBtn").addEventListener("click", performDeleteTicket);
 
       // Expose for inline onclick
       window.__showTirageDetails = showTirageDetails;
       window.__deleteTicket = openDeleteConfirm;
+      window.__refreshGainsOnly = refreshGainsOnly;
 
-      document.addEventListener("DOMContentLoaded", loadTickets);
+      // Pause quand l’onglet est caché
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) stopGainsPolling();
+        else startGainsPolling(30000);
+      });
+
+      // ===== Boot
+    document.addEventListener("DOMContentLoaded", async () => {
+
+      // ✅ Burst AVANT le premier rendu
+      const params = new URLSearchParams(window.location.search);
+      const wantsBurst = params.get("burst") === "1" || params.get("refresh") === "1";
+
+      if (wantsBurst){
+        window.__provisionalUntil = Date.now() + 60000; // 1 minute provisoire
+      }
+
+      await loadTickets(); // ✅ maintenant le provisoire peut s’appliquer dès l’affichage
+      startGainsPolling(30000);
+
+      if (wantsBurst){
+        startBurstPolling(60000, 5000);
+
+        // ✅ nettoyage URL (évite de relancer burst après F5)
+        params.delete("burst");
+        params.delete("refresh");
+        params.delete("ts"); // ✅ si tu ajoutes ts dans l’URL
+        const newQs = params.toString();
+        const newUrl = window.location.pathname + (newQs ? ("?" + newQs) : "");
+        window.history.replaceState({}, "", newUrl);
+      }
+    });
+
+
+
+
+
     })();
   </script>
 
   <script src="cookies.js"></script>
-  <!-- IA (si tu l'utilises) -->
   <script src="ai-loader.js"></script>
 </body>
 </html>

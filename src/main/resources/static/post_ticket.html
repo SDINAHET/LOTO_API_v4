@@ -574,8 +574,15 @@
             }
           });
 
-          showOk("Ticket ajouté avec succès. Redirection…");
-          setTimeout(() => window.location.href = "tickets.html", 900);
+          //showOk("Ticket ajouté avec succès. Redirection…");
+          //setTimeout(() => window.location.href = "tickets.html", 900);
+          //setTimeout(() => window.location.href = "tickets.html?burst=1", 1000);
+          //window.location.href = `tickets.html?burst=1&ts=${Date.now()}`;
+          showOk("Ticket mis à jour avec succès — Redirection…");
+            setTimeout(() => {
+              window.location.href = `tickets.html?burst=1&ts=${Date.now()}`;
+            }, 800);
+
           resetSelections();
         }catch(err){
           console.error(err);

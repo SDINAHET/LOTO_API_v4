@@ -802,3 +802,16 @@ Le projet Loto Tracker API démontre :
 - une documentation complète et exploitable.
 
 Il répond pleinement aux exigences RNCP6.
+
+
+Test dans docker
+```bash
+docker compose -f docker-compose.test.yml up --abort-on-container-exit --remove-orphans
+
+docker compose -f docker-compose.test.yml up --build --abort-on-container-exit --remove-orphans --exit-code-from tests
+
+
+docker compose -f docker-compose.test.yml down -v
+docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
+
+```

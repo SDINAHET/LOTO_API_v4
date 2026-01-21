@@ -719,6 +719,21 @@ Refresh token helper (fetchWithRefresh)
   /* =========================================================
      Logout (toujours retour index.html)
   ========================================================= */
+  // async function logout() {
+  //   const base = window.__API_BASE_ACTIVE__ || API_BASE_PRIMARY;
+
+  //   try {
+  //     await fetch(`${base}${LOGOUT_PATH}`, {
+  //       method: "POST",
+  //       credentials: "include"
+  //     });
+  //   } catch {
+  //     // même si l'API échoue, on force la redirection
+  //   } finally {
+  //     localStorage.removeItem("jwtToken");
+  //     window.location.href = "index.html";
+  //   }
+  // }
   async function logout() {
     const base = window.__API_BASE_ACTIVE__ || API_BASE_PRIMARY;
 
@@ -728,12 +743,21 @@ Refresh token helper (fetchWithRefresh)
         credentials: "include"
       });
     } catch {
-      // même si l'API échoue, on force la redirection
+      // même si l'API échoue, on force la déconnexion côté front
     } finally {
+
+      // 🔥 Nettoyage pagination Tickets
+      localStorage.removeItem("tickets.page");
+      localStorage.removeItem("tickets.size");
+
+      // (optionnel mais OK si tu l’utilises ailleurs)
       localStorage.removeItem("jwtToken");
+
+      // Redirection propre
       window.location.href = "index.html";
     }
   }
+
 
   function bindLogout() {
     const btn = document.getElementById("logoutBtn");

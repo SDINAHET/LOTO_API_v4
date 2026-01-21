@@ -13,6 +13,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 
 @Tag(name = "Admin - Refresh Tokens", description = "Admin endpoints for refresh tokens (read-only).")
 @RestController
@@ -22,6 +24,13 @@ public class AdminRefreshTokenController {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
+    private static final ZoneId ADMIN_ZONE = ZoneId.of("Europe/Paris");
+
+    private static OffsetDateTime toAdminOdt(Instant i) {
+        return (i == null) ? null : i.atZone(ADMIN_ZONE).toOffsetDateTime();
+    }
+
+
     public AdminRefreshTokenController(RefreshTokenRepository refreshTokenRepository) {
         this.refreshTokenRepository = refreshTokenRepository;
     }
@@ -30,15 +39,17 @@ public class AdminRefreshTokenController {
      * DTO SAFE : ne renvoie JAMAIS le refresh token brut
      * (uniquement hash + dates + revokedAt + userId)
      */
-    public record RefreshTokenAdminView(
-            String id,
-            String userId,
-            String tokenHash,
-            Instant createdAt,
-            Instant expiresAt,
-            Instant revokedAt,
-            boolean revoked
-    ) {}
+        public record RefreshTokenAdminView(
+                String id,
+                String userId,
+                String tokenHash,
+                String createdAt,
+                String expiresAt,
+                String revokedAt,
+                boolean revoked
+        ) {}
+
+
 
     /**
      * ✅ LISTE pour console admin (read-only)
@@ -65,15 +76,22 @@ public class AdminRefreshTokenController {
                         userId = u.getId().toString();
                     }
 
+                    OffsetDateTime created = toAdminOdt(rt.getCreatedAt());
+                    OffsetDateTime expires = toAdminOdt(rt.getExpiresAt());
+                    OffsetDateTime revoked = toAdminOdt(revokedAt);
+
                     return new RefreshTokenAdminView(
                             rt.getId(),
                             userId,
                             rt.getTokenHash(),
-                            rt.getCreatedAt(),
-                            rt.getExpiresAt(),
-                            revokedAt,
+                            created == null ? null : created.toString(),
+                            expires == null ? null : expires.toString(),
+                            revoked == null ? null : revoked.toString(),
                             revokedAt != null
                     );
+
+
+
                 })
                 .collect(Collectors.toList());
 

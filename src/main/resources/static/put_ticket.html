@@ -752,8 +752,16 @@
             updateDiffUI();
 
             //showOk("Ticket mis à jour avec succès ✔ Redirection…");
-            showOk("Ticket mis à jour avec succès    Redirection…");
-            setTimeout(() => window.location.href = "tickets.html", 1000);
+                showOk("Ticket mis à jour avec succès    Redirection…");
+            //setTimeout(() => window.location.href = "tickets.html", 1000);
+            //setTimeout(() => window.location.href = "tickets.html?burst=1", 1000);
+            //window.location.href = `tickets.html?burst=1&ts=${Date.now()}`;
+            showOk("Ticket mis à jour avec succès — Redirection…");
+            setTimeout(() => {
+              window.location.href = `tickets.html?burst=1&ts=${Date.now()}`;
+            }, 800);
+
+
           }catch(err){
             console.error(err);
             const msg =

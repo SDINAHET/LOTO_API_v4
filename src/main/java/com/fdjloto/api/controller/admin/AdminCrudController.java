@@ -196,6 +196,15 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * Mini-HeidiSQL pour l'admin :
  * CRUD simple sur les tables users, tickets, ticket_gains.
@@ -217,28 +226,79 @@ public class AdminCrudController {
     private final TicketRepository ticketRepository;
     private final TicketGainRepository ticketGainRepository;
 
+    // public AdminCrudController(UserRepository userRepository,
+    //                            TicketRepository ticketRepository,
+    //                            TicketGainRepository ticketGainRepository) {
+    //     this.userRepository = userRepository;
+    //     this.ticketRepository = ticketRepository;
+    //     this.ticketGainRepository = ticketGainRepository;
+    // }
+
+    private final ObjectMapper objectMapper;
+    private static final ZoneId ADMIN_ZONE = ZoneId.of("Europe/Paris");
+
     public AdminCrudController(UserRepository userRepository,
-                               TicketRepository ticketRepository,
-                               TicketGainRepository ticketGainRepository) {
+                            TicketRepository ticketRepository,
+                            TicketGainRepository ticketGainRepository,
+                            ObjectMapper objectMapper) {
         this.userRepository = userRepository;
         this.ticketRepository = ticketRepository;
         this.ticketGainRepository = ticketGainRepository;
+        this.objectMapper = objectMapper;
     }
+
+    private OffsetDateTime toAdminOdt(Instant i) {
+        return (i == null) ? null : i.atZone(ADMIN_ZONE).toOffsetDateTime();
+    }
+
+    private Map<String, Object> toAdminMap(Object entity) {
+        Map<String, Object> map = objectMapper.convertValue(
+                entity, new TypeReference<LinkedHashMap<String, Object>>() {}
+        );
+
+        // Convertit uniquement les champs qui finissent par At (createdAt, updatedAt, revokedAt, etc.)
+        map.replaceAll((k, v) -> {
+            if (v == null) return null;
+            String key = k.toLowerCase();
+            boolean isDateKey = key.endsWith("at") || key.endsWith("_at");
+            if (!isDateKey) return v;
+
+            if (v instanceof Instant inst) return toAdminOdt(inst);
+
+            // Si Jackson a déjà converti en String ISO (souvent "....Z")
+            if (v instanceof String s) {
+                try {
+                    Instant inst = Instant.parse(s);
+                    return toAdminOdt(inst);
+                } catch (Exception ignore) {
+                    return v;
+                }
+            }
+            return v;
+        });
+
+        return map;
+    }
+
 
     /* ========================= USERS ========================= */
 
     @GetMapping("/users")
-    public List<User> getAllUsers() {
-        // ✅ derniers en premier
-        return userRepository.findAll(Sort.by(Sort.Order.desc("createdAt").nullsLast()));
+    public List<Map<String, Object>> getAllUsers() {
+        return userRepository.findAll(Sort.by(Sort.Order.desc("createdAt").nullsLast()))
+                .stream()
+                .map(this::toAdminMap)
+                .toList();
     }
 
+
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable String id) {
+    public ResponseEntity<Map<String, Object>> getUserById(@PathVariable String id) {
         return userRepository.findById(id)
-                .map(ResponseEntity::ok)
+                .map(u -> ResponseEntity.ok(toAdminMap(u)))
                 .orElse(ResponseEntity.notFound().build());
     }
+
 
     @PostMapping("/users")
     public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
@@ -273,16 +333,21 @@ public class AdminCrudController {
     /* ========================= TICKETS ========================= */
 
     @GetMapping("/tickets")
-    public List<Ticket> getAllTickets() {
-        return ticketRepository.findAll(Sort.by(Sort.Order.desc("createdAt").nullsLast()));
+    public List<Map<String, Object>> getAllTickets() {
+        return ticketRepository.findAll(Sort.by(Sort.Order.desc("createdAt").nullsLast()))
+                .stream()
+                .map(this::toAdminMap)
+                .toList();
     }
 
+
     @GetMapping("/tickets/{id}")
-    public ResponseEntity<Ticket> getTicketById(@PathVariable String id) {
+    public ResponseEntity<Map<String, Object>> getTicketById(@PathVariable String id) {
         return ticketRepository.findById(id)
-                .map(ResponseEntity::ok)
+                .map(t -> ResponseEntity.ok(toAdminMap(t)))
                 .orElse(ResponseEntity.notFound().build());
     }
+
 
     @PostMapping("/tickets")
     public ResponseEntity<Ticket> createTicket(@Valid @RequestBody Ticket ticket) {
