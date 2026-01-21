@@ -1573,6 +1573,9 @@ public class LotoScraperService {
     @Autowired
     private LotoRepository lotoRepository;
 
+	@Autowired
+	private GainCalculationService gainCalculationService;
+
 	@EventListener(ApplicationReadyEvent.class)
     public void scheduleInitialScrape() {
         System.out.println("🕒 Scraping planifié pour démarrer dans 1 minute...");
@@ -1670,6 +1673,8 @@ public class LotoScraperService {
 			return defaultValue;
 		}
 	}
+
+
 
 	private double parseDouble(String value, double defaultValue) {
 		try {
@@ -1819,6 +1824,14 @@ public class LotoScraperService {
             } else {
                 System.out.println("🚨 Aucun document inséré !");
             }
+
+			lotoRepository.saveAll(lotoResults);
+			System.out.println("✅ " + lotoResults.size() + " documents insérés dans MongoDB !");
+
+			// 🔥 recalcul immédiat des gains après MAJ des tirages
+			gainCalculationService.calculerGains();
+			System.out.println("✅ Gains recalculés après mise à jour des tirages.");
+
 
         } catch (IOException | CsvException e) {
             System.err.println("🚨 Erreur CSV : " + e.getMessage());

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import java.time.*;
 
 @Service
 public class GainCalculationService {
@@ -36,6 +37,12 @@ public class GainCalculationService {
         this.ticketGainService = ticketGainService;
     }
 
+    private void clearGainForTicket(String ticketId) {
+        ticketGainRepository.findByTicketId(ticketId)
+                .ifPresent(ticketGainRepository::delete);
+    }
+
+
 // ✅ Planification : Exécution toutes les 30 minutes
 // @Scheduled(cron = "0 */30 * * * *", zone = "Europe/Paris")
 @Scheduled(cron = "*/30 * * * * *", zone = "Europe/Paris")
@@ -49,23 +56,27 @@ public class GainCalculationService {
         List<LotoResult> resultatsLoto = lotoRepository.findAll();
 
         return tickets.stream()
-                .map(ticket -> {
-                    Optional<LotoResult> tirageOptionnel = lotoRepository.findByDateDeTirage(ticket.getDrawDate());
+            .map(ticket -> {
+                Optional<LotoResult> tirageOptionnel = lotoRepository.findByDateDeTirage(ticket.getDrawDate());
 
-                    if (tirageOptionnel.isPresent()) {
-                        LotoResult tirageCorrespondant = tirageOptionnel.get();
-                        int nbCorrespondances = compareNumbers(ticket, tirageCorrespondant);
-                        boolean chanceMatch = ticket.getChanceNumber() == tirageCorrespondant.getNumeroChance();
-                        double gain = getGainAmount(nbCorrespondances, chanceMatch, tirageCorrespondant);
+                if (tirageOptionnel.isPresent()) {
+                    LotoResult tirageCorrespondant = tirageOptionnel.get();
+                    int nbCorrespondances = compareNumbers(ticket, tirageCorrespondant);
+                    boolean chanceMatch = ticket.getChanceNumber() == tirageCorrespondant.getNumeroChance();
+                    double gain = getGainAmount(nbCorrespondances, chanceMatch, tirageCorrespondant);
 
-                        // ✅ Enregistrement du gain dans la base SQLite
-                        saveOrUpdateGain(ticket, nbCorrespondances, chanceMatch, gain);
+                    saveOrUpdateGain(ticket, nbCorrespondances, chanceMatch, gain);
 
-                        return new GainResultDTO(ticket.getId(), nbCorrespondances, chanceMatch, gain);
-                    }
-                    return new GainResultDTO(ticket.getId(), 0, false, 0.0);
-                })
-                .toList();
+                    return new GainResultDTO(ticket.getId(), nbCorrespondances, chanceMatch, gain);
+                }
+
+                // ✅ IMPORTANT : si pas de tirage pour cette date => on supprime le gain existant
+                clearGainForTicket(ticket.getId());
+
+                return new GainResultDTO(ticket.getId(), 0, false, 0.0);
+            })
+            .toList();
+
     }
 
     /**
@@ -100,7 +111,9 @@ public class GainCalculationService {
      */
     @Transactional
     private void saveOrUpdateGain(Ticket ticket, int matchingNumbers, boolean luckyNumberMatch, double gainAmount) {
-        Optional<TicketGain> existingGain = ticketGainRepository.findById(ticket.getId());
+        // Optional<TicketGain> existingGain = ticketGainRepository.findById(ticket.getId());
+        Optional<TicketGain> existingGain = ticketGainRepository.findByTicketId(ticket.getId());
+
 
         if (existingGain.isPresent()) {
             TicketGain ticketGain = existingGain.get();

@@ -269,6 +269,9 @@ open_browser "http://localhost:$PORT_SPRING/swagger-ui/index.html"
 # ✅ AI: ne démarre que si AI_ENABLED=true
 start_ai_service
 
+echo "==> Refresh du front quand Spring est prêt"
+open_browser "http://localhost:$PORT_STATIC/"
+
 wait
 
 # #!/bin/bash

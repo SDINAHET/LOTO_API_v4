@@ -183,6 +183,10 @@ open_browser "http://localhost:$PORT_SPRING/swagger-ui/index.html"
 
 start_ai_service
 
+echo "==> Refresh du front quand Spring est prêt"
+open_browser "http://localhost:$PORT_STATIC/"
+
+
 # Spring reste vivant tant que le script tourne
 wait
 

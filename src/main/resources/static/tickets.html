@@ -624,9 +624,13 @@
       }
 
       // ===== Utils
+      //function ymd(dateStr){
+      //  const d = new Date(dateStr);
+      //  return d.toISOString().split("T")[0];
+      //}
+
       function ymd(dateStr){
-        const d = new Date(dateStr);
-        return d.toISOString().split("T")[0];
+        return moment.tz(dateStr, "Europe/Paris").format("YYYY-MM-DD");
       }
 
       function formatDate(dateStr){
@@ -662,21 +666,44 @@
         return `<span class="num-chance ticket-chance-number" data-value="${v}">${v}</span>`;
       }
 
+      //function getStatus(drawDateStr, gain){
+      //  const drawDate = new Date(drawDateStr);
+      //  const now = new Date();
+
+      //  const todayYMD = now.toISOString().split("T")[0];
+      //  const drawYMD  = drawDate.toISOString().split("T")[0];
+
+      //  const dayOfWeek = drawDate.getUTCDay();
+      //  if (![1,3,6].includes(dayOfWeek)) {
+      //    return { label: "Erreur date", cls: "bg-danger text-white", eyeEnabled: false };
+      //  }
+
+      //  if (drawYMD < todayYMD) {
+      //    if (gain === undefined || gain === null) {
+      //       return { label: "Perdu", cls: "bg-warning text-dark", eyeEnabled: true };
+      //    }
+      //    if (Number(gain) > 0) return { label: "Gagné", cls: "bg-success text-white", eyeEnabled: true };
+      //    return { label: "Perdu", cls: "bg-warning text-dark", eyeEnabled: true };
+      //  }
+
+      // return { label: "En attente", cls: "bg-secondary text-white", eyeEnabled: false };
+      //}
+
       function getStatus(drawDateStr, gain){
-        const drawDate = new Date(drawDateStr);
-        const now = new Date();
+        const draw = moment.tz(drawDateStr, "Europe/Paris").startOf("day");
+        const now  = moment.tz("Europe/Paris").startOf("day");
 
-        const todayYMD = now.toISOString().split("T")[0];
-        const drawYMD  = drawDate.toISOString().split("T")[0];
-
-        const dayOfWeek = drawDate.getUTCDay();
-        if (![1,3,6].includes(dayOfWeek)) {
+        // ✅ jour local (FR) : Lundi=1, Mercredi=3, Samedi=6
+        const dow = draw.day();
+        if (![1,3,6].includes(dow)) {
           return { label: "Erreur date", cls: "bg-danger text-white", eyeEnabled: false };
         }
 
-        if (drawYMD < todayYMD) {
+        // tirage passé
+        if (draw.isBefore(now)) {
+          // 🔥 si gain pas encore calculé => ne pas afficher "Perdu" direct
           if (gain === undefined || gain === null) {
-            return { label: "Perdu", cls: "bg-warning text-dark", eyeEnabled: true };
+            return { label: "Calcul en cours", cls: "bg-secondary text-white", eyeEnabled: true };
           }
           if (Number(gain) > 0) return { label: "Gagné", cls: "bg-success text-white", eyeEnabled: true };
           return { label: "Perdu", cls: "bg-warning text-dark", eyeEnabled: true };
