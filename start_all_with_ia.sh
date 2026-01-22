@@ -127,6 +127,36 @@ open_browser() {
   fi
 }
 
+start_ollama() {
+  echo "==> Ollama"
+
+  # ollama installé ?
+  if ! command -v ollama >/dev/null 2>&1; then
+    echo "   ⚠️ Ollama non installé (skip)"
+    return 0
+  fi
+
+  # déjà en écoute sur 11434 ?
+  if lsof -i :11434 >/dev/null 2>&1; then
+    echo "   ✅ Ollama déjà actif"
+    return 0
+  fi
+
+  # lancement
+  nohup ollama serve >/tmp/ollama.log 2>&1 & disown
+  sleep 1
+
+  if lsof -i :11434 >/dev/null 2>&1; then
+    echo "   ✅ Ollama lancé"
+  else
+    echo "   ❌ Ollama n’a pas démarré (voir /tmp/ollama.log)"
+  fi
+}
+
+source .venv/bin/activate
+# add in .venv if ia service don't work
+# pip install "fastapi[standard]" uvicorn httpx pymongo python-dotenv
+
 start_ai_service() {
   echo "==> AI service (8090)"
 
@@ -162,7 +192,7 @@ if ! lsof -i :"$PORT_STATIC" >/dev/null 2>&1; then
     >/tmp/static_http.log 2>&1 & disown)
 fi
 
-open_browser "http://localhost:$PORT_STATIC/"
+# open_browser "http://localhost:$PORT_STATIC/"
 
 echo "==> Build Spring Boot"
 mvn clean install
@@ -181,6 +211,7 @@ done
 
 open_browser "http://localhost:$PORT_SPRING/swagger-ui/index.html"
 
+start_ollama        # 🔥 sécurisé maintenant
 start_ai_service
 
 echo "==> Refresh du front quand Spring est prêt"

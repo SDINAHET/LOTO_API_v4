@@ -248,7 +248,7 @@ if ! lsof -i :"$PORT_STATIC" >/dev/null 2>&1; then
   (cd "$STATIC_DIR" && nohup python3 -m http.server "$PORT_STATIC" \
     >/tmp/static_http.log 2>&1 & disown)
 fi
-open_browser "http://localhost:$PORT_STATIC/"
+# open_browser "http://localhost:$PORT_STATIC/"
 
 echo "==> Build Spring Boot"
 mvn clean install

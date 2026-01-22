@@ -405,6 +405,31 @@
       }
       .gain-status-line{ gap:10px; }
     }
+
+    /* Pagination : petit contour bleu pâle au hover/focus */
+    .pagination .page-link{
+      transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+    }
+
+    .pagination .page-link:hover{
+      border-color: rgba(96,165,250,.55) !important;           /* bleu pâle */
+      box-shadow: 0 0 0 .18rem rgba(96,165,250,.12) !important; /* halo léger */
+      background: rgba(255,255,255,.08) !important;
+    }
+
+    /* Focus clavier (tab) */
+    .pagination .page-link:focus,
+    .pagination .page-link:focus-visible{
+      outline: none !important;
+      border-color: rgba(96,165,250,.65) !important;
+      box-shadow: 0 0 0 .22rem rgba(96,165,250,.16) !important;
+    }
+
+    /* Optionnel : sur l'actif, un contour un poil plus marqué */
+    .pagination .page-item.active .page-link{
+      box-shadow: 0 0 0 .22rem rgba(96,165,250,.18) !important;
+    }
+
   </style>
 </head>
 
